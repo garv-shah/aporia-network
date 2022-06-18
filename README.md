@@ -27,7 +27,7 @@ individual functionality of certain features. Skip to any section as you like to
 
 ### Theming
 
-The Nova System follows the [Material UI](https://material.io/design) design standard, utilising a combination of
+The Maths Club App follows the [Material UI](https://material.io/design) design standard, utilising a combination of
 Flutter's built in theming tools, and the [Adaptive Theme](https://pub.dev/packages/adaptive_theme) package to handle
 light and dark mode changes.
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1001095842193",
+    "project_id": "cgs-maths-club",
+    "storage_bucket": "cgs-maths-club.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001095842193:android:356bf89f97b5996436b230",
+        "android_client_info": {
+          "package_name": "com.garv.maths_club"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1ApAhNWmHqgHKxaDEs2cvPe7W8IXGoEs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
