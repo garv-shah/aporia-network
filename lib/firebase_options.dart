@@ -26,16 +26,6 @@ class DefaultFirebaseOptions {
         return ios;
       case TargetPlatform.macOS:
         return macos;
-      case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -45,16 +35,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBlghGm4XrM9js7nXyENPW7oAtrxlq0xYw',
-    appId: '1:1001095842193:web:7c3413d37d04c61836b230',
+    appId: '1:1001095842193:web:7a0b801a33cba8a036b230',
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     authDomain: 'cgs-maths-club.firebaseapp.com',
     storageBucket: 'cgs-maths-club.appspot.com',
+    measurementId: 'G-G2N6713YRE',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC1ApAhNWmHqgHKxaDEs2cvPe7W8IXGoEs',
-    appId: '1:1001095842193:android:356bf89f97b5996436b230',
+    appId: '1:1001095842193:android:7a585f439694cb7536b230',
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     storageBucket: 'cgs-maths-club.appspot.com',
@@ -62,7 +53,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAD2RCwFYf1KC5mJZrByzNn0Unz8L6bfgg',
-    appId: '1:1001095842193:ios:fea8fa6d60f98e1136b230',
+    appId: '1:1001095842193:ios:9cd7842962d28fd336b230',
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     storageBucket: 'cgs-maths-club.appspot.com',
@@ -72,7 +63,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAD2RCwFYf1KC5mJZrByzNn0Unz8L6bfgg',
-    appId: '1:1001095842193:ios:fea8fa6d60f98e1136b230',
+    appId: '1:1001095842193:ios:9cd7842962d28fd336b230',
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     storageBucket: 'cgs-maths-club.appspot.com',

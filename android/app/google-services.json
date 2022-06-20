@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1001095842193:android:356bf89f97b5996436b230",
+        "mobilesdk_app_id": "1:1001095842193:android:7a585f439694cb7536b230",
         "android_client_info": {
           "package_name": "com.garv.maths_club"
         }
@@ -29,6 +29,13 @@
             {
               "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1001095842193-2kok9bf0h05l17lc7d28f7305j4k3dpm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.garv.mathsClubApp"
+              }
             }
           ]
         }

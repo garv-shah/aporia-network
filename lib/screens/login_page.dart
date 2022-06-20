@@ -10,21 +10,25 @@ SignInScreen LoginPage() {
   return SignInScreen(
     actions: [
       ForgotPasswordAction((context, email) {
-        Navigator.push(context, MaterialPageRoute<void>(
-          builder: (BuildContext context) => ForgotPasswordScreen(
-            email: email,
-            headerMaxExtent: 200,
-            headerBuilder: headerIcon(Icons.lock),
-            sideBuilder: sideIcon(Icons.lock),
-          ),
-        ));
+        Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => ForgotPasswordScreen(
+                email: email,
+                headerMaxExtent: 200,
+                headerBuilder: headerIcon(Icons.lock),
+                sideBuilder: sideIcon(Icons.lock),
+              ),
+            ));
       }),
     ],
     providerConfigs: [
       const EmailProviderConfiguration(),
       GoogleProviderConfiguration(
-        clientId: getClientID(),
-      ),
+          clientId: getClientID(),
+          scopes: ['profile', 'email'],
+          redirectUri:
+              'https://cgs-maths-club.firebaseapp.com/__/auth/handler'),
       const AppleProviderConfiguration(),
     ],
     headerBuilder: (context, constraints, _) {
@@ -37,7 +41,7 @@ SignInScreen LoginPage() {
               SizedBox(
                 width: 60,
                 child: SvgPicture.asset('assets/app_icon.svg',
-                    semanticsLabel: 'maths_club System logo'),
+                    semanticsLabel: 'Maths Club Logo'),
               ),
               const SizedBox(width: 15),
               SizedBox(
@@ -47,9 +51,9 @@ SignInScreen LoginPage() {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      "The maths_club System",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 32),
+                      "Maths Club",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
                     ),
                   ),
                 ),

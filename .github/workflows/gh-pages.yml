@@ -1,0 +1,23 @@
+name: Gh-Pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2 # Only works with v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '3.0.x'
+          channel: 'stable'
+      - run: flutter clean
+      - uses: bluefireteam/flutter-gh-pages@v7
+        with:
+          baseHref: /app/

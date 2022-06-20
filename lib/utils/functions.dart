@@ -10,7 +10,7 @@ HeaderBuilder headerImage(String assetName) {
       padding: const EdgeInsets.all(20),
       child: SvgPicture.asset(
           assetName,
-          semanticsLabel: 'maths_club System logo'
+          semanticsLabel: 'Maths Club Logo'
       ),
     );
   };
@@ -38,7 +38,7 @@ SideBuilder sideImage(String assetName) {
         padding: EdgeInsets.all(constraints.maxWidth / 4),
         child: SvgPicture.asset(
           assetName,
-          semanticsLabel: 'maths_club System logo'
+          semanticsLabel: 'Maths Club Logo'
       ),
       ),
     );
@@ -62,15 +62,15 @@ SideBuilder sideIcon(IconData icon) {
 /// gets the firebase app id for the current user's platform
 String getClientID() {
   if (kIsWeb) {
-    return '9939219864-s86mneko4kqcpfn1uqu7ka8eft6b09vr.apps.googleusercontent.com';
+    return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
   }
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return '9939219864-4u6unhlaebgq3tu8kahenhu64oe4i2dp.apps.googleusercontent.com';
+      return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
     case TargetPlatform.iOS:
-      return '9939219864-r3ekp661b5q5ia69pmrfakvj8ajc1e9d.apps.googleusercontent.com';
+      return '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com';
     case TargetPlatform.macOS:
-      return '9939219864-r3ekp661b5q5ia69pmrfakvj8ajc1e9d.apps.googleusercontent.com';
+      return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
     default:
       throw UnsupportedError(
         'There is no Sign-In ID for this platform.',
