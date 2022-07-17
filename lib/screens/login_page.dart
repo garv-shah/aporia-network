@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../utils/functions.dart';
+import '../utils/components.dart';
+import '../utils/login_functions.dart';
 
-// view documentation here: https://github.com/The-maths_club-System/maths_club_app/tree/feat-rewrite#login-page
+// View documentation here: https://github.com/cgs-math/app#login-page.
 
 SignInScreen LoginPage() {
   return SignInScreen(
@@ -32,36 +32,7 @@ SignInScreen LoginPage() {
       const AppleProviderConfiguration(),
     ],
     headerBuilder: (context, constraints, _) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.all(26.0),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 60,
-                child: SvgPicture.asset('assets/app_icon.svg',
-                    semanticsLabel: 'Maths Club Logo'),
-              ),
-              const SizedBox(width: 15),
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 130,
-                child: const Align(
-                  alignment: Alignment.centerLeft,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      "Maths Club",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return header("Maths Club", context);
     },
     sideBuilder: sideImage('assets/app_icon.svg'),
     subtitleBuilder: (context, action) {

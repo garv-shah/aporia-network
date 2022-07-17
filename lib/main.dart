@@ -5,10 +5,10 @@ import 'package:maths_club/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-// view documentation here: https://github.com/The-maths_club-System/maths_club_app/tree/feat-rewrite#adaptive-theme
+// View documentation here: https://github.com/cgs-math/app#adaptive-theme.
 
 void main() async {
-  // initialise firebase
+  // Initialises Firebase.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -19,7 +19,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // creates the app theming using the Adaptive Theme package
+  // Creates the app theming using the Adaptive Theme package.
   @override
   Widget build(BuildContext context) {
     return AdaptiveTheme(
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         title: 'CGS Maths Club',
         theme: theme,
         darkTheme: darkTheme,
-        home: const AuthGate(), // leads to the AuthGate, to handle user status
+        home: const AuthGate(), // Leads to the AuthGate, to handle user status.
       ),
     );
   }

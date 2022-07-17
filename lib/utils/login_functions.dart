@@ -3,20 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-/// creates the header for a login page using an image
+/// Creates the header for a login page using an image.
 HeaderBuilder headerImage(String assetName) {
   return (context, constraints, _) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: SvgPicture.asset(
-          assetName,
-          semanticsLabel: 'Maths Club Logo'
-      ),
+      child: SvgPicture.asset(assetName, semanticsLabel: 'Maths Club Logo'),
     );
   };
 }
 
-/// creates the header for a login page using an icon
+/// Creates the header for a login page using an icon.
 HeaderBuilder headerIcon(IconData icon) {
   return (context, constraints, shrinkOffset) {
     return Padding(
@@ -30,22 +27,19 @@ HeaderBuilder headerIcon(IconData icon) {
   };
 }
 
-/// creates the side image for a login page using an image
+/// Creates the side image for a login page using an image.
 SideBuilder sideImage(String assetName) {
   return (context, constraints) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(constraints.maxWidth / 4),
-        child: SvgPicture.asset(
-          assetName,
-          semanticsLabel: 'Maths Club Logo'
-      ),
+        child: SvgPicture.asset(assetName, semanticsLabel: 'Maths Club Logo'),
       ),
     );
   };
 }
 
-/// creates the side image for a login page using an icon
+/// Creates the side image for a login page using an icon.
 SideBuilder sideIcon(IconData icon) {
   return (context, constraints) {
     return Padding(
@@ -59,7 +53,7 @@ SideBuilder sideIcon(IconData icon) {
   };
 }
 
-/// gets the firebase app id for the current user's platform
+/// Gets the Firebase App ID for the current user's platform.
 String getClientID() {
   if (kIsWeb) {
     return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
