@@ -9,24 +9,47 @@ class AppThemes {
     primaryColorLight: Colors.black,
     primaryColor: const Color(0xfffcfcff),
     scaffoldBackgroundColor: const Color(0xfffcfcff),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        primary: Colors.deepPurpleAccent,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        primary: Colors.deepPurpleAccent,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.deepPurpleAccent,
+      ),
+    ),
     appBarTheme: AppBarTheme(
-      color: Colors.deepPurple.shade500,
+      color: Colors.deepPurple.shade400,
       elevation: 4,
       titleTextStyle: const TextStyle(
         color: Colors.white,
         fontSize: 20.0,
       ),
     ),
-    colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.deepPurple.shade500, brightness: Brightness.light),
-    textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.deepPurple.shade500),
     textTheme: const TextTheme(
-      headline1: TextStyle(color: Colors.black),
-      headline2: TextStyle(color: Colors.black),
-      headline3: TextStyle(color: Colors.black),
-      headline4: TextStyle(color: Colors.black),
-      bodyText2: TextStyle(color: Colors.black),
-      subtitle1: TextStyle(color: Colors.black),
+        headline1: TextStyle(color: Colors.black),
+        headline2: TextStyle(color: Colors.black),
+        headline3: TextStyle(color: Colors.black),
+        headline4: TextStyle(color: Colors.black),
+        bodyText2: TextStyle(color: Colors.black),
+        subtitle1: TextStyle(color: Colors.black),
+        button: TextStyle(color: Colors.deepPurpleAccent)),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.deepPurpleAccent),
+        borderRadius: BorderRadius.circular(8),
+      ),
     ),
+    colorScheme: ColorScheme.fromSwatch().copyWith(
+        primary: Colors.deepPurpleAccent,
+        secondary: Colors.deepPurpleAccent,
+        brightness: Brightness.light),
   );
 
   /// dark mode theme
@@ -45,6 +68,7 @@ class AppThemes {
     ),
     colorScheme: ColorScheme.fromSwatch()
         .copyWith(secondary: Colors.indigoAccent, brightness: Brightness.dark),
-    textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.indigoAccent),
+    textSelectionTheme:
+        const TextSelectionThemeData(cursorColor: Colors.indigoAccent),
   );
 }

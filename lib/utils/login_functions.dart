@@ -20,7 +20,7 @@ HeaderBuilder headerIcon(IconData icon) {
       padding: const EdgeInsets.all(20).copyWith(top: 40),
       child: Icon(
         icon,
-        color: Colors.blue,
+        color: Colors.deepPurpleAccent,
         size: constraints.maxWidth / 4 * (1 - shrinkOffset),
       ),
     );
@@ -46,7 +46,7 @@ SideBuilder sideIcon(IconData icon) {
       padding: const EdgeInsets.all(20),
       child: Icon(
         icon,
-        color: Colors.blue,
+        color: Colors.deepPurpleAccent,
         size: constraints.maxWidth / 3,
       ),
     );
