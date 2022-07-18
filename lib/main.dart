@@ -13,11 +13,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(const MathsClubApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MathsClubApp extends StatelessWidget {
+  const MathsClubApp({Key? key}) : super(key: key);
 
   // Creates the app theming using the Adaptive Theme package.
   @override

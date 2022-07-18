@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterfire_ui/auth.dart';
+import 'package:maths_club/screens/section.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../utils/components.dart';
@@ -19,7 +21,7 @@ enum PositionPadding {
 }
 
 /// Creates cards within horizontal carousel that complete an action.
-Widget actionCard(
+Widget actionCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
     required IconData icon,
     required String text}) {
@@ -30,20 +32,29 @@ Widget actionCard(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15)),
       ),
-      child: SizedBox(
-        height: 151,
-        width: 151,
-        child: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.deepPurpleAccent.shade400, size: 100),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(text),
-            )
-          ],
-        )),
+      child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
+        splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+        highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+        onTap: () {
+          debugPrint('Received click');
+        },
+        child: SizedBox(
+          height: 151,
+          width: 151,
+          child: Center(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon,
+                  color: Theme.of(context).colorScheme.primary, size: 100),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(text),
+              )
+            ],
+          )),
+        ),
       ),
     ),
   );
@@ -63,26 +74,137 @@ Widget sectionCard(BuildContext context, String title) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(title, style: Theme.of(context).textTheme.headline4),
+            Text(title,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4
+                    ?.copyWith(color: Theme.of(context).primaryColorLight)),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: OutlinedButton(
                   onPressed: () {
-                    debugPrint('Received click');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SectionPage()),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
-                      primary: Colors.deepPurpleAccent,
-                      side: const BorderSide(color: Colors.deepPurpleAccent),
+                      primary: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary),
                       minimumSize: const Size(double.infinity, 40),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       )),
-                  child: const Text(
+                  child: Text(
                     'View Posts',
-                    style: TextStyle(color: Colors.deepPurpleAccent),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   )),
             )
           ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// Creates card with a summary of a user's information.
+Widget userInfo(BuildContext context,
+    {required String username,
+    required String level,
+    required double experience,
+    ImageProvider<Object>? profilePicture}) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
+    child: Card(
+      elevation: 5,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+      ),
+      child: SizedBox(
+        height: 175,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(username,
+                        style: Theme.of(context).textTheme.headline4?.copyWith(
+                            color: Theme.of(context).primaryColorLight)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Level',
+                            style: Theme.of(context).textTheme.subtitle1),
+                        Text(
+                          level,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline6
+                              ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Experience',
+                            style: Theme.of(context).textTheme.subtitle1),
+                        Text(
+                          "${experience.toInt()}/4000",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline6
+                              ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: SleekCircularSlider(
+                  appearance: CircularSliderAppearance(
+                      angleRange: 360.0,
+                      startAngle: 0.0,
+                      customWidths: CustomSliderWidths(
+                          trackWidth: 15,
+                          progressBarWidth: 15,
+                          handlerSize: 0,
+                          shadowWidth: 16),
+                      customColors: CustomSliderColors(
+                          trackColor:
+                              Theme.of(context).primaryColorLight.withAlpha(25),
+                          progressBarColors: [
+                            Theme.of(context).colorScheme.secondary,
+                            Theme.of(context).colorScheme.primary
+                          ])),
+                  innerWidget: (double percentage) {
+                    return Center(
+                        child: (profilePicture == null)
+                            ? const UserAvatar()
+                            : CircleAvatar(
+                                backgroundImage: profilePicture,
+                                radius: 48.5,
+                              ));
+                  },
+                  min: 0,
+                  max: 4000,
+                  initialValue: experience,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -105,8 +227,7 @@ class HomePage extends StatelessWidget {
           onPressed: () {
             FirebaseAuth.instance.signOut();
           },
-          child: const Icon(Icons.logout)
-      ),
+          child: const Icon(Icons.logout)),
 
       /// main body
       body: Column(
@@ -124,103 +245,13 @@ class HomePage extends StatelessWidget {
               padding: EdgeInsets.zero,
               children: [
                 /// user info display
-                Padding(
-                  padding: EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15)),
-                    ),
-                    child: SizedBox(
-                      height: 175,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  12.0, 6.0, 12.0, 6.0),
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Garv",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline4),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Level',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle1),
-                                      Text(
-                                        '3',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline6?.copyWith(color: Colors.deepPurpleAccent),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Experience',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subtitle1),
-                                      Text(
-                                        '2418/4000',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline6?.copyWith(color: Colors.deepPurpleAccent),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: SleekCircularSlider(
-                                appearance: CircularSliderAppearance(
-                                    angleRange: 360.0,
-                                    startAngle: 0.0,
-                                    customWidths: CustomSliderWidths(
-                                        trackWidth: 15,
-                                        progressBarWidth: 15,
-                                        handlerSize: 0,
-                                        shadowWidth: 16),
-                                    customColors: CustomSliderColors(
-                                        trackColor:
-                                            Color.fromARGB(255, 220, 220, 220),
-                                        progressBarColor:
-                                            Colors.deepPurpleAccent)),
-                                innerWidget: (double percentage) {
-                                  return const Center(
-                                      child: CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                      "assets/profile.gif",
-                                    ),
-                                    radius: 48.5,
-                                  ));
-                                },
-                                min: 0,
-                                max: 4000,
-                                initialValue: 2418,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                userInfo(context,
+                    username: "Garv",
+                    level: "3",
+                    experience: 2418,
+                    profilePicture: const AssetImage(
+                      "assets/profile.gif",
+                    )),
 
                 /// horizontal carousel for actions
                 SizedBox(
@@ -230,15 +261,16 @@ class HomePage extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
                       children: [
-                        actionCard(
+                        actionCard(context,
                             icon: Icons.people,
                             text: "Leaderboards",
                             position: PositionPadding.start),
-                        actionCard(
+                        actionCard(context,
                             icon: Icons.admin_panel_settings,
                             text: "Admin View"),
-                        actionCard(icon: Icons.create, text: "Create Post"),
-                        actionCard(
+                        actionCard(context,
+                            icon: Icons.create, text: "Create Post"),
+                        actionCard(context,
                             icon: Icons.settings,
                             text: "Settings",
                             position: PositionPadding.end),

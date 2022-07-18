@@ -16,8 +16,8 @@ SignInScreen LoginPage() {
               builder: (BuildContext context) => ForgotPasswordScreen(
                 email: email,
                 headerMaxExtent: 200,
-                headerBuilder: headerIcon(Icons.lock),
-                sideBuilder: sideIcon(Icons.lock),
+                headerBuilder: headerIcon(context, Icons.lock),
+                sideBuilder: sideIcon(context, Icons.lock),
               ),
             ));
       }),

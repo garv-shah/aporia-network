@@ -14,13 +14,13 @@ HeaderBuilder headerImage(String assetName) {
 }
 
 /// Creates the header for a login page using an icon.
-HeaderBuilder headerIcon(IconData icon) {
+HeaderBuilder headerIcon(BuildContext context, IconData icon) {
   return (context, constraints, shrinkOffset) {
     return Padding(
       padding: const EdgeInsets.all(20).copyWith(top: 40),
       child: Icon(
         icon,
-        color: Colors.deepPurpleAccent,
+        color: Theme.of(context).colorScheme.primary,
         size: constraints.maxWidth / 4 * (1 - shrinkOffset),
       ),
     );
@@ -40,13 +40,13 @@ SideBuilder sideImage(String assetName) {
 }
 
 /// Creates the side image for a login page using an icon.
-SideBuilder sideIcon(IconData icon) {
+SideBuilder sideIcon(BuildContext context, IconData icon) {
   return (context, constraints) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Icon(
         icon,
-        color: Colors.deepPurpleAccent,
+        color: Theme.of(context).colorScheme.primary,
         size: constraints.maxWidth / 3,
       ),
     );

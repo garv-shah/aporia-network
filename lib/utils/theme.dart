@@ -32,14 +32,8 @@ class AppThemes {
         fontSize: 20.0,
       ),
     ),
-    textTheme: const TextTheme(
-        headline1: TextStyle(color: Colors.black),
-        headline2: TextStyle(color: Colors.black),
-        headline3: TextStyle(color: Colors.black),
-        headline4: TextStyle(color: Colors.black),
-        bodyText2: TextStyle(color: Colors.black),
-        subtitle1: TextStyle(color: Colors.black),
-        button: TextStyle(color: Colors.deepPurpleAccent)),
+    textTheme:
+        const TextTheme(button: TextStyle(color: Colors.deepPurpleAccent)),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
         borderSide: const BorderSide(color: Colors.deepPurpleAccent),
@@ -48,7 +42,7 @@ class AppThemes {
     ),
     colorScheme: ColorScheme.fromSwatch().copyWith(
         primary: Colors.deepPurpleAccent,
-        secondary: Colors.deepPurpleAccent,
+        secondary: Colors.deepPurple,
         brightness: Brightness.light),
   );
 
@@ -57,7 +51,23 @@ class AppThemes {
     backgroundColor: Colors.black,
     primaryColorLight: const Color(0xfffcfcff),
     primaryColor: Colors.black,
-    scaffoldBackgroundColor: const Color(0xff161B33),
+    scaffoldBackgroundColor: const Color(0xff12162B),
+    cardColor: const Color(0xff1F2547),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        primary: Colors.indigoAccent,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        primary: Colors.indigoAccent,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.indigoAccent,
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       color: Color(0xff0D0C1D),
       elevation: 4,
@@ -66,9 +76,17 @@ class AppThemes {
         fontSize: 20.0,
       ),
     ),
-    colorScheme: ColorScheme.fromSwatch()
-        .copyWith(secondary: Colors.indigoAccent, brightness: Brightness.dark),
-    textSelectionTheme:
-        const TextSelectionThemeData(cursorColor: Colors.indigoAccent),
+    textTheme:
+    const TextTheme(button: TextStyle(color: Colors.indigoAccent)),
+    inputDecorationTheme: InputDecorationTheme(
+      border: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.indigoAccent),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    colorScheme: ColorScheme.fromSwatch().copyWith(
+        primary: Colors.indigoAccent,
+        secondary: Colors.indigo,
+        brightness: Brightness.dark),
   );
 }
