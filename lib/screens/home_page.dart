@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:maths_club/screens/section.dart';
+import 'package:maths_club/screens/section_page.dart';
+import 'package:maths_club/screens/settings_page.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import '../utils/components.dart';
@@ -24,7 +25,8 @@ enum PositionPadding {
 Widget actionCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
     required IconData icon,
-    required String text}) {
+    required String text,
+    Widget? navigateTo}) {
   return Padding(
     padding: position.padding,
     child: Card(
@@ -37,7 +39,14 @@ Widget actionCard(BuildContext context,
         splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
         highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
         onTap: () {
-          debugPrint('Received click');
+          if (navigateTo != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => navigateTo),
+            );
+          } else {
+            debugPrint("action button clicked!");
+          }
         },
         child: SizedBox(
           height: 151,
@@ -109,6 +118,45 @@ Widget sectionCard(BuildContext context, String title) {
   );
 }
 
+/// progress bar rings around user profile picture
+Widget userRings(BuildContext context,
+    {required double experience,
+      ImageProvider<Object>? profilePicture}) {
+  return SleekCircularSlider(
+    appearance: CircularSliderAppearance(
+        angleRange: 360.0,
+        startAngle: 0.0,
+        customWidths: CustomSliderWidths(
+            trackWidth: 15,
+            progressBarWidth: 15,
+            handlerSize: 0,
+            shadowWidth: 16),
+        customColors: CustomSliderColors(
+            trackColor:
+            Theme.of(context).primaryColorLight.withAlpha(25),
+            progressBarColors: [
+              Theme.of(context).colorScheme.secondary,
+              Theme.of(context).colorScheme.primary
+            ])),
+    innerWidget: (double percentage) {
+      return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Center(
+              child: (profilePicture == null)
+                  ? const UserAvatar()
+                  : CircleAvatar(
+                backgroundImage: profilePicture,
+                radius: constraints.maxWidth/2 - 15,
+              ));
+        },
+      );
+    },
+    min: 0,
+    max: 4000,
+    initialValue: experience,
+  );
+}
+
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
     {required String username,
@@ -172,35 +220,11 @@ Widget userInfo(BuildContext context,
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: SleekCircularSlider(
-                  appearance: CircularSliderAppearance(
-                      angleRange: 360.0,
-                      startAngle: 0.0,
-                      customWidths: CustomSliderWidths(
-                          trackWidth: 15,
-                          progressBarWidth: 15,
-                          handlerSize: 0,
-                          shadowWidth: 16),
-                      customColors: CustomSliderColors(
-                          trackColor:
-                              Theme.of(context).primaryColorLight.withAlpha(25),
-                          progressBarColors: [
-                            Theme.of(context).colorScheme.secondary,
-                            Theme.of(context).colorScheme.primary
-                          ])),
-                  innerWidget: (double percentage) {
-                    return Center(
-                        child: (profilePicture == null)
-                            ? const UserAvatar()
-                            : CircleAvatar(
-                                backgroundImage: profilePicture,
-                                radius: 48.5,
-                              ));
-                  },
-                  min: 0,
-                  max: 4000,
-                  initialValue: experience,
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: 125,
+                    height: 125,
+                    child: userRings(context, experience: experience, profilePicture: profilePicture)
                 ),
               ),
             ],
@@ -273,6 +297,13 @@ class HomePage extends StatelessWidget {
                         actionCard(context,
                             icon: Icons.settings,
                             text: "Settings",
+                            navigateTo: SettingsPage(username: "Garv",
+                                level: "3",
+                                experience: 2418,
+                                role: "Admin",
+                                profilePicture: const AssetImage(
+                                  "assets/profile.gif",
+                                )),
                             position: PositionPadding.end),
                       ],
                     ),

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'home.dart';
+import 'home_page.dart';
 import 'login_page.dart';
 
 // View documentation here: https://github.com/cgs-math/app#landing-page.
