@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
@@ -246,13 +246,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /// Floating Action Button to Logout
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-          },
-          child: const Icon(Icons.logout)),
-
       /// main body
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -288,6 +281,7 @@ class HomePage extends StatelessWidget {
                         actionCard(context,
                             icon: Icons.people,
                             text: "Leaderboards",
+                            navigateTo: Leaderboards(),
                             position: PositionPadding.start),
                         actionCard(context,
                             icon: Icons.admin_panel_settings,

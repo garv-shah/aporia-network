@@ -9,21 +9,6 @@ class AppThemes {
     primaryColorLight: Colors.black,
     primaryColor: const Color(0xfffcfcff),
     scaffoldBackgroundColor: const Color(0xfffcfcff),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        primary: Colors.deepPurpleAccent,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        primary: Colors.deepPurpleAccent,
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        primary: Colors.deepPurpleAccent,
-      ),
-    ),
     appBarTheme: AppBarTheme(
       color: Colors.deepPurple.shade400,
       elevation: 4,
@@ -53,21 +38,6 @@ class AppThemes {
     primaryColor: Colors.black,
     scaffoldBackgroundColor: const Color(0xff12162B),
     cardColor: const Color(0xff1F2547),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        primary: Colors.indigoAccent,
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        primary: Colors.indigoAccent,
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        primary: Colors.indigoAccent,
-      ),
-    ),
     appBarTheme: const AppBarTheme(
       color: Color(0xff0D0C1D),
       elevation: 4,

@@ -1,18 +1,18 @@
 import 'dart:typed_data';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/widgets/editable_image.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /**
  * The following section includes functions for the home page.
  */
 
 /// Creates card buttons within settings.
-Widget settingsCard(BuildContext context,
-    {required String text}) {
+Widget settingsCard(BuildContext context, {required String text, required Uri url}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
     child: Card(
@@ -24,20 +24,28 @@ Widget settingsCard(BuildContext context,
         borderRadius: const BorderRadius.all(Radius.circular(15)),
         splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
         highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
-        onTap: () {},
+        onTap: () {
+          launchUrl(url);
+        },
         child: SizedBox(
           height: 60,
           child: Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(text, style: Theme.of(context).textTheme.headline6)
-                ],
-              )),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(text, style: Theme.of(context).textTheme.headline6)
+            ],
+          )),
         ),
       ),
     ),
   );
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1)}";
+  }
 }
 
 /**
@@ -78,8 +86,7 @@ class SettingsPage extends StatelessWidget {
               Navigator.pop(context);
             }),
       ),
-      body: Center(
-        child: ListView(
+      body: ListView(
           children: [
             Padding(
               padding: const EdgeInsets.all(26.0),
@@ -95,7 +102,10 @@ class SettingsPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(username, style: Theme.of(context).textTheme.headline2?.copyWith(color: Theme.of(context).primaryColorLight, fontWeight: FontWeight.w300)),
+                Text(username,
+                    style: Theme.of(context).textTheme.headline2?.copyWith(
+                        color: Theme.of(context).primaryColorLight,
+                        fontWeight: FontWeight.w300)),
                 IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
               ],
             ),
@@ -122,33 +132,46 @@ class SettingsPage extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text('Level',
-                                      style: Theme.of(context).textTheme.subtitle1),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle1),
                                   Text(
                                     level,
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
                                         ?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 35, child: VerticalDivider(thickness: 2, color: Theme.of(context).primaryColorLight)),
+                            SizedBox(
+                                height: 35,
+                                child: VerticalDivider(
+                                    thickness: 2,
+                                    color:
+                                        Theme.of(context).primaryColorLight)),
                             Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text('Experience',
-                                      style: Theme.of(context).textTheme.subtitle1),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle1),
                                   Text(
                                     "${experience.toInt()}/4000",
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
                                         ?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                   ),
                                 ],
                               ),
@@ -163,12 +186,118 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            settingsCard(context, text: "Theme"),
-            settingsCard(context, text: "About"),
-            settingsCard(context, text: "GitHub"),
+            // This is the theme toggle.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
+              child: Card(
+                elevation: 5,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+                child: InkWell(
+                  borderRadius: const BorderRadius.all(Radius.circular(15)),
+                  splashColor:
+                      Theme.of(context).colorScheme.primary.withAlpha(40),
+                  highlightColor:
+                      Theme.of(context).colorScheme.primary.withAlpha(20),
+                  onTap: () {
+                    AdaptiveTheme.of(context).toggleThemeMode();
+                  },
+                  child: SizedBox(
+                    height: 60,
+                    child: Center(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ValueListenableBuilder(
+                          valueListenable:
+                              AdaptiveTheme.of(context).modeChangeNotifier,
+                          builder: (_, mode, child) {
+                            // update your UI
+                            return RichText(
+                              text: TextSpan(
+                                text: 'Theme: ',
+                                style: Theme.of(context).textTheme.headline6,
+                                children: <TextSpan>[
+                                  TextSpan(text: mode.toString().split(".")[1]
+                                      .capitalize(), style: Theme.of(context).textTheme.headline6?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w300)),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    )),
+                  ),
+                ),
+              ),
+            ),
+            settingsCard(context, text: "About", url: Uri.parse("https://garv-shah.github.io")),
+            settingsCard(context, text: "GitHub", url: Uri.parse("https://github.com/cgs-math/app")),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: OutlinedButton(
+                          onPressed: () async {
+                            if (FirebaseAuth.instance.currentUser != null) {
+                              await FirebaseAuth.instance.currentUser?.delete().then((value) {
+                                Navigator.pop(context);
+                              });
+                            }
+                          },
+                          style: ButtonStyle(
+                            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                            backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6.0),
+                                    side: const BorderSide(color: Colors.red)
+                                )
+                            ),
+                          ),
+                          child: const Text('Delete Account'),
+                        ),
+                    ),
+                  ),
+                  SizedBox(
+                      height: 20,
+                      child: VerticalDivider(
+                          thickness: 1,
+                          color:
+                          Theme.of(context).primaryColorLight.withAlpha(100))),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: OutlinedButton(
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut().then((value) {
+                            Navigator.pop(context);
+                          });
+                        },
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  side: const BorderSide(color: Colors.red)
+                              )
+                          ),
+                        ),
+                        child: const Text('Logout'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
-      ),
     );
   }
 }
