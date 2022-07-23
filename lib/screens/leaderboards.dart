@@ -73,27 +73,23 @@ class Leaderboards extends StatelessWidget {
     return Scaffold(
       body: ListView(
         children: [
-          Column(
+          // header
+          Row(
             children: [
-              // header
-              Row(
-                children: [
-                  header("Leaderboards", context,
-                      fontSize: 30, backArrow: true),
-                ],
-              ),
-              // leaderboard entries
-              user(context, username: "Garv", position: 1, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 2, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 3, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 4, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 5, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 6, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 7, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 8, profilePicture: const AssetImage("assets/profile.gif")),
-              user(context, username: "Garv", position: 9, profilePicture: const AssetImage("assets/profile.gif")),
+              header("Leaderboards", context,
+                  fontSize: 30, backArrow: true),
             ],
-          )
+          ),
+          // leaderboard entries
+          user(context, username: "Garv", position: 1, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 2, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 3, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 4, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 5, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 6, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 7, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 8, profilePicture: const AssetImage("assets/profile.gif")),
+          user(context, username: "Garv", position: 9, profilePicture: const AssetImage("assets/profile.gif")),
         ],
       ),
     );

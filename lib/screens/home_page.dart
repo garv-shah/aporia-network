@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:maths_club/screens/create_post_view.dart';
 import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
@@ -94,7 +95,8 @@ Widget sectionCard(BuildContext context, String title) {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SectionPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const SectionPage()),
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -120,8 +122,7 @@ Widget sectionCard(BuildContext context, String title) {
 
 /// progress bar rings around user profile picture
 Widget userRings(BuildContext context,
-    {required double experience,
-      ImageProvider<Object>? profilePicture}) {
+    {required double experience, ImageProvider<Object>? profilePicture}) {
   return SleekCircularSlider(
     appearance: CircularSliderAppearance(
         angleRange: 360.0,
@@ -132,8 +133,7 @@ Widget userRings(BuildContext context,
             handlerSize: 0,
             shadowWidth: 16),
         customColors: CustomSliderColors(
-            trackColor:
-            Theme.of(context).primaryColorLight.withAlpha(25),
+            trackColor: Theme.of(context).primaryColorLight.withAlpha(25),
             progressBarColors: [
               Theme.of(context).colorScheme.secondary,
               Theme.of(context).colorScheme.primary
@@ -145,9 +145,9 @@ Widget userRings(BuildContext context,
               child: (profilePicture == null)
                   ? const UserAvatar()
                   : CircleAvatar(
-                backgroundImage: profilePicture,
-                radius: constraints.maxWidth/2 - 15,
-              ));
+                      backgroundImage: profilePicture,
+                      radius: constraints.maxWidth / 2 - 15,
+                    ));
         },
       );
     },
@@ -170,64 +170,84 @@ Widget userInfo(BuildContext context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15)),
       ),
-      child: SizedBox(
-        height: 175,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(username,
-                        style: Theme.of(context).textTheme.headline4?.copyWith(
-                            color: Theme.of(context).primaryColorLight)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Level',
-                            style: Theme.of(context).textTheme.subtitle1),
-                        Text(
-                          level,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Experience',
-                            style: Theme.of(context).textTheme.subtitle1),
-                        Text(
-                          "${experience.toInt()}/4000",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                  ],
+      child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
+        splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+        highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SettingsPage(
+                    username: "Garv",
+                    level: "3",
+                    experience: 2418,
+                    role: "Admin",
+                    profilePicture: const AssetImage(
+                      "assets/profile.gif",
+                    ))),
+          );
+        },
+        child: SizedBox(
+          height: 175,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(username,
+                          style: Theme.of(context).textTheme.headline4?.copyWith(
+                              color: Theme.of(context).primaryColorLight)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Level',
+                              style: Theme.of(context).textTheme.subtitle1),
+                          Text(
+                            level,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline6
+                                ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Experience',
+                              style: Theme.of(context).textTheme.subtitle1),
+                          Text(
+                            "${experience.toInt()}/4000",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline6
+                                ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: 125,
-                    height: 125,
-                    child: userRings(context, experience: experience, profilePicture: profilePicture)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                      width: 125,
+                      height: 125,
+                      child: userRings(context,
+                          experience: experience,
+                          profilePicture: profilePicture)),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -287,11 +307,14 @@ class HomePage extends StatelessWidget {
                             icon: Icons.admin_panel_settings,
                             text: "Admin View"),
                         actionCard(context,
-                            icon: Icons.create, text: "Create Post"),
+                            icon: Icons.create,
+                            text: "Create Post",
+                            navigateTo: CreatePost()),
                         actionCard(context,
                             icon: Icons.settings,
                             text: "Settings",
-                            navigateTo: SettingsPage(username: "Garv",
+                            navigateTo: SettingsPage(
+                                username: "Garv",
                                 level: "3",
                                 experience: 2418,
                                 role: "Admin",
