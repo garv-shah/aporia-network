@@ -9,6 +9,7 @@ class AppThemes {
       primaryColorLight: Colors.black,
       primaryColor: const Color(0xfffcfcff),
       scaffoldBackgroundColor: const Color(0xfffcfcff),
+      canvasColor: const Color(0xfffcfcff),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Colors.deepPurpleAccent,
         foregroundColor: Colors.white
@@ -55,6 +56,7 @@ class AppThemes {
     primaryColorLight: const Color(0xfffcfcff),
     primaryColor: Colors.black,
     scaffoldBackgroundColor: const Color(0xff12162B),
+    canvasColor: const Color(0xff12162B),
     cardColor: const Color(0xff1F2547),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: Colors.indigoAccent,
