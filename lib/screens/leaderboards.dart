@@ -64,7 +64,7 @@ Widget user(BuildContext context,
  * The following section includes the actual leaderboards page.
  */
 
-/// This is the main home page leading to other pages.
+/// This is the leaderboards page for rankings based on experience.
 class Leaderboards extends StatelessWidget {
   Leaderboards({Key? key}) : super(key: key);
 
