@@ -20,12 +20,10 @@ enum Position {
   bottomRight,
 }
 
-/// A powerful and fully customizable widget.
-/// It provides a custom widget to save time.
+/// A fork of the editable_image package for added flexibility.
 ///
-/// For example, almost in every "profile settings" interface,
-/// there is a profile image. Instead of writing from scratch,
-/// this widget can be used  and can save a lot of time.
+/// It can be used in profile picture or settings views to edit the image and
+/// update them on Firebase.
 class EditableImage extends StatelessWidget {
   const EditableImage({
     Key? key,

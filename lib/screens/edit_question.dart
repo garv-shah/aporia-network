@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:maths_club/utils/universal_ui/universal_ui.dart';
 
 import '../utils/components.dart';
 
 
-/**
- * The following section includes the actual home page.
- */
-
-/// This is the main home page leading to other pages.
-
+/// This is the page where questions can be edited.
+//ignore: must_be_immutable
 class EditQuestion extends StatefulWidget {
   String title;
   EditQuestion({Key? key, required this.title}) : super(key: key);
@@ -41,7 +36,6 @@ class _EditQuestionState extends State<EditQuestion> {
                 controller: _controller,
                 readOnly: false,
                 keyboardAppearance: Theme.of(context).brightness,
-                embedBuilder: defaultEmbedBuilderWeb,
               ),
             ),
             QuillToolbar.basic(

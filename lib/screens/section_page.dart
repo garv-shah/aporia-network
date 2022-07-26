@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maths_club/widgets/section_app_bar.dart';
 
-/**
- * The following section includes the actual home page.
- */
-
 /// An enum for the horizontal carousel that returns padding based on position.
 enum PositionPadding {
   start(EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0)),
@@ -84,7 +80,7 @@ Widget postCard(BuildContext context,
   );
 }
 
-/// This is the main home page leading to other pages.
+/// This is the section page which allows for access to quizzes and posts
 class SectionPage extends StatelessWidget {
   const SectionPage({Key? key}) : super(key: key);
 

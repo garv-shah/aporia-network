@@ -4,11 +4,11 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
-import 'package:maths_club/widgets/editable_image.dart';
+import 'package:maths_club/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /**
- * The following section includes functions for the home page.
+ * The following section includes functions for the settings page.
  */
 
 /// Creates card buttons within settings.
@@ -49,7 +49,7 @@ extension StringExtension on String {
 }
 
 /**
- * The following section includes the actual home page.
+ * The following section includes the actual settings page.
  */
 
 /// This is the main home page leading to other pages.

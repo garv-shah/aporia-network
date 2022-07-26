@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// A fork of AnimSearchBar to provide more control over the start and finish.
 class AnimSearchBar extends StatefulWidget {
   ///  width - double ,isRequired : Yes
   ///  textController - TextEditingController  ,isRequired : Yes

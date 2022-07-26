@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-import 'search_bar.dart';
+import '../screens/leaderboards.dart';
+import '../screens/settings_page.dart';
+import './forks/search_bar.dart';
 
 /// This is a widget that creates a custom app bar for the section view
+//ignore: must_be_immutable
 class SectionAppBar extends StatefulWidget {
   final TextEditingController searchController = TextEditingController();
+
+  // These are stateful booleans to control what the bar displays.
   bool hideTitle = false;
   bool fadeTitle = false;
 
@@ -25,18 +30,21 @@ class _SectionAppBarState extends State<SectionAppBar> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+      // This is the card that the whole app bar is inside.
       child: Card(
         elevation: 5,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         child: SizedBox(
-          // defines the height of the card for the app bar
+          // This defines the height of the card for the app bar.
           height: 50,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // this is the row with the back icon and the title
+              // This is the row with the back icon and the title.
+              // It has an animated opacity and visibility to control its
+              // presence through the stateful variables.
               AnimatedOpacity(
                 opacity: widget.fadeTitle ? 0.0 : 1.0,
                 duration: const Duration(milliseconds: 150),
@@ -60,6 +68,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
               // this is the row with the action icons
               Row(
                 children: [
+                  // This is the animated search bar, a fork of the package.
                   AnimSearchBar(
                     width: MediaQuery.of(context).size.width - 152,
                     textController: widget.searchController,
@@ -77,6 +86,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       await Future.delayed(const Duration(milliseconds: 350),
                           () {
                         setState(() {
+                          // Goes back to normal on submit.
                           widget.hideTitle = false;
                           widget.fadeTitle = false;
                         });
@@ -86,12 +96,15 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       await Future.delayed(const Duration(milliseconds: 350),
                           () {
                         setState(() {
+                          // Goes back to normal if back button press.
                           widget.hideTitle = false;
                           widget.fadeTitle = false;
                         });
                       });
                     },
                     onOpen: () async {
+                      // First fades the title away and then removes it from
+                      // the widget tree once the fade is complete.
                       setState(() {
                         widget.fadeTitle = true;
                       });
@@ -104,6 +117,8 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       });
                     },
                     onClose: () async {
+                      // Hides the keyboard and goes back to normal after a
+                      // delay.
                       FocusManager.instance.primaryFocus?.unfocus();
                       await Future.delayed(const Duration(milliseconds: 350),
                           () {
@@ -118,7 +133,12 @@ class _SectionAppBarState extends State<SectionAppBar> {
                   IconButton(
                       splashRadius: 20,
                       onPressed: () {
-                        debugPrint("Leaderboards Clicked");
+                        // Goes to the leaderboards when the icon is tapped.
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Leaderboards()),
+                        );
                       },
                       icon: Icon(Icons.people,
                           color: Theme.of(context)
@@ -130,8 +150,23 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
                     borderRadius: const BorderRadius.all(Radius.circular(50)),
                     onTap: () {
-                      debugPrint('Profile Image Clicked');
+                      // Goes to the settings page when the profile picture is
+                      // tapped.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SettingsPage(
+                                username: "Garv",
+                                level: "3",
+                                experience: 2418,
+                                role: "Admin",
+                                profilePicture: const AssetImage(
+                                  "assets/profile.gif",
+                                ))),
+                      );
                     },
+                    // If the profile picture exists, show it, if not show a
+                    // placeholder image.
                     child: (widget.profilePicture == null)
                         ? UserAvatar(
                             size: 25,

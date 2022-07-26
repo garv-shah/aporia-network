@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutterfire_ui/auth.dart';
 
+// All these functions are used in the login page as utility classes for their
+// respective task.
+
 /// Creates the header for a login page using an image.
 HeaderBuilder headerImage(String assetName) {
   return (context, constraints, _) {

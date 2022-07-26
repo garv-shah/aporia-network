@@ -44,8 +44,6 @@ dependencies:
   flutter_quill: ^5.2.5
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
-  universal_html: ^2.0.8
-  webviewx: ^0.2.1
 
 dependency_overrides:
   flutter_colorpicker:

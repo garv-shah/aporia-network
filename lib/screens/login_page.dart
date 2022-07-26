@@ -6,8 +6,15 @@ import '../utils/login_functions.dart';
 
 // View documentation here: https://github.com/cgs-math/app#login-page.
 
-SignInScreen LoginPage() {
+/// This is the login page for users.
+///
+/// Utilising the FlutterFire UI [SignInScreen] class, it handles all logins,
+/// registering and forgotten passwords.
+///
+/// More documentation can be viewed [here](https://github.com/cgs-math/app#login-page)
+SignInScreen loginPage() {
   return SignInScreen(
+    // These are actions such as forgot password.
     actions: [
       ForgotPasswordAction((context, email) {
         Navigator.push(
@@ -22,6 +29,7 @@ SignInScreen LoginPage() {
             ));
       }),
     ],
+    // These provide configuration for Sign-In providers.
     providerConfigs: [
       const EmailProviderConfiguration(),
       GoogleProviderConfiguration(
@@ -31,6 +39,8 @@ SignInScreen LoginPage() {
               'https://cgs-maths-club.firebaseapp.com/__/auth/handler'),
       const AppleProviderConfiguration(),
     ],
+    // Images and headers are built using the utility functions found in the
+    // login_functions file.
     headerBuilder: (context, constraints, _) {
       return header("Maths Club", context);
     },

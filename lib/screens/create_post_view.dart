@@ -58,6 +58,7 @@ Widget questionCard(BuildContext context,
     {required int questionNumber,
     required Animation<double> animation,
     Function? onDelete}) {
+  // SizeTransition to allow for animating the questionCard.
   return SizeTransition(
     sizeFactor: animation,
     child: Padding(
@@ -75,6 +76,7 @@ Widget questionCard(BuildContext context,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // The first row (title and delete button).
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 0.0),
                   child: Row(
@@ -90,9 +92,12 @@ Widget questionCard(BuildContext context,
                           overflow: TextOverflow.ellipsis),
                       IconButton(
                           onPressed: () {
+                            // Removes this item from the AnimatedList
                             AnimatedList.of(context).removeItem(
                                 questionNumber - 1, (context, animation) {
+                              // Calls the onDelete function if it exists.
                               onDelete?.call();
+                              // The temporary widget to display while deleting.
                               return questionCard(context,
                                   questionNumber: questionNumber,
                                   animation: animation);
@@ -103,10 +108,12 @@ Widget questionCard(BuildContext context,
                     ],
                   ),
                 ),
+                // The second row (page options).
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0.0, 0.0, 16.0, 8.0),
                   child: Row(
                     children: [
+                      // Question button.
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
@@ -130,7 +137,9 @@ Widget questionCard(BuildContext context,
                                   color: Theme.of(context).colorScheme.primary),
                             )),
                       ),
+                      // Spacer
                       const SizedBox(width: 12),
+                      // Solution button.
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
@@ -139,7 +148,7 @@ Widget questionCard(BuildContext context,
                                   MaterialPageRoute(
                                       builder: (context) => EditQuestion(
                                           title:
-                                          "Q${questionNumber.toString()} Solution")));
+                                              "Q${questionNumber.toString()} Solution")));
                             },
                             style: OutlinedButton.styleFrom(
                                 primary: Theme.of(context).colorScheme.primary,
@@ -154,7 +163,9 @@ Widget questionCard(BuildContext context,
                                   color: Theme.of(context).colorScheme.primary),
                             )),
                       ),
+                      // Spacer
                       const SizedBox(width: 12),
+                      // Hints button
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
@@ -163,7 +174,7 @@ Widget questionCard(BuildContext context,
                                   MaterialPageRoute(
                                       builder: (context) => EditQuestion(
                                           title:
-                                          "Q${questionNumber.toString()} Hints")));
+                                              "Q${questionNumber.toString()} Hints")));
                             },
                             style: OutlinedButton.styleFrom(
                                 primary: Theme.of(context).colorScheme.primary,
@@ -191,11 +202,10 @@ Widget questionCard(BuildContext context,
 }
 
 /**
- * The following section includes the actual home page.
+ * The following section includes the actual CreatePost page.
  */
 
-/// This is the main home page leading to other pages.
-
+/// This is the view where new posts can be created.
 class CreatePost extends StatefulWidget {
   const CreatePost({Key? key}) : super(key: key);
 
@@ -205,6 +215,7 @@ class CreatePost extends StatefulWidget {
 
 class _CreatePostState extends State<CreatePost> {
   bool createQuiz = true;
+  // Controllers for the date input range.
   TextEditingController dateInputStart = TextEditingController();
   TextEditingController dateInputEnd = TextEditingController();
   DateTimeRange? currentDateRange;
@@ -213,6 +224,7 @@ class _CreatePostState extends State<CreatePost> {
 
   @override
   void initState() {
+    // Clears date input range text.
     dateInputStart.text = "";
     dateInputEnd.text = "";
     currentDateRange = null;
@@ -231,14 +243,14 @@ class _CreatePostState extends State<CreatePost> {
         children: [
           header("Create Quiz/Post", context, fontSize: 20, backArrow: true),
           const SizedBox(height: 20),
-          // title
+          // title input
           const Padding(
             padding: EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
             child: TextField(
               decoration: InputDecoration(labelText: "Title"),
             ),
           ),
-          // description
+          // description input
           const Padding(
             padding: EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
             child: TextField(
@@ -266,6 +278,7 @@ class _CreatePostState extends State<CreatePost> {
                   initialDateRange: currentDateRange,
                   firstDate: DateTime(1950),
                   lastDate: DateTime(2100),
+                  // Overrides the theme of the picker to work with dark mode.
                   builder: (context, Widget? child) => Theme(
                     data: Theme.of(context).copyWith(
                         dialogBackgroundColor:
@@ -282,6 +295,7 @@ class _CreatePostState extends State<CreatePost> {
 
                 if (pickedRange != null) {
                   setState(() {
+                    // Sets the text input boxes to the selected range.
                     currentDateRange = pickedRange;
                     dateInputStart.text =
                         DateFormat('dd/MM/yyyy').format(pickedRange.start);
@@ -292,12 +306,15 @@ class _CreatePostState extends State<CreatePost> {
               },
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                // These two TextFields are just there for looks and cannot be
+                // interacted with, rather acting as buttons that upon up the
+                // DatePicker. This then writes it to their fields.
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        // Editing controller of this TextField.
                         controller: dateInputStart,
-                        //editing controller of this TextField
                         decoration: const InputDecoration(
                             labelText: "Start Date" //label text of field
                             ),
@@ -308,8 +325,8 @@ class _CreatePostState extends State<CreatePost> {
                     const SizedBox(width: 20),
                     Expanded(
                       child: TextField(
+                        // Editing controller of this TextField.
                         controller: dateInputEnd,
-                        //editing controller of this TextField
                         decoration: const InputDecoration(
                             labelText: "End Date" //label text of field
                             ),
@@ -322,7 +339,7 @@ class _CreatePostState extends State<CreatePost> {
               ),
             ),
           ),
-          // quiz title
+          // quiz title input
           Visibility(
             visible: createQuiz,
             child: const Padding(
@@ -332,7 +349,7 @@ class _CreatePostState extends State<CreatePost> {
               ),
             ),
           ),
-          // quiz description
+          // quiz description input
           Visibility(
             visible: createQuiz,
             child: const Padding(
@@ -365,6 +382,7 @@ class _CreatePostState extends State<CreatePost> {
                 child: SizedBox(
                   child: OutlinedButton(
                     onPressed: () {
+                      // This inserts a question into the animated list.
                       _animatedListKey.currentState?.insertItem(questionIndex);
                     },
                     style: ButtonStyle(
