@@ -66,7 +66,7 @@ Widget user(BuildContext context,
 
 /// This is the leaderboards page for rankings based on experience.
 class Leaderboards extends StatelessWidget {
-  Leaderboards({Key? key}) : super(key: key);
+  const Leaderboards({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
