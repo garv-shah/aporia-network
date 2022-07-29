@@ -50,14 +50,14 @@ moment.
 The login system is powered by Firebase and the [FlutterFire UI](https://pub.dev/packages/flutterfire_ui) package, which
 provides pre-built widgets and utilities which help integrate the login system with minimal setup.
 
-#### [Landing Page](lib/screens/landing_page.dart)
+#### [Landing Page](lib/screens/auth/landing_page.dart)
 
 After Firebase is initialised from the `main.dart` file, we are taken to the AuthGate class, residing in
 the `landing_page.dart` file. This essentially acts as a router and a gate to direct traffic based on the current user's
 status. The class listens to FirebaseAuth, and if the user is logged in, will send them to the home page, and if not,
 will send them to the login page.
 
-#### [Login Page](lib/screens/login_page.dart)
+#### [Login Page](lib/screens/auth/login_page.dart)
 
 As the name suggests, this page is made for log-ins of users, but also for creating new accounts and resetting
 passwords. The LoginPage function just returns an instance of SignInScreen, a class available from FlutterFire UI that

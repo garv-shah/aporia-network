@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:maths_club/screens/edit_question.dart';
 
 import '../utils/components.dart';

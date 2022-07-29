@@ -29,12 +29,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  adaptive_theme: ^3.1.0
-  flutterfire_ui: ^0.4.2+2
-  firebase_core: ^1.19.1
-  google_sign_in: ^5.3.3
+  adaptive_theme: ^3.1.1
+  flutterfire_ui: ^0.4.3+2
+  firebase_core: ^1.20.0
+  google_sign_in: ^5.4.0
   flutter_svg: ^1.1.1+1
-  firebase_auth: ^3.4.1
+  firebase_auth: ^3.6.0
   sleek_circular_slider: ^2.0.1
   file_selector: ^0.8.4+3
   image_picker: ^0.8.5+3
@@ -45,6 +45,7 @@ dependencies:
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^3.4.1
+  firebase_database_web: ^0.2.1+1
 
 dependency_overrides:
   flutter_colorpicker:

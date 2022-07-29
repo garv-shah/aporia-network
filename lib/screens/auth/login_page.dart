@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-import '../utils/components.dart';
-import '../utils/login_functions.dart';
+import '../../utils/components.dart';
+import '../../utils/login_functions.dart';
 
 // View documentation here: https://github.com/cgs-math/app#login-page.
 

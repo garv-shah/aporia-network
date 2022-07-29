@@ -1,6 +1,6 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/screens/landing_page.dart';
+import 'package:maths_club/screens/auth/landing_page.dart';
 import 'package:maths_club/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';

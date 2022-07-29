@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 Widget header(String title, BuildContext context,
     {double iconWidth = 80,
     double paddingWidth = 20,
-    double fontSize = 40,
+    double fontSize = 38,
     bool backArrow = false}) {
   return Padding(
     padding: const EdgeInsets.all(26.0),
