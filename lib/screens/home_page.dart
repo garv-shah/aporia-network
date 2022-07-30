@@ -1,12 +1,13 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:maths_club/screens/create_post_view.dart';
 import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
+import 'package:maths_club/utils/components.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-
-import '../utils/components.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /**
  * The following section includes functions for the home page.
@@ -71,7 +72,7 @@ Widget actionCard(BuildContext context,
 }
 
 /// Creates section based cards that lead to quizzes/posts.
-Widget sectionCard(BuildContext context, String title) {
+Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String title) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
     child: Card(
@@ -96,7 +97,7 @@ Widget sectionCard(BuildContext context, String title) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SectionPage()),
+                          builder: (context) => SectionPage(userData: userData)),
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -122,7 +123,7 @@ Widget sectionCard(BuildContext context, String title) {
 
 /// progress bar rings around user profile picture
 Widget userRings(BuildContext context,
-    {required double experience, ImageProvider<Object>? profilePicture}) {
+    {required double experience, required Widget profilePicture}) {
   return SleekCircularSlider(
     appearance: CircularSliderAppearance(
         angleRange: 360.0,
@@ -139,17 +140,7 @@ Widget userRings(BuildContext context,
               Theme.of(context).colorScheme.primary
             ])),
     innerWidget: (double percentage) {
-      return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Center(
-              child: (profilePicture == null)
-                  ? const UserAvatar()
-                  : CircleAvatar(
-                      backgroundImage: profilePicture,
-                      radius: constraints.maxWidth / 2 - 15,
-                    ));
-        },
-      );
+      return profilePicture;
     },
     min: 0,
     max: 4000,
@@ -159,10 +150,10 @@ Widget userRings(BuildContext context,
 
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
-    {required String username,
+    {required Map<String, dynamic> userData,
     required String level,
     required double experience,
-    ImageProvider<Object>? profilePicture}) {
+    required Widget profilePicture}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
     child: Card(
@@ -179,13 +170,10 @@ Widget userInfo(BuildContext context,
             context,
             MaterialPageRoute(
                 builder: (context) => SettingsPage(
-                    username: "Garv",
                     level: "3",
                     experience: 2418,
                     role: "Admin",
-                    profilePicture: const AssetImage(
-                      "assets/profile.gif",
-                    ))),
+                    userData: userData,)),
           );
         },
         child: SizedBox(
@@ -201,7 +189,7 @@ Widget userInfo(BuildContext context,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(username,
+                      Text(userData['username'],
                           style: Theme.of(context).textTheme.headline4?.copyWith(
                               color: Theme.of(context).primaryColorLight)),
                       Column(
@@ -255,16 +243,92 @@ Widget userInfo(BuildContext context,
   );
 }
 
+Widget fetchProfilePicture(String? profilePicture, String? username, {bool padding = true}) {
+  String imageUrl = profilePicture ?? "https://avatars.dicebear.com/api/avataaars/$username.svg";
+
+  if (imageUrl.isEmpty) {
+    return LayoutBuilder(
+        builder: (BuildContext context,
+            BoxConstraints constraints) {
+          return Center(
+            child: UserAvatar(size: padding ? constraints.maxHeight - (padding ? 10 : 0) : null),
+          );
+        }
+    );
+  } else if (imageUrl.split('.').last == 'svg') {
+    return Center(
+      child: Padding(
+        padding: padding ? const EdgeInsets.all(15.0) : EdgeInsets.zero,
+        child: ClipOval(
+          child: SvgPicture.network(
+            imageUrl,
+            semanticsLabel: '$username profile picture',
+            placeholderBuilder: (BuildContext context) => const SizedBox(
+                height: 30,
+                width: 30,
+                child: CircularProgressIndicator()),
+          ),
+        ),
+      ),
+    );
+  } else {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      imageBuilder: (context, imageProvider) =>
+          LayoutBuilder(
+              builder: (BuildContext context,
+                  BoxConstraints constraints) {
+                return Center(
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: imageProvider,
+                    radius: constraints.maxWidth / 2 - (padding ? 18 : 0),
+                  ),
+                );
+              }
+          ),
+      progressIndicatorBuilder: (context, url,
+          downloadProgress) =>
+          Center(
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: CircularProgressIndicator(value: downloadProgress
+                  .progress),
+            ),
+          ),
+      errorWidget: (context, url, error) =>
+          LayoutBuilder(
+              builder: (BuildContext context,
+                  BoxConstraints constraints) {
+                return Center(
+                  child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
+                );
+              }
+          ),
+    );
+  }
+}
+
 /**
  * The following section includes the actual home page.
  */
 
 /// This is the main home page leading to other pages.
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  final Map<String, dynamic> userData;
+  const HomePage({Key? key, required this.userData}) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+
+class _HomePageState extends State<HomePage> {
+  @override
   Widget build(BuildContext context) {
+    String username = widget.userData['username'] ?? "...";
+
     return Scaffold(
       /// main body
       body: Column(
@@ -283,12 +347,10 @@ class HomePage extends StatelessWidget {
               children: [
                 /// user info display
                 userInfo(context,
-                    username: "Garv",
+                    userData: widget.userData,
                     level: "3",
                     experience: 2418,
-                    profilePicture: const AssetImage(
-                      "assets/profile.gif",
-                    )),
+                    profilePicture: fetchProfilePicture(widget.userData['profilePicture'], username)),
 
                 /// horizontal carousel for actions
                 SizedBox(
@@ -314,13 +376,10 @@ class HomePage extends StatelessWidget {
                             icon: Icons.settings,
                             text: "Settings",
                             navigateTo: SettingsPage(
-                                username: "Garv",
+                                userData: widget.userData,
                                 level: "3",
                                 experience: 2418,
-                                role: "Admin",
-                                profilePicture: const AssetImage(
-                                  "assets/profile.gif",
-                                )),
+                                role: "Admin"),
                             position: PositionPadding.end),
                       ],
                     ),
@@ -328,8 +387,8 @@ class HomePage extends StatelessWidget {
                 ),
 
                 /// cards leading to individual sections
-                sectionCard(context, "Junior"),
-                sectionCard(context, "Senior"),
+                sectionCard(context, widget.userData, "Junior"),
+                sectionCard(context, widget.userData, "Senior"),
               ],
             ),
           )

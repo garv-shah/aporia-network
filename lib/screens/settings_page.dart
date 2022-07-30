@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /**
  * The following section includes functions for the settings page.
@@ -53,24 +54,29 @@ extension StringExtension on String {
  */
 
 /// This is the main home page leading to other pages.
-class SettingsPage extends StatelessWidget {
-  String username;
+class SettingsPage extends StatefulWidget {
   String level;
   double experience;
   String role;
-  ImageProvider<Object>? profilePicture;
+  final Map<String, dynamic> userData;
 
   SettingsPage(
       {Key? key,
-      required this.username,
       required this.level,
       required this.experience,
       required this.role,
-      this.profilePicture})
+      required this.userData})
       : super(key: key);
 
   @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  @override
   Widget build(BuildContext context) {
+    String username = widget.userData['username'] ?? "...";
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -93,8 +99,7 @@ class SettingsPage extends StatelessWidget {
               child: EditableImage(
                 isEditable: true,
                 onChange: (Uint8List file) {},
-                widgetDefault: userRings(context,
-                    experience: experience, profilePicture: profilePicture),
+                widgetDefault: fetchProfilePicture(widget.userData['profilePicture'], username, padding: false),
                 editIconBorder: Border.all(color: Colors.black87, width: 2.0),
                 size: 175,
               ),
@@ -136,7 +141,7 @@ class SettingsPage extends StatelessWidget {
                                           .textTheme
                                           .subtitle1),
                                   Text(
-                                    level,
+                                    widget.level,
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
@@ -164,7 +169,7 @@ class SettingsPage extends StatelessWidget {
                                           .textTheme
                                           .subtitle1),
                                   Text(
-                                    "${experience.toInt()}/4000",
+                                    "${widget.experience.toInt()}/4000",
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
@@ -178,7 +183,7 @@ class SettingsPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        Text(role, style: Theme.of(context).textTheme.subtitle1)
+                        Text(widget.role, style: Theme.of(context).textTheme.subtitle1)
                       ],
                     ),
                   ),

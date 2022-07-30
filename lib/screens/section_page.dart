@@ -81,9 +81,15 @@ Widget postCard(BuildContext context,
 }
 
 /// This is the section page which allows for access to quizzes and posts
-class SectionPage extends StatelessWidget {
-  const SectionPage({Key? key}) : super(key: key);
+class SectionPage extends StatefulWidget {
+  Map<String, dynamic> userData;
+  SectionPage({Key? key, required this.userData}) : super(key: key);
 
+  @override
+  State<SectionPage> createState() => _SectionPageState();
+}
+
+class _SectionPageState extends State<SectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,9 +99,7 @@ class SectionPage extends StatelessWidget {
           SectionAppBar(
             context,
             title: "Senior",
-            profilePicture: const AssetImage(
-              "assets/profile.gif",
-            ),
+            userData: widget.userData
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),

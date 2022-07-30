@@ -17,8 +17,13 @@ class SectionAppBar extends StatefulWidget {
   final String title;
   final ImageProvider<Object>? profilePicture;
 
+  Map<String, dynamic> userData;
+
   SectionAppBar(BuildContext context,
-      {Key? key, required this.title, this.profilePicture})
+      {Key? key,
+      required this.title,
+      this.profilePicture,
+      required this.userData})
       : super(key: key);
 
   @override
@@ -146,24 +151,23 @@ class _SectionAppBarState extends State<SectionAppBar> {
                               .withAlpha(100))),
                   const SizedBox(width: 8),
                   InkWell(
-                    splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
-                    highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+                    splashColor:
+                        Theme.of(context).colorScheme.primary.withAlpha(40),
+                    highlightColor:
+                        Theme.of(context).colorScheme.primary.withAlpha(20),
                     borderRadius: const BorderRadius.all(Radius.circular(50)),
                     onTap: () {
                       // Goes to the settings page when the profile picture is
                       // tapped.
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
+                          context,
+                          MaterialPageRoute(
                             builder: (context) => SettingsPage(
-                                username: "Garv",
                                 level: "3",
                                 experience: 2418,
                                 role: "Admin",
-                                profilePicture: const AssetImage(
-                                  "assets/profile.gif",
-                                ))),
-                      );
+                                userData: widget.userData),
+                          ));
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.

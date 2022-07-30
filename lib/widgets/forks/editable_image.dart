@@ -192,7 +192,7 @@ class EditableImage extends StatelessWidget {
   Container _buildImage() {
     return Container(
       decoration: BoxDecoration(
-        color: imageDefaultBackgroundColor ?? Colors.white,
+        color: imageDefaultBackgroundColor ?? Colors.transparent,
         border: imageBorder ?? const Border(),
         shape: BoxShape.circle,
       ),

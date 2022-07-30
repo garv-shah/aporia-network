@@ -2,9 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maths_club/screens/auth/register_page.dart';
-
-import '../home_page.dart';
-import '../login_page.dart';
+import 'package:maths_club/screens/auth/login_page.dart';
+import 'package:maths_club/screens/home_page.dart';
 
 // View documentation here: https://github.com/cgs-math/app#landing-page.
 
@@ -28,7 +27,8 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
   // If everything else is fine, go to the home page.
   if (userDataSnapshot.connectionState ==
       ConnectionState.active) {
-    return const HomePage();
+    Map<String, dynamic> userData = userDataSnapshot.data!.data() as Map<String, dynamic>;
+    return HomePage(userData: userData);
   }
 
   return const Scaffold(
@@ -71,6 +71,7 @@ class AuthGate extends StatelessWidget {
           return StreamBuilder<DocumentSnapshot>(
             stream: userInfo.doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
             builder: (BuildContext context, userDataSnapshot) {
+
               return AnimatedSwitcher(
                 transitionBuilder: (child, animation) {
                   const begin = Offset(1.0, 0.0);

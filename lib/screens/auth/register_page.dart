@@ -77,15 +77,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       formFieldKey.currentState?.validate() ?? false;
 
                   if (formIsValid) {
-                    FirebaseAuth.instance.currentUser?.updateDisplayName(username);
-                    FirebaseAuth.instance.currentUser?.updatePhotoURL(
-                        "https://avatars.dicebear.com/api/avataaars/$username.svg");
-
                     userInfo.doc(FirebaseAuth.instance.currentUser?.uid).set({
                       'email': FirebaseAuth.instance.currentUser?.email,
                       'username': username,
                       'lowerUsername': username.toLowerCase(),
-                      'receiveEmails': emailingList
+                      'receiveEmails': emailingList,
+                      'profilePicture': "https://avatars.dicebear.com/api/avataaars/$username.svg"
                     });
                   }
                 },
