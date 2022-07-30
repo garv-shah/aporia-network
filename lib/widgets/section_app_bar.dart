@@ -165,8 +165,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                             builder: (context) => SettingsPage(
                                 level: "3",
                                 experience: 2418,
-                                role: "Admin",
-                                userData: widget.userData),
+                                role: "Admin"),
                           ));
                     },
                     // If the profile picture exists, show it, if not show a

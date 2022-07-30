@@ -47,7 +47,7 @@ dependencies:
   cloud_firestore: ^3.4.1
   firebase_database_web: ^0.2.1+1
   cached_network_image: ^3.2.1
-  provider: ^6.0.3
+  cloud_functions: ^3.3.3
 
 dependency_overrides:
   flutter_colorpicker:

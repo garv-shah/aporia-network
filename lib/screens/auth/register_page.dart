@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maths_club/screens/create_post_view.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -18,6 +20,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   CollectionReference userInfo =
       FirebaseFirestore.instance.collection('userInfo');
+
+  final functions = FirebaseFunctions.instanceFor(region: 'australia-southeast1');
 
   @override
   Widget build(BuildContext context) {
@@ -70,19 +74,33 @@ class _RegisterPageState extends State<RegisterPage> {
                 onPressed: () async {
                   String username = _usernameController.text;
                   userInfoList = (await userInfo
-                          .where("lowerUsername", isEqualTo: username.toLowerCase())
+                          .where("lowerUsername",
+                              isEqualTo: username.toLowerCase())
                           .get())
                       .docs;
                   bool formIsValid =
                       formFieldKey.currentState?.validate() ?? false;
 
                   if (formIsValid) {
+                    try {
+                      await functions
+                          .httpsCallable('updateUsername')
+                          .call({'username': username});
+                    } on FirebaseFunctionsException catch (error) {
+                      if (kDebugMode) {
+                        print(error.code);
+                        print(error.details);
+                        print(error.message);
+                      }
+                    }
+
                     userInfo.doc(FirebaseAuth.instance.currentUser?.uid).set({
                       'email': FirebaseAuth.instance.currentUser?.email,
                       'username': username,
                       'lowerUsername': username.toLowerCase(),
                       'receiveEmails': emailingList,
-                      'profilePicture': "https://avatars.dicebear.com/api/avataaars/$username.svg"
+                      'profilePicture':
+                          "https://avatars.dicebear.com/api/avataaars/$username.svg"
                     });
                   }
                 },

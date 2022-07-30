@@ -172,8 +172,7 @@ Widget userInfo(BuildContext context,
                 builder: (context) => SettingsPage(
                     level: "3",
                     experience: 2418,
-                    role: "Admin",
-                    userData: userData,)),
+                    role: "Admin")),
           );
         },
         child: SizedBox(
@@ -282,7 +281,7 @@ Widget fetchProfilePicture(String? profilePicture, String? username, {bool paddi
                   child: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     backgroundImage: imageProvider,
-                    radius: constraints.maxWidth / 2 - (padding ? 18 : 0),
+                    radius: constraints.maxWidth / 2 - (padding ? 15 : 0),
                   ),
                 );
               }
@@ -376,7 +375,6 @@ class _HomePageState extends State<HomePage> {
                             icon: Icons.settings,
                             text: "Settings",
                             navigateTo: SettingsPage(
-                                userData: widget.userData,
                                 level: "3",
                                 experience: 2418,
                                 role: "Admin"),
