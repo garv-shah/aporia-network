@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 const admin = require('firebase-admin');
-admin.initializeApp();
+const app = admin.initializeApp();
 
 const db = admin.firestore();
 
@@ -34,7 +34,7 @@ exports.updateUsername = functions
         functions.logger.info(`Updating username for ${context.auth?.uid}`, {structuredData: true});
 
         // set displayName username
-        admin.auth().updateUser(context.auth!.uid, {
+        admin.auth(app).updateUser(context.auth!.uid, {
             displayName: username,
         })
 

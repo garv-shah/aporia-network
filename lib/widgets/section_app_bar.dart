@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 
+import '../screens/auth/landing_page.dart';
 import '../screens/leaderboards.dart';
 import '../screens/settings_page.dart';
 import './forks/search_bar.dart';
@@ -17,13 +18,10 @@ class SectionAppBar extends StatefulWidget {
   final String title;
   final ImageProvider<Object>? profilePicture;
 
-  Map<String, dynamic> userData;
-
   SectionAppBar(BuildContext context,
       {Key? key,
       required this.title,
-      this.profilePicture,
-      required this.userData})
+      this.profilePicture})
       : super(key: key);
 
   @override
@@ -139,11 +137,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       splashRadius: 20,
                       onPressed: () {
                         // Goes to the leaderboards when the icon is tapped.
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Leaderboards()),
-                        );
+                        AuthGate.of(context)?.push(Destination.leaderboards);
                       },
                       icon: Icon(Icons.people,
                           color: Theme.of(context)
@@ -159,14 +153,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     onTap: () {
                       // Goes to the settings page when the profile picture is
                       // tapped.
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsPage(
-                                level: "3",
-                                experience: 2418,
-                                role: "Admin"),
-                          ));
+                      AuthGate.of(context)?.push(Destination.settings, input: {'level': '3', 'experience': 2418.0, 'role': 'Admin'});
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.

@@ -3,12 +3,48 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maths_club/screens/auth/register_page.dart';
 import 'package:maths_club/screens/auth/login_page.dart';
+import 'package:maths_club/screens/create_post_view.dart';
+import 'package:maths_club/screens/edit_question.dart';
 import 'package:maths_club/screens/home_page.dart';
+import 'package:maths_club/screens/leaderboards.dart';
+import 'package:maths_club/screens/section_page.dart';
+import 'package:maths_club/screens/settings_page.dart';
 
 // View documentation here: https://github.com/cgs-math/app#landing-page.
 
-getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
+enum Destination {
+  home,
+  settings,
+  createPost,
+  editQuestion,
+  leaderboards,
+  section
+}
 
+getDestination(Destination destination, Map<String, dynamic> userData,
+    Map<String, dynamic> input) {
+  if (destination == Destination.settings) {
+    return SettingsPage(
+      level: input['level'],
+      experience: input['experience'],
+      role: input['role'],
+      userData: userData,
+    );
+  } else if (destination == Destination.createPost) {
+    return const CreatePost();
+  } else if (destination == Destination.editQuestion) {
+    return EditQuestion(title: input['title']);
+  } else if (destination == Destination.leaderboards) {
+    return const Leaderboards();
+  } else if (destination == Destination.section) {
+    return SectionPage();
+  } else {
+    return HomePage(userData: userData);
+  }
+}
+
+getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot,
+    Destination destination, Map<String, dynamic> input) {
   // If user data has an error.
   if (userDataSnapshot.hasError) {
     return Scaffold(
@@ -25,10 +61,10 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
   }
 
   // If everything else is fine, go to the home page.
-  if (userDataSnapshot.connectionState ==
-      ConnectionState.active) {
-    Map<String, dynamic> userData = userDataSnapshot.data!.data() as Map<String, dynamic>;
-    return HomePage(userData: userData);
+  if (userDataSnapshot.connectionState == ConnectionState.active) {
+    Map<String, dynamic> userData =
+        userDataSnapshot.data!.data() as Map<String, dynamic>;
+    return getDestination(destination, userData, input);
   }
 
   return const Scaffold(
@@ -42,8 +78,40 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
 /// respective page based on their status.
 ///
 /// More documentation can be viewed [here](https://github.com/cgs-math/app#landing-page)
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({Key? key}) : super(key: key);
+
+  static _AuthGateState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_AuthGateState>();
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  List<Destination> destination = [Destination.home];
+  List<Map<String, dynamic>> childInput = [{}];
+
+  push(Destination newDestination, {Map<String, dynamic>? input}) {
+    setState(() {
+      destination.add(newDestination);
+      childInput.add(input ?? {});
+    });
+  }
+
+  pop() {
+    setState(() {
+      destination.removeLast();
+      childInput.removeLast();
+    });
+  }
+
+  clearHistory() {
+    setState(() {
+      destination = [Destination.home];
+      childInput = [{}];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +134,14 @@ class AuthGate extends StatelessWidget {
 
         // User is signed in: user state has data
         if (authSnapshot.hasData) {
-          CollectionReference userInfo = FirebaseFirestore.instance.collection('userInfo');
+          CollectionReference userInfo =
+              FirebaseFirestore.instance.collection('userInfo');
 
           return StreamBuilder<DocumentSnapshot>(
-            stream: userInfo.doc(FirebaseAuth.instance.currentUser!.uid).snapshots(),
+            stream: userInfo
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .snapshots(),
             builder: (BuildContext context, userDataSnapshot) {
-
               return AnimatedSwitcher(
                 transitionBuilder: (child, animation) {
                   const begin = Offset(1.0, 0.0);
@@ -90,7 +160,8 @@ class AuthGate extends StatelessWidget {
                   );
                 },
                 duration: const Duration(milliseconds: 500),
-                child: getWidget(userDataSnapshot),
+                child: getWidget(
+                    userDataSnapshot, destination.last, childInput.last),
               );
             },
           );

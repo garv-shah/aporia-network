@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:maths_club/screens/edit_question.dart';
 
 import '../utils/components.dart';
+import 'auth/landing_page.dart';
 
 /**
  * The following section includes functions for the home page.
@@ -116,12 +117,7 @@ Widget questionCard(BuildContext context,
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditQuestion(
-                                          title:
-                                              "Question ${questionNumber.toString()}")));
+                              AuthGate.of(context)?.push(Destination.editQuestion, input: {'title': 'Question ${questionNumber.toString()}'});
                             },
                             style: OutlinedButton.styleFrom(
                                 primary: Theme.of(context).colorScheme.primary,
@@ -142,12 +138,7 @@ Widget questionCard(BuildContext context,
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditQuestion(
-                                          title:
-                                              "Q${questionNumber.toString()} Solution")));
+                              AuthGate.of(context)?.push(Destination.editQuestion, input: {'title': 'Q${questionNumber.toString()} Solution'});
                             },
                             style: OutlinedButton.styleFrom(
                                 primary: Theme.of(context).colorScheme.primary,
@@ -168,12 +159,7 @@ Widget questionCard(BuildContext context,
                       Expanded(
                         child: OutlinedButton(
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditQuestion(
-                                          title:
-                                              "Q${questionNumber.toString()} Hints")));
+                              AuthGate.of(context)?.push(Destination.editQuestion, input: {'title': 'Q${questionNumber.toString()} Hints'});
                             },
                             style: OutlinedButton.styleFrom(
                                 primary: Theme.of(context).colorScheme.primary,
