@@ -153,7 +153,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     onTap: () {
                       // Goes to the settings page when the profile picture is
                       // tapped.
-                      AuthGate.of(context)?.push(Destination.settings, input: {'level': '3', 'experience': 2418.0, 'role': 'Admin'});
+                      AuthGate.of(context)?.push(Destination.settings, input: {'role': 'Admin'});
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.

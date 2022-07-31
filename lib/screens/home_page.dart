@@ -1,3 +1,7 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
@@ -7,8 +11,10 @@ import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/utils/components.dart';
-import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+
+import '../widgets/forks/sleek_circular_slider/appearance.dart';
+import '../widgets/forks/sleek_circular_slider/circular_slider.dart';
 
 /**
  * The following section includes functions for the home page.
@@ -118,9 +124,10 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String t
 
 /// progress bar rings around user profile picture
 Widget userRings(BuildContext context,
-    {required double experience, required Widget profilePicture}) {
+    {required Widget profilePicture, required double experience, required Map<String, dynamic> levelMap}) {
   return SleekCircularSlider(
     appearance: CircularSliderAppearance(
+        animationEnabled: true,
         angleRange: 360.0,
         startAngle: 0.0,
         customWidths: CustomSliderWidths(
@@ -137,96 +144,129 @@ Widget userRings(BuildContext context,
     innerWidget: (double percentage) {
       return profilePicture;
     },
-    min: 0,
-    max: 4000,
+    min: levelMap['minVal'],
+    max: levelMap['maxVal'],
     initialValue: experience,
   );
+}
+
+Map<String, dynamic> calculateLevel(experience) {
+  double y = experience;  // total experience points
+
+  // parameters for levelling up
+  double a = 75/2;
+  double b = 175/2;
+  double c = -125;
+
+  double x = (-b + sqrt(pow(b, 2) - 4 * a * (c - y))) / (2 * a);  // rearranged quadratic formula
+  int level = x.floor(); // always round down to find current level
+
+  int nextLevel = level + 1;
+  double requiredExperience = a * pow(nextLevel, 2) + b * nextLevel + c;
+  double lowerExperience = a * pow(level, 2) + b * level + c;
+
+  double animDurationMultiplier = 125/y;
+
+  return {'level': level, 'maxVal': requiredExperience, 'minVal': lowerExperience, 'animDurationMultiplier': animDurationMultiplier};
 }
 
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
     {required Map<String, dynamic> userData,
-    required String level,
-    required double experience,
     required Widget profilePicture}) {
-  return Padding(
-    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
-    child: Card(
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-      ),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-        splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
-        highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
-        onTap: () {
-          AuthGate.of(context)?.push(Destination.settings, input: {'level': '3', 'experience': 2418.0, 'role': 'Admin'});
-        },
-        child: SizedBox(
-          height: 175,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+  return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.collection('quizPoints').doc(FirebaseAuth.instance.currentUser?.uid).snapshots(),
+      builder: (context, pointsSnapshot) {
+        Map<String, dynamic>? experienceMap = pointsSnapshot.data?.data() as Map<String, dynamic>?;
+        double experience = (experienceMap?['experience'] ?? 0).toDouble();
+        Map<String, dynamic> levelMap = calculateLevel(experience);
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
+          child: Card(
+            elevation: 5,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+            ),
+            child: InkWell(
+              borderRadius: const BorderRadius.all(Radius.circular(15)),
+              splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+              highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+              onTap: () {
+                AuthGate.of(context)?.push(Destination.settings, input: {'role': 'Admin'});
+              },
+              child: SizedBox(
+                height: 175,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(userData['username'],
-                          style: Theme.of(context).textTheme.headline4?.copyWith(
-                              color: Theme.of(context).primaryColorLight)),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Level',
-                              style: Theme.of(context).textTheme.subtitle1),
-                          Text(
-                            level,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline6
-                                ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width - 290,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(userData['username'],
+                                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                                      color: Theme.of(context).primaryColorLight)),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Level',
+                                      style: Theme.of(context).textTheme.subtitle1),
+                                  Text(
+                                    levelMap['level'].toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline6
+                                        ?.copyWith(
+                                        color: Theme.of(context).colorScheme.primary),
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Experience',
+                                      style: Theme.of(context).textTheme.subtitle1),
+                                  Text(
+                                    "${experience.toInt()}/${levelMap['maxVal'].toInt()}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline6
+                                        ?.copyWith(
+                                        color: Theme.of(context).colorScheme.primary),
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Experience',
-                              style: Theme.of(context).textTheme.subtitle1),
-                          Text(
-                            "${experience.toInt()}/4000",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline6
-                                ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary),
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SizedBox(
+                            width: 125,
+                            height: 125,
+                            child: userRings(context,
+                                profilePicture: profilePicture, experience: experience, levelMap: levelMap)),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                      width: 125,
-                      height: 125,
-                      child: userRings(context,
-                          experience: experience,
-                          profilePicture: profilePicture)),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    ),
+        );
+      }
   );
 }
 
@@ -335,8 +375,6 @@ class _HomePageState extends State<HomePage> {
                 /// user info display
                 userInfo(context,
                     userData: widget.userData,
-                    level: "3",
-                    experience: 2418,
                     profilePicture: fetchProfilePicture(widget.userData['profilePicture'], username)),
 
                 /// horizontal carousel for actions
@@ -363,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                             icon: Icons.settings,
                             text: "Settings",
                             navigateTo: Destination.settings,
-                            navigationInput: {'level': '3', 'experience': 2418.0, 'role': 'Admin'},
+                            navigationInput: {'role': 'Admin'},
                             position: PositionPadding.end),
                       ],
                     ),

@@ -35,7 +35,6 @@ dependencies:
   google_sign_in: ^5.4.0
   flutter_svg: ^1.1.1+1
   firebase_auth: ^3.6.0
-  sleek_circular_slider: ^2.0.1
   file_selector: ^0.8.4+3
   image_picker: ^0.8.5+3
   url_launcher: ^6.1.5

@@ -1,26 +1,32 @@
 import * as functions from "firebase-functions";
 const admin = require('firebase-admin');
-const app = admin.initializeApp();
+admin.initializeApp();
 
 const db = admin.firestore();
 
 exports.createUser = functions
     .region('australia-southeast1')
-    .auth.user().onCreate((user) => {
-    db.collection('quizPoints').doc(user.uid).set({
-        'username': '',
-        'experience': 0
+    .auth.user().onCreate(async (user) => {
+        await db.collection('quizPoints').doc(user.uid).set({
+            'username': '',
+            'experience': 0
+        });
+
+        console.log(`Creating User For ${user.uid}`)
+
+        const userRole = db.collection('roles').doc('users');
+        const doc = await userRole.get();
+        let members: string[] = doc.data()['members'];
+        console.log(`Current Members: ${members}`)
+
+        members.push(user.uid)
+
+        await userRole.update({
+            'members': members
+        }).then(() => {
+            console.log(`Creation of ${user.uid} successful`)
+        });
     });
-
-    const userRole = db.collection('roles').doc('users');
-
-    let members:string[] = userRole.get().members;
-    members.push(user.uid)
-
-    userRole.update({
-        'members': members
-    });
-});
 
 exports.updateUsername = functions
     .region('australia-southeast1')
@@ -34,18 +40,18 @@ exports.updateUsername = functions
         functions.logger.info(`Updating username for ${context.auth?.uid}`, {structuredData: true});
 
         // set displayName username
-        admin.auth(app).updateUser(context.auth!.uid, {
+        admin.auth().updateUser(context.auth!.uid, {
             displayName: username,
         })
 
         // set userInfo username
-        admin.database().ref(`/userInfo/${context.auth?.uid}`).update({
+        db.collection("userInfo").doc(context.auth!.uid).update({
             lowerUsername: username.toLowerCase(),
             username: username,
         });
 
         // set quizPoints username
-        admin.database().ref(`/quizPoints/${context.auth?.uid}`).update({
+        db.collection("quizPoints").doc(context.auth!.uid).update({
             username: username,
         });
     }
