@@ -50,7 +50,7 @@ class EditableImage extends StatelessWidget {
   final bool? isEditable;
 
   /// An Image widget that shows the main profile picture, etc.
-  final Image? image;
+  final Widget? image;
 
   /// A variable to determine the size of the EditableImage.
   final double? size;
@@ -196,13 +196,16 @@ class EditableImage extends StatelessWidget {
         border: imageBorder ?? const Border(),
         shape: BoxShape.circle,
       ),
-      child: ClipOval(
-        child: image ?? widgetDefault ??
-            Icon(
-              imageDefault ?? Icons.person,
-              size: size != null ? (size ?? 140.0) * 0.75 : 105.0,
-              color: imageDefaultColor ?? Colors.black87,
-            ),
+      child: Padding(
+        padding: (image == null) ? EdgeInsets.zero : const EdgeInsets.all(15.0),
+        child: ClipOval(
+          child: image ?? widgetDefault ??
+              Icon(
+                imageDefault ?? Icons.person,
+                size: size != null ? (size ?? 140.0) * 0.75 : 105.0,
+                color: imageDefaultColor ?? Colors.black87,
+              ),
+        ),
       ),
     );
   }

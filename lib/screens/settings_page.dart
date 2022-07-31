@@ -2,13 +2,16 @@ import 'dart:typed_data';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'auth/landing_page.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mime/mime.dart';
 
 /**
  * The following section includes functions for the settings page.
@@ -46,8 +49,9 @@ Widget settingsCard(BuildContext context,
   );
 }
 
+/// extension to add .capitalise to end of string type
 extension StringExtension on String {
-  String capitalize() {
+  String capitalise() {
     return "${this[0].toUpperCase()}${substring(1)}";
   }
 }
@@ -61,10 +65,7 @@ class SettingsPage extends StatefulWidget {
   final String role;
   final Map<String, dynamic> userData;
 
-  const SettingsPage(
-      {Key? key,
-      required this.role,
-      required this.userData})
+  const SettingsPage({Key? key, required this.role, required this.userData})
       : super(key: key);
 
   @override
@@ -72,6 +73,51 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  // The region cloud functions should be invoked from.
+  final functions =
+      FirebaseFunctions.instanceFor(region: 'australia-southeast1');
+
+  // The variable for the selected profile picture.
+  Uint8List? pfpFile;
+
+  /// The function to update profile picture on selection.
+  void pfpUpdate(Uint8List file) async {
+    // Sets the pfp file to the new file locally first so tha the user sees an
+    // immediate change before uploading.
+    pfpFile = file;
+    setState(() {});
+
+    // Storage and Firestore instances.
+    final storage = FirebaseStorage.instance;
+    CollectionReference userInfo =
+        FirebaseFirestore.instance.collection('userInfo');
+
+    // Sets the storage path to a folder of the user's UID inside the
+    // profilePictures folder, followed by the file type detected by Mime.
+    // For example, if I uploaded a png, it would be
+    // profilePictures/123456789/profile.png
+    Reference ref = storage.ref(
+        'profilePictures/${FirebaseAuth.instance.currentUser?.uid}/profile.${lookupMimeType('', headerBytes: pfpFile)!.split('/')[1]}');
+
+    // Creates a metadata object from the raw bytes of the image,
+    // and then sets it to the reference above
+    SettableMetadata metadata = SettableMetadata(
+        contentType: lookupMimeType('', headerBytes: pfpFile));
+
+    await ref.putData(pfpFile!, metadata);
+
+    // Gets the URL of this newly created object
+    var downloadUrl = await ref.getDownloadURL();
+
+    // Sets the newly created URL and file type to the Firestore document.
+    userInfo
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .update({
+      'profilePicture': downloadUrl,
+      'pfpType': metadata.contentType
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     String username = widget.userData['username'] ?? "...";
@@ -107,18 +153,27 @@ class _SettingsPageState extends State<SettingsPage> {
                 // profile picture
                 Padding(
                   padding: const EdgeInsets.all(26.0),
-                  child: EditableImage(
-                    isEditable: true,
-                    onChange: (Uint8List file) {},
-                    widgetDefault: userRings(context,
-                        profilePicture: fetchProfilePicture(
-                            widget.userData['profilePicture'], username,
-                            padding: true),
+                  child: SizedBox(
+                    height: 175,
+                    child: userRings(context,
+                        profilePicture: EditableImage(
+                          isEditable: true,
+                          onChange: (Uint8List file) => pfpUpdate(file),
+                          // If the pfp file exists, show it, if not, s
+                          // tay on the default image.
+                          image: (pfpFile != null)
+                              ? Image.memory(pfpFile!,
+                                  fit: BoxFit.cover)
+                              : null,
+                          widgetDefault: fetchProfilePicture(
+                              widget.userData['profilePicture'], username,
+                              padding: true),
+                          editIconBorder:
+                              Border.all(color: Colors.black87, width: 2.0),
+                          size: 175,
+                        ),
                         experience: experience,
                         levelMap: levelMap),
-                    editIconBorder:
-                        Border.all(color: Colors.black87, width: 2.0),
-                    size: 175,
                   ),
                 ),
                 // username
@@ -129,7 +184,33 @@ class _SettingsPageState extends State<SettingsPage> {
                         style: Theme.of(context).textTheme.headline2?.copyWith(
                             color: Theme.of(context).primaryColorLight,
                             fontWeight: FontWeight.w300)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.edit))
+                    IconButton(
+                        onPressed: () async {
+                          // Dialog to get new username.
+                          final newUsername = await showTextInputDialog(
+                            style: AdaptiveStyle.material,
+                            context: context,
+                            textFields: [
+                              DialogTextField(
+                                hintText: 'Username',
+                                validator: (value) => value!.isEmpty
+                                    ? "The username can't be empty"
+                                    : null,
+                              ),
+                            ],
+                            title: 'Change Username',
+                            autoSubmit: true,
+                          );
+
+                          // If username is not empty (which it shouldn't be),
+                          // send it to the server.
+                          if (newUsername != null) {
+                            await functions
+                                .httpsCallable('updateUsername')
+                                .call({'username': newUsername.first});
+                          }
+                        },
+                        icon: const Icon(Icons.edit))
                   ],
                 ),
                 // experience card
@@ -161,7 +242,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                               .textTheme
                                               .subtitle1),
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 0, 16, 0),
                                         child: Text(
                                           levelMap['level'].toString(),
                                           style: Theme.of(context)
@@ -193,7 +275,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                               .textTheme
                                               .subtitle1),
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 0, 16, 0),
                                         child: Text(
                                           "${experience.toInt()}/${levelMap['maxVal'].toInt()}",
                                           style: Theme.of(context)
@@ -258,7 +341,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                           text: mode
                                               .toString()
                                               .split(".")[1]
-                                              .capitalize(),
+                                              .capitalise(),
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline6

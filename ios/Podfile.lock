@@ -643,6 +643,9 @@ PODS:
   - Firebase/Functions (9.3.0):
     - Firebase/CoreOnly
     - FirebaseFunctions (~> 9.3.0)
+  - Firebase/Storage (9.3.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 9.3.0)
   - firebase_auth (3.6.0):
     - Firebase/Auth (= 9.3.0)
     - firebase_core
@@ -656,6 +659,10 @@ PODS:
     - Flutter
   - firebase_dynamic_links (4.3.3):
     - Firebase/DynamicLinks (= 9.3.0)
+    - firebase_core
+    - Flutter
+  - firebase_storage (10.3.4):
+    - Firebase/Storage (= 9.3.0)
     - firebase_core
     - Flutter
   - FirebaseAppCheckInterop (9.3.0)
@@ -707,6 +714,15 @@ PODS:
     - GTMSessionFetcher/Core (< 3.0, >= 1.7)
   - FirebaseMessagingInterop (9.3.0)
   - FirebaseSharedSwift (9.3.0)
+  - FirebaseStorage (9.3.0):
+    - FirebaseAppCheckInterop (~> 9.0)
+    - FirebaseAuthInterop (~> 9.0)
+    - FirebaseCore (~> 9.0)
+    - FirebaseCoreExtension (~> 9.0)
+    - FirebaseStorageInternal (~> 9.0)
+  - FirebaseStorageInternal (9.3.0):
+    - FirebaseCore (~> 9.0)
+    - GTMSessionFetcher/Core (< 3.0, >= 1.7)
   - Flutter (1.0.0)
   - flutter_facebook_auth (4.3.4):
     - FBSDKLoginKit (~> 13.2.0)
@@ -846,6 +862,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - firebase_dynamic_links (from `.symlinks/plugins/firebase_dynamic_links/ios`)
+  - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `Flutter`)
   - flutter_facebook_auth (from `.symlinks/plugins/flutter_facebook_auth/ios`)
   - flutter_inappwebview_quill (from `.symlinks/plugins/flutter_inappwebview_quill/ios`)
@@ -884,6 +901,8 @@ SPEC REPOS:
     - FirebaseFunctions
     - FirebaseMessagingInterop
     - FirebaseSharedSwift
+    - FirebaseStorage
+    - FirebaseStorageInternal
     - FMDB
     - GoogleDataTransport
     - GoogleSignIn
@@ -913,6 +932,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_database/ios"
   firebase_dynamic_links:
     :path: ".symlinks/plugins/firebase_dynamic_links/ios"
+  firebase_storage:
+    :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
     :path: Flutter
   flutter_facebook_auth:
@@ -958,6 +979,7 @@ SPEC CHECKSUMS:
   firebase_core: 96214f90497b808a2cf2a24517084c5f6de37b53
   firebase_database: 0643b8de71ac87697817b7b1317e8f70cafa7735
   firebase_dynamic_links: 0cc25cd58aa0b24acfcf10e1aaf6f32323f1c361
+  firebase_storage: e95ec41580e311cb30b1ed7459b9e94fb4bbe672
   FirebaseAppCheckInterop: f6b9670fb1360cf12006ca426e9c3b9a35317d17
   FirebaseAuth: 9ebc3577fe0acf9092df21ac314024b70aebf21e
   FirebaseAuthInterop: 79826b4edc64e1d10135947866ad4437657e8696
@@ -971,6 +993,8 @@ SPEC CHECKSUMS:
   FirebaseFunctions: 817616e838ef76f985314d0e1e8caa0bb5c19daf
   FirebaseMessagingInterop: af98663efee05115924de2f4123321183c3a2be6
   FirebaseSharedSwift: 8becafc1096ca5703ac03065ed80496023880ac0
+  FirebaseStorage: 1414d27e15fa04f6350ef6602accef0e951c8bca
+  FirebaseStorageInternal: f1a6d64cace780580d2b8ffa0a0c8cf3c376f3f8
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_facebook_auth: 15cb21b480686decd54d40ba19bce27f6cca0dc5
   flutter_inappwebview_quill: eb69bfa35fdde431e273476cf359a3686427b8da

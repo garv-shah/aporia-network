@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
-
-import '../screens/auth/landing_page.dart';
-import '../screens/leaderboards.dart';
-import '../screens/settings_page.dart';
-import './forks/search_bar.dart';
+import 'package:maths_club/screens/home_page.dart';
+import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/widgets/forks/search_bar.dart';
 
 /// This is a widget that creates a custom app bar for the section view
 //ignore: must_be_immutable
@@ -16,12 +13,11 @@ class SectionAppBar extends StatefulWidget {
   bool fadeTitle = false;
 
   final String title;
-  final ImageProvider<Object>? profilePicture;
+  Map<String, dynamic> userData;
 
   SectionAppBar(BuildContext context,
       {Key? key,
-      required this.title,
-      this.profilePicture})
+      required this.title, required this.userData})
       : super(key: key);
 
   @override
@@ -57,10 +53,14 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
-                        child: BackButton(
-                            color: Theme.of(context)
-                                .primaryColorLight
-                                .withAlpha(100)),
+                        child: IconButton(onPressed: () {
+                          AuthGate.of(context)?.pop();
+                        },
+                          color: Theme.of(context)
+                              .primaryColorLight
+                              .withAlpha(100),
+                          icon: const Icon(Icons.arrow_back_ios_new),
+                        ),
                       ),
                       Text(widget.title,
                           style: Theme.of(context).textTheme.headline6)
@@ -157,16 +157,11 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.
-                    child: (widget.profilePicture == null)
-                        ? UserAvatar(
-                            size: 25,
-                            placeholderColor: Theme.of(context)
-                                .primaryColorLight
-                                .withAlpha(100))
-                        : CircleAvatar(
-                            backgroundImage: widget.profilePicture,
-                            radius: 16,
-                          ),
+                    child: SizedBox(
+                      height: 30,
+                        width: 30,
+                        child: fetchProfilePicture(widget.userData['profilePicture'], widget.userData['username'], padding: false)
+                    ),
                   ),
                   const SizedBox(width: 16)
                 ],

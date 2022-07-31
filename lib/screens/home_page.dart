@@ -150,6 +150,7 @@ Widget userRings(BuildContext context,
   );
 }
 
+/// Calculates a user's level and returns a map based on experience points.
 Map<String, dynamic> calculateLevel(experience) {
   double y = experience;  // total experience points
 

@@ -41,7 +41,7 @@ getDestination(Destination destination, Map<String, dynamic> userData,
   } else if (destination == Destination.leaderboards) {
     return const Leaderboards();
   } else if (destination == Destination.section) {
-    return SectionPage();
+    return SectionPage(userData: userData);
   } else {
     return HomePage(userData: userData);
   }

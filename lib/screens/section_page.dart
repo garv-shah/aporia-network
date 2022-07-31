@@ -82,7 +82,8 @@ Widget postCard(BuildContext context,
 
 /// This is the section page which allows for access to quizzes and posts
 class SectionPage extends StatefulWidget {
-  SectionPage({Key? key}) : super(key: key);
+  Map<String, dynamic> userData;
+  SectionPage({Key? key, required this.userData}) : super(key: key);
 
   @override
   State<SectionPage> createState() => _SectionPageState();
@@ -98,6 +99,7 @@ class _SectionPageState extends State<SectionPage> {
           SectionAppBar(
             context,
             title: "Senior",
+            userData: widget.userData
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),

@@ -47,6 +47,10 @@ dependencies:
   firebase_database_web: ^0.2.1+1
   cached_network_image: ^3.2.1
   cloud_functions: ^3.3.3
+  adaptive_dialog: ^1.7.0
+  firebase_storage: ^10.3.4
+  firebase_storage_web: ^3.3.2
+  mime: ^1.0.2
 
 dependency_overrides:
   flutter_colorpicker:

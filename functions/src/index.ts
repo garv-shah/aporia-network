@@ -46,7 +46,7 @@ exports.updateUsername = functions
 
         // set userInfo username
         db.collection("userInfo").doc(context.auth!.uid).update({
-            lowerUsername: username.toLowerCase(),
+            lowerUsername: username.toString().toLowerCase(),
             username: username,
         });
 
