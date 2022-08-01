@@ -56,3 +56,36 @@ exports.updateUsername = functions
         });
     }
 });
+
+exports.updatePfp = functions
+    .region('australia-southeast1')
+    .https.onCall((data, context) => {
+        let profilePicture = data.profilePicture;
+        let pfpType = data.pfpType;
+        if (profilePicture == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'A profile picture must be provided!');
+        } else if (pfpType == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'A profile picture type must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Updating profile picture for ${context.auth?.uid}`, {structuredData: true});
+
+            // set displayName username
+            admin.auth().updateUser(context.auth!.uid, {
+                photoURL: profilePicture,
+            })
+
+            // set userInfo username
+            db.collection("userInfo").doc(context.auth!.uid).update({
+                profilePicture: profilePicture,
+                pfpType: pfpType,
+            });
+
+            // set quizPoints username
+            db.collection("quizPoints").doc(context.auth!.uid).update({
+                profilePicture: profilePicture,
+                pfpType: pfpType,
+            });
+        }
+    });

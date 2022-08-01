@@ -151,7 +151,7 @@ class _AuthGateState extends State<AuthGate> {
 
           return StreamBuilder<DocumentSnapshot>(
             stream: userInfo
-                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .doc(FirebaseAuth.instance.currentUser?.uid)
                 .snapshots(),
             builder: (BuildContext context, userDataSnapshot) {
               return AnimatedSwitcher(

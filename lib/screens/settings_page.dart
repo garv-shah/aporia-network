@@ -101,8 +101,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     // Creates a metadata object from the raw bytes of the image,
     // and then sets it to the reference above
-    SettableMetadata metadata = SettableMetadata(
-        contentType: lookupMimeType('', headerBytes: pfpFile));
+    SettableMetadata metadata =
+        SettableMetadata(contentType: lookupMimeType('', headerBytes: pfpFile));
 
     await ref.putData(pfpFile!, metadata);
 
@@ -115,7 +115,13 @@ class _SettingsPageState extends State<SettingsPage> {
         .update({
       'profilePicture': downloadUrl,
       'pfpType': metadata.contentType
-        });
+    });
+
+    // Also calls the cloud function to update profile picture, since the user
+    // can't access some directories where this should be allowed.
+    await functions
+        .httpsCallable('updatePfp')
+        .call({'profilePicture': downloadUrl, 'pfpType': metadata.contentType});
   }
 
   @override
@@ -162,9 +168,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           // If the pfp file exists, show it, if not, s
                           // tay on the default image.
                           image: pfpFile,
-                          widgetDefault: fetchProfilePicture(
-                              widget.userData['profilePicture'], username,
-                              padding: true),
+                          widgetDefault: Hero(
+                            tag: '$username Profile Picture',
+                            child: fetchProfilePicture(
+                                widget.userData['profilePicture'], widget.userData['pfpType'], username,
+                                padding: true),
+                          ),
                           editIconBorder:
                               Border.all(color: Colors.black87, width: 2.0),
                           size: 175,
@@ -291,8 +300,51 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ),
                               ],
                             ),
-                            Text(widget.role,
-                                style: Theme.of(context).textTheme.subtitle1)
+                            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('roles')
+                                    .snapshots(),
+                                builder: (context, rolesSnapshot) {
+                                  if (rolesSnapshot.connectionState ==
+                                      ConnectionState.active) {
+                                    try {
+                                      for (var i = 0;
+                                          i <
+                                              (rolesSnapshot
+                                                      .data?.docs.length ??
+                                                  1);
+                                          i++) {
+                                        if ((rolesSnapshot.data?.docs[i]
+                                                ['members'])
+                                            .contains(FirebaseAuth
+                                                .instance.currentUser?.uid)) {
+                                          return Text(
+                                              rolesSnapshot.data?.docs[i]
+                                                  ['tag'],
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .subtitle1);
+                                        }
+                                      }
+                                    } on StateError {
+                                      return Text(
+                                          'Error: Firestore key not found!',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle1);
+                                    }
+
+                                    return Text('Error!',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1);
+                                  } else {
+                                    return Text("Loading...",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1);
+                                  }
+                                })
                           ],
                         ),
                       ),

@@ -206,9 +206,12 @@ Widget userInfo(BuildContext context,
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(userData['username'],
-                                  style: Theme.of(context).textTheme.headline4?.copyWith(
-                                      color: Theme.of(context).primaryColorLight)),
+                              FittedBox(
+                                fit: BoxFit.fitWidth,
+                                child: Text(userData['username'],
+                                    style: Theme.of(context).textTheme.headline4?.copyWith(
+                                        color: Theme.of(context).primaryColorLight)),
+                              ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -266,7 +269,7 @@ Widget userInfo(BuildContext context,
   );
 }
 
-Widget fetchProfilePicture(String? profilePicture, String? username, {bool padding = true}) {
+Widget fetchProfilePicture(String? profilePicture, String? pfpType, String? username, {bool padding = true, double? customPadding}) {
   String imageUrl = profilePicture ?? "https://avatars.dicebear.com/api/avataaars/$username.svg";
 
   if (imageUrl.isEmpty) {
@@ -278,7 +281,7 @@ Widget fetchProfilePicture(String? profilePicture, String? username, {bool paddi
           );
         }
     );
-  } else if (imageUrl.split('.').last == 'svg') {
+  } else if (pfpType == 'image/svg+xml') {
     return Center(
       child: Padding(
         padding: padding ? const EdgeInsets.all(15.0) : EdgeInsets.zero,
@@ -305,7 +308,7 @@ Widget fetchProfilePicture(String? profilePicture, String? username, {bool paddi
                   child: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     backgroundImage: imageProvider,
-                    radius: constraints.maxWidth / 2 - (padding ? 15 : 0),
+                    radius: constraints.maxWidth / 2 - (padding ? (customPadding ?? 15) : 0),
                   ),
                 );
               }
@@ -371,7 +374,8 @@ class _HomePageState extends State<HomePage> {
                 /// user info display
                 userInfo(context,
                     userData: widget.userData,
-                    profilePicture: fetchProfilePicture(widget.userData['profilePicture'], username)),
+                    profilePicture: Hero(tag: '$username Profile Picture',
+                    child: fetchProfilePicture(widget.userData['profilePicture'], widget.userData['pfpType'], username))),
 
                 /// horizontal carousel for actions
                 SizedBox(

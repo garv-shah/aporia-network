@@ -86,6 +86,10 @@ class _RegisterPageState extends State<RegisterPage> {
                       await functions
                           .httpsCallable('updateUsername')
                           .call({'username': username});
+
+                      await functions
+                          .httpsCallable('updatePfp')
+                          .call({'profilePicture': 'https://avatars.dicebear.com/api/avataaars/$username.svg', 'pfpType': 'image/svg+xml'});
                     } on FirebaseFunctionsException catch (error) {
                       if (kDebugMode) {
                         print(error.code);
@@ -99,8 +103,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       'username': username,
                       'lowerUsername': username.toLowerCase(),
                       'receiveEmails': emailingList,
-                      'profilePicture':
-                          "https://avatars.dicebear.com/api/avataaars/$username.svg"
                     });
                   }
                 },
