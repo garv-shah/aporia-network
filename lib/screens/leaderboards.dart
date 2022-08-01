@@ -12,7 +12,8 @@ import '../utils/components.dart';
 Widget user(BuildContext context,
     {required String username,
     required int position,
-    required Widget profilePicture}) {
+    required Widget profilePicture,
+    required int experience}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
     child: Card(
@@ -32,7 +33,15 @@ Widget user(BuildContext context,
                   padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                   child: profilePicture,
                 ),
-                Text(username, style: Theme.of(context).textTheme.headline6),
+                Text("$username:",
+                    style: Theme.of(context).textTheme.headline6),
+                const SizedBox(width: 10),
+                Text(experience.toString(),
+                    style: Theme.of(context).textTheme.headline6?.copyWith(
+                        color: Theme.of(context).colorScheme.primary),
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    maxLines: 1),
               ],
             ),
             Padding(
@@ -63,8 +72,10 @@ class _LeaderboardsState extends State<Leaderboards> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream:
-              FirebaseFirestore.instance.collection('quizPoints').orderBy('experience', descending: true).snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('quizPoints')
+              .orderBy('experience', descending: true)
+              .snapshots(),
           builder: (context, quizPointsSnapshot) {
             if (quizPointsSnapshot.connectionState == ConnectionState.active) {
               return SafeArea(
@@ -85,21 +96,22 @@ class _LeaderboardsState extends State<Leaderboards> {
                         ],
                       );
                     } else {
+                      QueryDocumentSnapshot<Map<String, dynamic>>? data =
+                          quizPointsSnapshot.data?.docs[index - 1];
+
                       // User entry.
                       return user(context,
                           username: (() {
                             try {
-                              return quizPointsSnapshot.data?.docs[index - 1]
-                              ['username'];
+                              return data?['username'];
                             } on StateError {
                               return 'Error: no username!';
                             }
                           }()),
                           position: index,
+                          experience: data?['experience'],
                           profilePicture: (() {
                             try {
-                              QueryDocumentSnapshot<Map<String, dynamic>>? data =
-                              quizPointsSnapshot.data?.docs[index - 1];
                               return SizedBox(
                                   height: 50,
                                   width: 50,
@@ -111,14 +123,12 @@ class _LeaderboardsState extends State<Leaderboards> {
                                       customPadding: 5));
                             } on StateError {
                               return Padding(
-                                padding:
-                                const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 0.0),
+                                padding: const EdgeInsets.fromLTRB(
+                                    12.0, 0.0, 12.0, 0.0),
                                 child: Icon(Icons.error,
                                     size: 30,
-                                    color: Theme
-                                        .of(context)
-                                        .colorScheme
-                                        .primary),
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
                               );
                             }
                           }()));
