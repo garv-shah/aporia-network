@@ -58,5 +58,7 @@
 	<false/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The Maths Club app requires access to your photo library to upload photos or change profile pictures</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The Maths Club app requires access to your camera to upload photos or change profile pictures</string>
 </dict>
 </plist>

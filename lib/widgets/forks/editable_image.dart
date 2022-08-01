@@ -11,6 +11,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' show Platform;
+import 'package:crop_your_image/crop_your_image.dart';
+
+import 'dart:math';
 
 /// Enum for helping to set edit icon's position.
 enum Position {
@@ -25,7 +28,7 @@ enum Position {
 /// It can be used in profile picture or settings views to edit the image and
 /// update them on Firebase.
 class EditableImage extends StatelessWidget {
-  const EditableImage({
+  EditableImage({
     Key? key,
     required this.onChange,
     this.image,
@@ -50,7 +53,7 @@ class EditableImage extends StatelessWidget {
   final bool? isEditable;
 
   /// An Image widget that shows the main profile picture, etc.
-  final Widget? image;
+  final Uint8List? image;
 
   /// A variable to determine the size of the EditableImage.
   final double? size;
@@ -92,11 +95,86 @@ class EditableImage extends StatelessWidget {
   /// A Position to set edit icon's position.
   final Position? editIconPosition;
 
+  /// A function that processes the image and sends a cropped version.
+  void processImage(ImageSource source, XFile? profileImage, BuildContext context) async {
+    final cropController = CropController();
+
+    profileImage = await ImagePicker()
+        .pickImage(source: source);
+
+    Uint8List bytes = await profileImage!.readAsBytes();
+    if (bytes.isEmpty) return;
+
+    Navigator.pop(context);
+
+    double cropDialogSize = min(
+        MediaQuery.of(context).size.width,
+        MediaQuery.of(context).size.height) -
+        30;
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: const Text("Crop Profile Picture"),
+              children: <Widget>[
+                SizedBox(
+                  width: cropDialogSize,
+                  height: cropDialogSize,
+                  child: Crop(
+                      image: bytes,
+                      controller: cropController,
+                      withCircleUi: true,
+                      interactive: true,
+                      maskColor: DialogTheme.of(context)
+                          .backgroundColor ??
+                          Theme.of(context)
+                              .dialogBackgroundColor,
+                      baseColor: DialogTheme.of(context)
+                          .backgroundColor ??
+                          Theme.of(context)
+                              .dialogBackgroundColor,
+                      cornerDotBuilder:
+                          (size, edgeAlignment) => DotControl(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary),
+                      onCropped: (image) {
+                        onChange(image);
+                        Navigator.pop(context);
+                      }),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Expanded(child: SizedBox(height: 5)),
+                    ElevatedButton(
+                        onPressed: () {
+                          onChange(bytes);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Skip',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryColorLight))),
+                    const Expanded(child: SizedBox(height: 5)),
+                    ElevatedButton(
+                        onPressed: cropController.crop,
+                        child: Text('Crop',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryColorLight))),
+                    const Expanded(child: SizedBox(height: 5)),
+                  ],
+                )
+              ]);
+        });
+  }
+
   /// A method that calls image picker package.
   /// It also calls "onChange" function.
   void _getImage(BuildContext context) async {
-    late XFile? profileImage;
-    late Uint8List bytes;
+    XFile? profileImage;
     if (kIsWeb) {
       profileImage = await ImagePicker().pickImage(source: ImageSource.gallery);
     } else if (Platform.isMacOS) {
@@ -114,29 +192,13 @@ class EditableImage extends StatelessWidget {
                 children: <Widget>[
                   SimpleDialogOption(
                     onPressed: () async {
-                      profileImage = await ImagePicker()
-                          .pickImage(source: ImageSource.gallery);
-
-                      bytes = await profileImage!.readAsBytes();
-                      if (bytes.isEmpty) return;
-
-                      onChange(bytes);
-
-                      Navigator.pop(context);
+                      processImage(ImageSource.gallery, profileImage, context);
                     },
                     child: const Text('Pick From Gallery'),
                   ),
                   SimpleDialogOption(
                     onPressed: () async {
-                      profileImage = await ImagePicker()
-                          .pickImage(source: ImageSource.camera);
-
-                      bytes = await profileImage!.readAsBytes();
-                      if (bytes.isEmpty) return;
-
-                      onChange(bytes);
-
-                      Navigator.pop(context);
+                      processImage(ImageSource.camera, profileImage, context);
                     },
                     child: const Text('Take A New Picture'),
                   ),
@@ -165,8 +227,8 @@ class EditableImage extends StatelessWidget {
                   return Align(
                     alignment: _getPosition(),
                     child: InkWell(
-                      overlayColor: MaterialStateProperty.all(
-                          Colors.transparent),
+                      overlayColor:
+                          MaterialStateProperty.all(Colors.transparent),
                       highlightColor: Colors.transparent,
 
                       /// When edit icon tapped, calls _getImage() method.
@@ -179,7 +241,7 @@ class EditableImage extends StatelessWidget {
                 } else {
                   return const SizedBox();
                 }
-              } ()),
+              }()),
             ],
           ),
         ),
@@ -199,12 +261,14 @@ class EditableImage extends StatelessWidget {
       child: Padding(
         padding: (image == null) ? EdgeInsets.zero : const EdgeInsets.all(15.0),
         child: ClipOval(
-          child: image ?? widgetDefault ??
-              Icon(
-                imageDefault ?? Icons.person,
-                size: size != null ? (size ?? 140.0) * 0.75 : 105.0,
-                color: imageDefaultColor ?? Colors.black87,
-              ),
+          child: (image != null)
+              ? Image.memory(image!, fit: BoxFit.cover)
+              : widgetDefault ??
+                  Icon(
+                    imageDefault ?? Icons.person,
+                    size: size != null ? (size ?? 140.0) * 0.75 : 105.0,
+                    color: imageDefaultColor ?? Colors.black87,
+                  ),
         ),
       ),
     );

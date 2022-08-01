@@ -161,10 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           onChange: (Uint8List file) => pfpUpdate(file),
                           // If the pfp file exists, show it, if not, s
                           // tay on the default image.
-                          image: (pfpFile != null)
-                              ? Image.memory(pfpFile!,
-                                  fit: BoxFit.cover)
-                              : null,
+                          image: pfpFile,
                           widgetDefault: fetchProfilePicture(
                               widget.userData['profilePicture'], username,
                               padding: true),

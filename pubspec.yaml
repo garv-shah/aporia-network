@@ -51,6 +51,7 @@ dependencies:
   firebase_storage: ^10.3.4
   firebase_storage_web: ^3.3.2
   mime: ^1.0.2
+  crop_your_image: ^0.7.2
 
 dependency_overrides:
   flutter_colorpicker:

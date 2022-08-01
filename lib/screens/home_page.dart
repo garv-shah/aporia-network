@@ -6,15 +6,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
-import 'package:maths_club/screens/create_post_view.dart';
-import 'package:maths_club/screens/leaderboards.dart';
-import 'package:maths_club/screens/section_page.dart';
-import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
-import '../widgets/forks/sleek_circular_slider/appearance.dart';
-import '../widgets/forks/sleek_circular_slider/circular_slider.dart';
+import 'package:maths_club/widgets/forks/sleek_circular_slider/appearance.dart';
+import 'package:maths_club/widgets/forks/sleek_circular_slider/circular_slider.dart';
 
 /**
  * The following section includes functions for the home page.
