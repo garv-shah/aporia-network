@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:animated_list_plus/animated_list_plus.dart';
 import 'package:maths_club/screens/home_page.dart';
-import 'package:animated_list_plus/transitions.dart';
 
 import '../utils/components.dart';
 
@@ -70,34 +68,38 @@ class _LeaderboardsState extends State<Leaderboards> {
           builder: (context, quizPointsSnapshot) {
             if (quizPointsSnapshot.connectionState == ConnectionState.active) {
               return SafeArea(
-                child: ImplicitlyAnimatedReorderableList<QueryDocumentSnapshot<Map<String, dynamic>>>(
-                  items: quizPointsSnapshot.data?.docs ?? [],
-                  onReorderFinished: (item, from, to, newItems) {},
-                  areItemsTheSame: (oldItem, newItem) => oldItem.id == newItem.id,
-                  header: Row(
-                    children: [
-                      header("Leaderboards", context,
-                          fontSize: 30, backArrow: true),
-                    ],
-                  ),
-                  itemBuilder: (context, itemAnimation, item, index) {
-                    QueryDocumentSnapshot<Map<String, dynamic>>? data =
-                    quizPointsSnapshot.data?.docs[index];
-
-                    return Reorderable(
-                      key: ValueKey(data?.id),
-                      child: user(context,
+                child: ListView.builder(
+                  // The following line makes the item count for the builder the
+                  // number of user entries we have on the server. The +1 is there
+                  // because of the extra header widget at the start, which
+                  // occupies the first index.
+                  itemCount: (quizPointsSnapshot.data?.docs.length ?? 0) + 1,
+                  itemBuilder: (BuildContext context, int index) {
+                    // If index is first, return header, if not, return user entry.
+                    if (index == 0) {
+                      // Header.
+                      return Row(
+                        children: [
+                          header("Leaderboards", context,
+                              fontSize: 30, backArrow: true),
+                        ],
+                      );
+                    } else {
+                      // User entry.
+                      return user(context,
                           username: (() {
                             try {
-                              return quizPointsSnapshot.data?.docs[index]
+                              return quizPointsSnapshot.data?.docs[index - 1]
                               ['username'];
                             } on StateError {
                               return 'Error: no username!';
                             }
                           }()),
-                          position: index + 1,
+                          position: index,
                           profilePicture: (() {
                             try {
+                              QueryDocumentSnapshot<Map<String, dynamic>>? data =
+                              quizPointsSnapshot.data?.docs[index - 1];
                               return SizedBox(
                                   height: 50,
                                   width: 50,
@@ -119,8 +121,8 @@ class _LeaderboardsState extends State<Leaderboards> {
                                         .primary),
                               );
                             }
-                          }())),
-                    );
+                          }()));
+                    }
                   },
                 ),
               );
