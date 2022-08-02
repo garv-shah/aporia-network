@@ -13,7 +13,8 @@ Widget user(BuildContext context,
     {required String username,
     required int position,
     required Widget profilePicture,
-    required int experience}) {
+    required int experience,
+    required bool infinity}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
     child: Card(
@@ -23,26 +24,32 @@ Widget user(BuildContext context,
       ),
       child: SizedBox(
         height: 60,
+        width: MediaQuery.of(context).size.width,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // profile picture and name
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
-                  child: profilePicture,
-                ),
-                Text("$username:",
-                    style: Theme.of(context).textTheme.headline6),
-                const SizedBox(width: 10),
-                Text(experience.toString(),
-                    style: Theme.of(context).textTheme.headline6?.copyWith(
-                        color: Theme.of(context).colorScheme.primary),
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    maxLines: 1),
-              ],
+            SizedBox(
+              width: MediaQuery.of(context).size.width - 95,
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+                    child: profilePicture,
+                  ),
+                  Text("$username:",
+                      style: Theme.of(context).textTheme.headline6),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(infinity ? "Infinity" : experience.toString(),
+                        style: Theme.of(context).textTheme.headline6?.copyWith(
+                            color: Theme.of(context).colorScheme.primary),
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        maxLines: 1),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(22.0),
@@ -105,11 +112,12 @@ class _LeaderboardsState extends State<Leaderboards> {
                             try {
                               return data?['username'];
                             } on StateError {
-                              return 'Error: no username!';
+                              return 'Error: no username';
                             }
                           }()),
                           position: index,
-                          experience: data?['experience'],
+                          experience: (data?['experience'].isInfinite == false) ? (data?['experience'].round()) : 0,
+                          infinity: data?['experience'].isInfinite,
                           profilePicture: (() {
                             try {
                               return SizedBox(

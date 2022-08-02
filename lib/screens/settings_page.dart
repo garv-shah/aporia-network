@@ -284,7 +284,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         padding: const EdgeInsets.fromLTRB(
                                             16, 0, 16, 0),
                                         child: Text(
-                                          "${experience.toInt()}/${levelMap['maxVal'].toInt()}",
+                                          (experience.isInfinite) ? "Infinity" : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline6

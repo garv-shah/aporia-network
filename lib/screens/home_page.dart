@@ -141,13 +141,15 @@ Widget userRings(BuildContext context,
     },
     min: levelMap['minVal'],
     max: levelMap['maxVal'],
-    initialValue: experience,
+    initialValue: (experience.isInfinite) ? 0 : experience.abs(),
   );
 }
 
 /// Calculates a user's level and returns a map based on experience points.
 Map<String, dynamic> calculateLevel(experience) {
   double y = experience;  // total experience points
+
+  if (y.isInfinite) {y = 0;} else {y = y.abs();}
 
   // parameters for levelling up
   double a = 75/2;
@@ -235,7 +237,7 @@ Widget userInfo(BuildContext context,
                                   Text('Experience',
                                       style: Theme.of(context).textTheme.subtitle1),
                                   Text(
-                                    "${experience.toInt()}/${levelMap['maxVal'].toInt()}",
+                                    (experience.isInfinite) ? "Infinity" : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
