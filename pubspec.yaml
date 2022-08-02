@@ -40,7 +40,8 @@ dependencies:
   url_launcher: ^6.1.5
   intl: ^0.17.0
   flutter_extensions: ^4.2.0
-  flutter_quill: ^5.2.5
+  flutter_quill:
+    path: ./flutter-quill
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^3.4.1
@@ -52,6 +53,11 @@ dependencies:
   firebase_storage_web: ^3.3.2
   mime: ^1.0.2
   crop_your_image: ^0.7.2
+  math_keyboard:
+    git:
+      url: https://github.com/garv-shah/math_keyboard
+      path: math_keyboard
+      ref: main
 
 dependency_overrides:
   flutter_colorpicker:

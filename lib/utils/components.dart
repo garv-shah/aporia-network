@@ -8,7 +8,8 @@ Widget header(String title, BuildContext context,
     {double iconWidth = 80,
     double paddingWidth = 20,
     double fontSize = 38,
-    bool backArrow = false}) {
+    bool backArrow = false,
+    bool showIcon = true}) {
   return Padding(
     padding: const EdgeInsets.all(26.0),
     child: Row(
@@ -23,11 +24,14 @@ Widget header(String title, BuildContext context,
                 AuthGate.of(context)?.pop();
               }),
         ),
-        SizedBox(
-          width: iconWidth,
-          height: iconWidth,
-          child: SvgPicture.asset('assets/app_icon.svg',
-              semanticsLabel: "$title icon"),
+        Visibility(
+          visible: showIcon,
+          child: SizedBox(
+            width: iconWidth,
+            height: iconWidth,
+            child: SvgPicture.asset('assets/app_icon.svg',
+                semanticsLabel: "$title icon"),
+          ),
         ),
         SizedBox(width: paddingWidth),
         Text(

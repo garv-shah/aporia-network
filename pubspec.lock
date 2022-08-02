@@ -552,6 +552,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_math_fork:
+    dependency: transitive
+    description:
+      name: flutter_math_fork
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3+1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -562,10 +569,10 @@ packages:
   flutter_quill:
     dependency: "direct main"
     description:
-      name: flutter_quill
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "5.2.5"
+      path: flutter-quill
+      relative: true
+    source: path
+    version: "5.3.2"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -646,6 +653,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.10.1+3"
+  holding_gesture:
+    dependency: transitive
+    description:
+      name: holding_gesture
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   html:
     dependency: transitive
     description:
@@ -765,6 +779,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4"
+  math_expressions:
+    dependency: transitive
+    description:
+      name: math_expressions
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.1"
+  math_keyboard:
+    dependency: "direct main"
+    description:
+      path: math_keyboard
+      ref: main
+      resolved-ref: "9a1e4c4e671b01a2b4a5d7b623ed43e9ecb9d0a2"
+      url: "https://github.com/garv-shah/math_keyboard"
+    source: git
+    version: "0.1.7"
   meta:
     dependency: transitive
     description:

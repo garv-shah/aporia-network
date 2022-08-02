@@ -110,12 +110,8 @@ class _SettingsPageState extends State<SettingsPage> {
     var downloadUrl = await ref.getDownloadURL();
 
     // Sets the newly created URL and file type to the Firestore document.
-    userInfo
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .update({
-      'profilePicture': downloadUrl,
-      'pfpType': metadata.contentType
-    });
+    userInfo.doc(FirebaseAuth.instance.currentUser?.uid).update(
+        {'profilePicture': downloadUrl, 'pfpType': metadata.contentType});
 
     // Also calls the cloud function to update profile picture, since the user
     // can't access some directories where this should be allowed.
@@ -171,7 +167,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           widgetDefault: Hero(
                             tag: '$username Profile Picture',
                             child: fetchProfilePicture(
-                                widget.userData['profilePicture'], widget.userData['pfpType'], username,
+                                widget.userData['profilePicture'],
+                                widget.userData['pfpType'],
+                                username,
                                 padding: true),
                           ),
                           editIconBorder:
@@ -284,7 +282,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                         padding: const EdgeInsets.fromLTRB(
                                             16, 0, 16, 0),
                                         child: Text(
-                                          (experience.isInfinite) ? "Infinity" : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
+                                          (experience.isInfinite)
+                                              ? "Infinity"
+                                              : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
                                           style: Theme.of(context)
                                               .textTheme
                                               .headline6

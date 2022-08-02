@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:maths_club/screens/edit_question.dart';
-
-import '../utils/components.dart';
-import 'auth/landing_page.dart';
+import 'package:maths_club/utils/components.dart';
+import 'package:maths_club/screens/auth/landing_page.dart';
 
 /**
- * The following section includes functions for the home page.
+ * The following section includes functions for the post/quiz creation page.
  */
 
 /// A checkbox with a label.

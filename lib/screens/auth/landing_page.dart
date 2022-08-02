@@ -7,6 +7,7 @@ import 'package:maths_club/screens/create_post_view.dart';
 import 'package:maths_club/screens/edit_question.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/screens/leaderboards.dart';
+import 'package:maths_club/screens/quiz_view.dart';
 import 'package:maths_club/screens/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
 
@@ -19,7 +20,8 @@ enum Destination {
   createPost,
   editQuestion,
   leaderboards,
-  section
+  section,
+  quiz
 }
 
 /// This function takes in a destination from the enum above and returns a
@@ -42,6 +44,8 @@ getDestination(Destination destination, Map<String, dynamic> userData,
     return const Leaderboards();
   } else if (destination == Destination.section) {
     return SectionPage(userData: userData);
+  } else if (destination == Destination.quiz) {
+    return const QuizView();
   } else {
     return HomePage(userData: userData);
   }
