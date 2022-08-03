@@ -9,7 +9,8 @@ Widget header(String title, BuildContext context,
     double paddingWidth = 20,
     double fontSize = 38,
     bool backArrow = false,
-    bool showIcon = true}) {
+    bool showIcon = true,
+    Function? customBackLogic}) {
   return Padding(
     padding: const EdgeInsets.all(26.0),
     child: Row(
@@ -21,7 +22,7 @@ Widget header(String title, BuildContext context,
               icon: Icon(Icons.arrow_back,
                   color: Theme.of(context).primaryColorLight),
               onPressed: () {
-                AuthGate.of(context)?.pop();
+                (customBackLogic == null) ? Navigator.of(context).pop() : customBackLogic.call();
               }),
         ),
         Visibility(

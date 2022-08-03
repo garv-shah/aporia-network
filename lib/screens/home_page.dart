@@ -5,7 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/screens/create_post_view.dart';
+import 'package:maths_club/screens/leaderboards.dart';
+import 'package:maths_club/screens/section_page.dart';
+import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:maths_club/widgets/forks/sleek_circular_slider/appearance.dart';
@@ -30,8 +33,7 @@ Widget actionCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
     required IconData icon,
     required String text,
-    Destination? navigateTo,
-      Map<String, dynamic>? navigationInput}) {
+      Widget? navigateTo}) {
   return Padding(
     padding: position.padding,
     child: Card(
@@ -45,7 +47,10 @@ Widget actionCard(BuildContext context,
         highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
         onTap: () {
           if (navigateTo != null) {
-            AuthGate.of(context)?.push(navigateTo, input: navigationInput);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => navigateTo),
+            );
           } else {
             debugPrint("action button clicked!");
           }
@@ -94,7 +99,10 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String t
               padding: const EdgeInsets.all(16.0),
               child: OutlinedButton(
                   onPressed: () {
-                    AuthGate.of(context)?.push(Destination.section);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SectionPage(userData: userData)),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                       primary: Theme.of(context).colorScheme.primary,
@@ -191,7 +199,10 @@ Widget userInfo(BuildContext context,
               splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
               highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
               onTap: () {
-                AuthGate.of(context)?.push(Destination.settings, input: {'role': 'Admin'});
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage(userData: userData,)),
+                );
               },
               child: SizedBox(
                 height: 175,
@@ -390,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                         actionCard(context,
                             icon: Icons.people,
                             text: "Leaderboards",
-                            navigateTo: Destination.leaderboards,
+                            navigateTo: const Leaderboards(),
                             position: PositionPadding.start),
                         actionCard(context,
                             icon: Icons.admin_panel_settings,
@@ -398,12 +409,11 @@ class _HomePageState extends State<HomePage> {
                         actionCard(context,
                             icon: Icons.create,
                             text: "Create Post",
-                            navigateTo: Destination.createPost),
+                            navigateTo: const CreatePost()),
                         actionCard(context,
                             icon: Icons.settings,
                             text: "Settings",
-                            navigateTo: Destination.settings,
-                            navigationInput: {'role': 'Admin'},
+                            navigateTo: SettingsPage(userData: widget.userData),
                             position: PositionPadding.end),
                       ],
                     ),

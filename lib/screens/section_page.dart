@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/screens/quiz_view.dart';
 import 'package:maths_club/widgets/section_app_bar.dart';
 
 /// An enum for the horizontal carousel that returns padding based on position.
@@ -57,7 +58,10 @@ Widget postCard(BuildContext context,
                 padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
                 child: OutlinedButton(
                     onPressed: () {
-                      AuthGate.of(context)?.push(Destination.quiz);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const QuizView()),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                         primary: Theme.of(context).colorScheme.primary,

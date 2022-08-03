@@ -62,10 +62,9 @@ extension StringExtension on String {
 
 /// This is the main home page leading to other pages.
 class SettingsPage extends StatefulWidget {
-  final String role;
   final Map<String, dynamic> userData;
 
-  const SettingsPage({Key? key, required this.role, required this.userData})
+  const SettingsPage({Key? key, required this.userData})
       : super(key: key);
 
   @override
@@ -136,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icon(Icons.arrow_back,
                 color: Theme.of(context).primaryColorLight),
             onPressed: () {
-              AuthGate.of(context)?.pop();
+              Navigator.of(context).pop();
             }),
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -429,10 +428,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               if (FirebaseAuth.instance.currentUser != null) {
                                 try {
                                   await FirebaseAuth.instance.currentUser
-                                      ?.delete()
-                                      .then((value) {
-                                    AuthGate.of(context)?.clearHistory();
-                                  });
+                                      ?.delete();
                                 } catch (error) {
                                   final snackBar = SnackBar(
                                     content: Text(
@@ -478,9 +474,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           padding: const EdgeInsets.all(16.0),
                           child: OutlinedButton(
                             onPressed: () {
-                              FirebaseAuth.instance.signOut().then((value) {
-                                AuthGate.of(context)?.clearHistory();
-                              });
+                              FirebaseAuth.instance.signOut();
                             },
                             style: ButtonStyle(
                               foregroundColor: MaterialStateProperty.all<Color>(

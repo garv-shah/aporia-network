@@ -13,47 +13,8 @@ import 'package:maths_club/screens/settings_page.dart';
 
 // View documentation here: https://github.com/cgs-math/app#landing-page.
 
-/// This is an enum of possible routes you can go to, for convenience of typing.
-enum Destination {
-  home,
-  settings,
-  createPost,
-  editQuestion,
-  leaderboards,
-  section,
-  quiz
-}
-
-/// This function takes in a destination from the enum above and returns a
-/// widget with the correct input parameters.
-///
-/// The function must specify which entries of the input map correspond to what
-/// input parameters, and userData can be added as an extra.
-getDestination(Destination destination, Map<String, dynamic> userData,
-    Map<String, dynamic> input) {
-  if (destination == Destination.settings) {
-    return SettingsPage(
-      role: input['role'],
-      userData: userData,
-    );
-  } else if (destination == Destination.createPost) {
-    return const CreatePost();
-  } else if (destination == Destination.editQuestion) {
-    return EditQuestion(title: input['title']);
-  } else if (destination == Destination.leaderboards) {
-    return const Leaderboards();
-  } else if (destination == Destination.section) {
-    return SectionPage(userData: userData);
-  } else if (destination == Destination.quiz) {
-    return const QuizView();
-  } else {
-    return HomePage(userData: userData);
-  }
-}
-
 /// Provides the current widget to go to based on the authentication state.
-getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot,
-    Destination destination, Map<String, dynamic> input) {
+getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
   // If user data has an error.
   if (userDataSnapshot.hasError) {
     return Scaffold(
@@ -73,7 +34,7 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot,
   if (userDataSnapshot.connectionState == ConnectionState.active) {
     Map<String, dynamic> userData =
         userDataSnapshot.data!.data() as Map<String, dynamic>;
-    return getDestination(destination, userData, input);
+    return HomePage(userData: userData);
   }
 
   return const Scaffold(
@@ -90,45 +51,11 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot,
 class AuthGate extends StatefulWidget {
   const AuthGate({Key? key}) : super(key: key);
 
-  // This line allows us to call AuthGate.of(context) outside of the AuthGate,
-  // and returns the instance of state below, allowing us to call functions
-  // inside the state widget.
-  static _AuthGateState? of(BuildContext context) =>
-      context.findAncestorStateOfType<_AuthGateState>();
-
   @override
   State<AuthGate> createState() => _AuthGateState();
 }
 
 class _AuthGateState extends State<AuthGate> {
-  // A list of destinations the user has been to and their input parameters
-  List<Destination> destination = [Destination.home];
-  List<Map<String, dynamic>> childInput = [{}];
-
-  /// A function that can be called to "push" a new route onto the router stack.
-  push(Destination newDestination, {Map<String, dynamic>? input}) {
-    setState(() {
-      destination.add(newDestination);
-      childInput.add(input ?? {});
-    });
-  }
-
-  /// A function that can be called to "pop" a route off the router stack.
-  pop() {
-    setState(() {
-      destination.removeLast();
-      childInput.removeLast();
-    });
-  }
-
-  /// A function that can be called the clear the stack.
-  clearHistory() {
-    setState(() {
-      destination = [Destination.home];
-      childInput = [{}];
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
@@ -176,8 +103,7 @@ class _AuthGateState extends State<AuthGate> {
                   );
                 },
                 duration: const Duration(milliseconds: 500),
-                child: getWidget(
-                    userDataSnapshot, destination.last, childInput.last),
+                child: getWidget(userDataSnapshot),
               );
             },
           );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/screens/leaderboards.dart';
+import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/widgets/forks/search_bar.dart';
 
 /// This is a widget that creates a custom app bar for the section view
@@ -54,7 +56,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
                         child: IconButton(onPressed: () {
-                          AuthGate.of(context)?.pop();
+                          Navigator.of(context).pop();
                         },
                           color: Theme.of(context)
                               .primaryColorLight
@@ -137,7 +139,10 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       splashRadius: 20,
                       onPressed: () {
                         // Goes to the leaderboards when the icon is tapped.
-                        AuthGate.of(context)?.push(Destination.leaderboards);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Leaderboards()),
+                        );
                       },
                       icon: Icon(Icons.people,
                           color: Theme.of(context)
@@ -153,7 +158,10 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     onTap: () {
                       // Goes to the settings page when the profile picture is
                       // tapped.
-                      AuthGate.of(context)?.push(Destination.settings, input: {'role': 'Admin'});
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SettingsPage(userData: widget.userData)),
+                      );
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.
