@@ -69,17 +69,30 @@ class CreatePost extends StatefulWidget {
 }
 
 class _CreatePostState extends State<CreatePost> {
+  // Stateful values for quiz checkbox and group dropdown.
   bool createQuiz = true;
+  String? selectedGroup;
+
   // Controllers for the date input range.
   TextEditingController dateInputStart = TextEditingController();
   TextEditingController dateInputEnd = TextEditingController();
+
+  // Date range for the input field.
   DateTimeRange? currentDateRange;
+
+  // Keys for the animated list of questions and the overall form.
   final _animatedListKey = GlobalKey<AnimatedListState>();
   final _formKey = GlobalKey<FormState>();
+
+  // How many questions there are in the document.
   int questionIndex = 0;
 
+  // Data for the questions selected, and the entire form respectively
   Map<String, dynamic> questionData = {};
   Map<String, dynamic> formData = {};
+
+  // ID for the post
+  String? id;
 
   @override
   void initState() {
@@ -278,7 +291,7 @@ class _CreatePostState extends State<CreatePost> {
                                             onSave: (List<dynamic> data) =>
                                                 updateJSON(
                                                     data,
-                                                    JsonType.question,
+                                                    JsonType.hints,
                                                     questionNumber))));
                               },
                               style: OutlinedButton.styleFrom(
@@ -318,13 +331,17 @@ class _CreatePostState extends State<CreatePost> {
 
             formData['createQuiz'] = createQuiz;
             formData['questionData'] = questionData;
+            formData['Group'] = selectedGroup;
             formData['creationTime'] = DateTime.now();
             formData['Start Date'] =
                 DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
             formData['End Date'] =
                 DateFormat('dd/MM/yyyy').parse(formData['End Date']);
 
-            FirebaseFirestore.instance.collection("posts").doc(const Uuid().v4()).set(formData);
+            // If the ID is null, create an ID.
+            id ??= const Uuid().v4();
+
+            FirebaseFirestore.instance.collection("posts").doc(id).set(formData);
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -380,6 +397,39 @@ class _CreatePostState extends State<CreatePost> {
                         return null;
                       },
                     ),
+                  ),
+                  // group input
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                    child: FutureBuilder(
+                      future: FirebaseFirestore.instance.collection('postGroups').get(),
+                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> postGroupsSnapshot) {
+                        if (postGroupsSnapshot.connectionState == ConnectionState.done) {
+                          if (postGroupsSnapshot.hasError) {
+                            return Text(postGroupsSnapshot.error.toString());
+                          } else {
+                            List<DropdownMenuItem<String>> groups = [];
+
+                            // Iterates through the documents in he collection and creates a list of dropdown menu options.
+                            for (var i = 0; i < (postGroupsSnapshot.data?.docs.length ?? 0); i++) {
+                              QueryDocumentSnapshot<Map<String, dynamic>>? doc = postGroupsSnapshot.data?.docs[i];
+                              groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
+                            }
+
+                            // If there is so selected group, set it to something
+                            selectedGroup ??= groups.first.value ?? 'drafts';
+
+                            return DropdownButtonFormField(items: groups, onChanged: (String? value) {
+                              selectedGroup = value;
+                            },
+                              value: selectedGroup,
+                            hint: const Text("Publishing Group"),);
+                          }
+                        } else {
+                          return DropdownButtonFormField(items: const [DropdownMenuItem(value: "Loading...", child: Text("Loading..."),)], onChanged: (String? value) {},);
+                        }
+                      },
+                    )
                   ),
                   // create quiz checkbox
                   LabeledCheckbox(

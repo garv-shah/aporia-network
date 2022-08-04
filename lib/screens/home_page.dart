@@ -33,7 +33,7 @@ Widget actionCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
     required IconData icon,
     required String text,
-      Widget? navigateTo}) {
+    Widget? navigateTo}) {
   return Padding(
     padding: position.padding,
     child: Card(
@@ -77,9 +77,10 @@ Widget actionCard(BuildContext context,
 }
 
 /// Creates section based cards that lead to quizzes/posts.
-Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String title) {
+Widget sectionCard(
+    BuildContext context, Map<String, dynamic> userData, String title, String? sectionID) {
   return Padding(
-    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
+    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 16.0, 16.0),
     child: Card(
       elevation: 5,
       shape: const RoundedRectangleBorder(
@@ -101,7 +102,9 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String t
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SectionPage(userData: userData)),
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SectionPage(userData: userData, title: title, id: sectionID)),
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -127,7 +130,9 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData, String t
 
 /// progress bar rings around user profile picture
 Widget userRings(BuildContext context,
-    {required Widget profilePicture, required double experience, required Map<String, dynamic> levelMap}) {
+    {required Widget profilePicture,
+    required double experience,
+    required Map<String, dynamic> levelMap}) {
   return SleekCircularSlider(
     appearance: CircularSliderAppearance(
         animationEnabled: true,
@@ -155,35 +160,48 @@ Widget userRings(BuildContext context,
 
 /// Calculates a user's level and returns a map based on experience points.
 Map<String, dynamic> calculateLevel(experience) {
-  double y = experience;  // total experience points
+  double y = experience; // total experience points
 
-  if (y.isInfinite) {y = 0;} else {y = y.abs();}
+  if (y.isInfinite) {
+    y = 0;
+  } else {
+    y = y.abs();
+  }
 
   // parameters for levelling up
-  double a = 75/2;
-  double b = 175/2;
+  double a = 75 / 2;
+  double b = 175 / 2;
   double c = -125;
 
-  double x = (-b + sqrt(pow(b, 2) - 4 * a * (c - y))) / (2 * a);  // rearranged quadratic formula
+  double x = (-b + sqrt(pow(b, 2) - 4 * a * (c - y))) /
+      (2 * a); // rearranged quadratic formula
   int level = x.floor(); // always round down to find current level
 
   int nextLevel = level + 1;
   double requiredExperience = a * pow(nextLevel, 2) + b * nextLevel + c;
   double lowerExperience = a * pow(level, 2) + b * level + c;
 
-  double animDurationMultiplier = 125/y;
+  double animDurationMultiplier = 125 / y;
 
-  return {'level': level, 'maxVal': requiredExperience, 'minVal': lowerExperience, 'animDurationMultiplier': animDurationMultiplier};
+  return {
+    'level': level,
+    'maxVal': requiredExperience,
+    'minVal': lowerExperience,
+    'animDurationMultiplier': animDurationMultiplier
+  };
 }
 
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
-    {required Map<String, dynamic> userData,
-    required Widget profilePicture}) {
+    {required Map<String, dynamic> userData, required Widget profilePicture}) {
   return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.collection('quizPoints').doc(FirebaseAuth.instance.currentUser?.uid).snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('quizPoints')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .snapshots(),
       builder: (context, pointsSnapshot) {
-        Map<String, dynamic>? experienceMap = pointsSnapshot.data?.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? experienceMap =
+            pointsSnapshot.data?.data() as Map<String, dynamic>?;
         double experience = (experienceMap?['experience'] ?? 0).toDouble();
         Map<String, dynamic> levelMap = calculateLevel(experience);
 
@@ -197,11 +215,15 @@ Widget userInfo(BuildContext context,
             child: InkWell(
               borderRadius: const BorderRadius.all(Radius.circular(15)),
               splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
-              highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+              highlightColor:
+                  Theme.of(context).colorScheme.primary.withAlpha(20),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SettingsPage(userData: userData,)),
+                  MaterialPageRoute(
+                      builder: (context) => SettingsPage(
+                            userData: userData,
+                          )),
                 );
               },
               child: SizedBox(
@@ -212,7 +234,8 @@ Widget userInfo(BuildContext context,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+                        padding:
+                            const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
                         child: SizedBox(
                           width: MediaQuery.of(context).size.width - 290,
                           child: Column(
@@ -222,21 +245,29 @@ Widget userInfo(BuildContext context,
                               FittedBox(
                                 fit: BoxFit.fitWidth,
                                 child: Text(userData['username'],
-                                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                                        color: Theme.of(context).primaryColorLight)),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .primaryColorLight)),
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text('Level',
-                                      style: Theme.of(context).textTheme.subtitle1),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle1),
                                   Text(
                                     levelMap['level'].toString(),
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
                                         ?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                     overflow: TextOverflow.fade,
                                     softWrap: false,
                                   ),
@@ -246,14 +277,20 @@ Widget userInfo(BuildContext context,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text('Experience',
-                                      style: Theme.of(context).textTheme.subtitle1),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle1),
                                   Text(
-                                    (experience.isInfinite) ? "Infinity" : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
+                                    (experience.isInfinite)
+                                        ? "Infinity"
+                                        : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline6
                                         ?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                     overflow: TextOverflow.fade,
                                     softWrap: false,
                                   ),
@@ -269,7 +306,9 @@ Widget userInfo(BuildContext context,
                             width: 125,
                             height: 125,
                             child: userRings(context,
-                                profilePicture: profilePicture, experience: experience, levelMap: levelMap)),
+                                profilePicture: profilePicture,
+                                experience: experience,
+                                levelMap: levelMap)),
                       ),
                     ],
                   ),
@@ -278,22 +317,23 @@ Widget userInfo(BuildContext context,
             ),
           ),
         );
-      }
-  );
+      });
 }
 
-Widget fetchProfilePicture(String? profilePicture, String? pfpType, String? username, {bool padding = true, double? customPadding}) {
-  String imageUrl = profilePicture ?? "https://avatars.dicebear.com/api/avataaars/$username.svg";
+Widget fetchProfilePicture(
+    String? profilePicture, String? pfpType, String? username,
+    {bool padding = true, double? customPadding}) {
+  String imageUrl = profilePicture ??
+      "https://avatars.dicebear.com/api/avataaars/$username.svg";
 
   if (imageUrl.isEmpty) {
     return LayoutBuilder(
-        builder: (BuildContext context,
-            BoxConstraints constraints) {
-          return Center(
-            child: UserAvatar(size: padding ? constraints.maxHeight - (padding ? 10 : 0) : null),
-          );
-        }
-    );
+        builder: (BuildContext context, BoxConstraints constraints) {
+      return Center(
+        child: UserAvatar(
+            size: padding ? constraints.maxHeight - (padding ? 10 : 0) : null),
+      );
+    });
   } else if (pfpType == 'image/svg+xml') {
     return Center(
       child: Padding(
@@ -301,11 +341,9 @@ Widget fetchProfilePicture(String? profilePicture, String? pfpType, String? user
         child: ClipOval(
           child: SvgPicture.network(
             imageUrl,
-            semanticsLabel: '$username profile picture',
+            semanticsLabel: '$username profile picture svg',
             placeholderBuilder: (BuildContext context) => const SizedBox(
-                height: 30,
-                width: 30,
-                child: CircularProgressIndicator()),
+                height: 30, width: 30, child: CircularProgressIndicator()),
           ),
         ),
       ),
@@ -313,38 +351,30 @@ Widget fetchProfilePicture(String? profilePicture, String? pfpType, String? user
   } else {
     return CachedNetworkImage(
       imageUrl: imageUrl,
-      imageBuilder: (context, imageProvider) =>
-          LayoutBuilder(
-              builder: (BuildContext context,
-                  BoxConstraints constraints) {
-                return Center(
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: imageProvider,
-                    radius: constraints.maxWidth / 2 - (padding ? (customPadding ?? 15) : 0),
-                  ),
-                );
-              }
+      imageBuilder: (context, imageProvider) => LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        return Center(
+          child: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            backgroundImage: imageProvider,
+            radius: constraints.maxWidth / 2 -
+                (padding ? (customPadding ?? 15) : 0),
           ),
-      progressIndicatorBuilder: (context, url,
-          downloadProgress) =>
-          Center(
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: CircularProgressIndicator(value: downloadProgress
-                  .progress),
-            ),
-          ),
-      errorWidget: (context, url, error) =>
-          LayoutBuilder(
-              builder: (BuildContext context,
-                  BoxConstraints constraints) {
-                return Center(
-                  child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
-                );
-              }
-          ),
+        );
+      }),
+      progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+        child: SizedBox(
+          height: 30,
+          width: 30,
+          child: CircularProgressIndicator(value: downloadProgress.progress),
+        ),
+      ),
+      errorWidget: (context, url, error) => LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        return Center(
+          child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
+        );
+      }),
     );
   }
 }
@@ -361,7 +391,6 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 
 class _HomePageState extends State<HomePage> {
   @override
@@ -381,50 +410,104 @@ class _HomePageState extends State<HomePage> {
 
           /// bottom scrollable section
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                /// user info display
-                userInfo(context,
-                    userData: widget.userData,
-                    profilePicture: Hero(tag: '$username Profile Picture',
-                    child: fetchProfilePicture(widget.userData['profilePicture'], widget.userData['pfpType'], username))),
+            child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('roles')
+                    .where('members',
+                        arrayContains: FirebaseAuth.instance.currentUser?.uid)
+                    .snapshots(),
+                builder: (context, rolesSnapshot) {
+                  if (rolesSnapshot.connectionState == ConnectionState.active) {
+                    // If the user is not in a role
+                    if (rolesSnapshot.data?.docs.isEmpty ?? true) {
+                      return const Center(child: Padding(
+                        padding: EdgeInsets.fromLTRB(50.0, 16.0, 50.0, 16.0),
+                        child: Text("Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
+                      ));
+                    } else {
+                      return ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
 
-                /// horizontal carousel for actions
-                SizedBox(
-                  height: 175,
-                  child: Center(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      children: [
-                        actionCard(context,
-                            icon: Icons.people,
-                            text: "Leaderboards",
-                            navigateTo: const Leaderboards(),
-                            position: PositionPadding.start),
-                        actionCard(context,
-                            icon: Icons.admin_panel_settings,
-                            text: "Admin View"),
-                        actionCard(context,
-                            icon: Icons.create,
-                            text: "Create Post",
-                            navigateTo: const CreatePost()),
-                        actionCard(context,
-                            icon: Icons.settings,
-                            text: "Settings",
-                            navigateTo: SettingsPage(userData: widget.userData),
-                            position: PositionPadding.end),
-                      ],
-                    ),
-                  ),
-                ),
+                          /// user info display
+                          userInfo(context,
+                              userData: widget.userData,
+                              profilePicture: Hero(
+                                  tag: '$username Profile Picture',
+                                  child: fetchProfilePicture(
+                                      widget.userData['profilePicture'],
+                                      widget.userData['pfpType'],
+                                      username))),
 
-                /// cards leading to individual sections
-                sectionCard(context, widget.userData, "Junior"),
-                sectionCard(context, widget.userData, "Senior"),
-              ],
-            ),
+                          /// horizontal carousel for actions
+                          SizedBox(
+                            height: 175,
+                            child: Center(
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                children: [
+                                  actionCard(context,
+                                      icon: Icons.people,
+                                      text: "Leaderboards",
+                                      navigateTo: const Leaderboards(),
+                                      position: PositionPadding.start),
+                                  // Only show tile if user is admin
+                                  (rolesSnapshot.data?.docs[0]['tag'] ==
+                                      'Admin')
+                                      ? actionCard(context,
+                                      icon: Icons.admin_panel_settings,
+                                      text: "Admin View")
+                                      : const SizedBox.shrink(),
+                                  // Only show tile if user is admin
+                                  (rolesSnapshot.data?.docs[0]['tag'] ==
+                                      'Admin')
+                                      ? actionCard(context,
+                                      icon: Icons.create,
+                                      text: "Create Post",
+                                      navigateTo: const CreatePost())
+                                      : const SizedBox.shrink(),
+                                  actionCard(context,
+                                      icon: Icons.settings,
+                                      text: "Settings",
+                                      navigateTo:
+                                      SettingsPage(userData: widget.userData),
+                                      position: PositionPadding.end),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          /// cards leading to individual sections
+                          StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('postGroups')
+                                  .where('roles',
+                                  arrayContains: rolesSnapshot.data?.docs[0].id)
+                                  .snapshots(),
+                              builder: (context, postsGroupSnapshot) {
+                                if (postsGroupSnapshot.connectionState == ConnectionState.active) {
+                                  return ListView.builder(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    padding: EdgeInsets.zero,
+                                    itemCount: postsGroupSnapshot.data?.docs.length,
+                                      itemBuilder: (BuildContext context, int index) {
+                                        return sectionCard(context, widget.userData, postsGroupSnapshot.data?.docs[index]["tag"], postsGroupSnapshot.data?.docs[index].id);
+                                      }
+                                  );
+                                } else {
+                                  return const Center(child: CircularProgressIndicator());
+                                }
+                              }
+                          ),
+                        ],
+                      );
+                    }
+                  } else {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                }),
           )
         ],
       ),

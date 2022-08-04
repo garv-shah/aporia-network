@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
 import 'package:maths_club/screens/quiz_view.dart';
 import 'package:maths_club/widgets/section_app_bar.dart';
+
+import '../utils/components.dart';
 
 /// An enum for the horizontal carousel that returns padding based on position.
 enum PositionPadding {
@@ -88,7 +91,9 @@ Widget postCard(BuildContext context,
 /// This is the section page which allows for access to quizzes and posts
 class SectionPage extends StatefulWidget {
   Map<String, dynamic> userData;
-  SectionPage({Key? key, required this.userData}) : super(key: key);
+  String title;
+  String? id;
+  SectionPage({Key? key, required this.userData, required this.title, required this.id}) : super(key: key);
 
   @override
   State<SectionPage> createState() => _SectionPageState();
@@ -99,62 +104,108 @@ class _SectionPageState extends State<SectionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       /// main body
-      body: ListView(
-        children: [
-          SectionAppBar(
-            context,
-            title: "Senior",
-            userData: widget.userData
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
-            child: Text("Active Quizzes",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4
-                    ?.copyWith(color: Theme.of(context).primaryColorLight)),
-          ),
-          SizedBox(
-            height: 175,
-            child: Center(
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .where('Group',
+            isEqualTo: widget.id)
+            .snapshots(),
+        builder: (context, postsSnapshot) {
+          if (postsSnapshot.connectionState == ConnectionState.active) {
+            List quizzes = [];
+            List posts = [];
+
+            for (var i = 0; i < (postsSnapshot.data?.docs.length ?? 0); i++) {
+              var doc = postsSnapshot.data?.docs[i];
+
+              // If the start date the is before the current time and the end date is after the current time, is inside quiz period.
+              if (doc?['Start Date'].toDate().isBefore(DateTime.now()) && doc?['End Date'].toDate().isAfter(DateTime.now())) {
+                // Gets the JSON version of the quiz
+                Map<String, dynamic> json = postsSnapshot.data?.docs[i].data() as Map<String, dynamic>;
+                quizzes.add(json);
+              } else {
+                // Gets the JSON version of the post
+                Map<String, dynamic> json = postsSnapshot.data?.docs[i].data() as Map<String, dynamic>;
+                posts.add(json);
+              }
+            }
+
+            if (posts.isEmpty && quizzes.isEmpty) {
+              return SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                  header(widget.title, context,
+                      fontSize: 30, backArrow: true),
+                  const Expanded(child: Center(child: Text("No posts yet!"))),
+                ]),
+              );
+            } else {
+              return ListView(
                 children: [
-                  postCard(context,
-                      title: "T2 W8",
-                      description: "Polynomial Applications",
-                      position: PositionPadding.start,
-                      type: PostType.quiz),
-                  postCard(context,
-                      title: "T2 W7",
-                      description: "Number Theory Fun!",
-                      type: PostType.quiz),
-                  postCard(context,
-                      title: "2022 CAT",
-                      description:
-                      "Computational & Algorithmic Thinking Competition",
-                      position: PositionPadding.end,
-                      type: PostType.quiz),
+                  SectionAppBar(
+                      context,
+                      title: widget.title,
+                      userData: widget.userData
+                  ),
+                  // Don't show "quizzes" title if there are no posts
+                  (quizzes.isNotEmpty) ? Padding(
+                    padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
+                    child: Text("Active Quizzes",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(color: Theme
+                            .of(context)
+                            .primaryColorLight)),
+                  ) : const SizedBox.shrink(),
+                  SizedBox(
+                    height: 175,
+                    child: Center(
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        itemCount: quizzes.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return postCard(context,
+                              title: quizzes[index]['Quiz Title'],
+                              description: quizzes[index]['Quiz Description'],
+                              position: PositionPadding.start,
+                              type: PostType.quiz);
+                        },
+                      ),
+                    ),
+                  ),
+                  // Don't show "posts" title if there are no posts
+                  (posts.isNotEmpty) ? Padding(
+                    padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
+                    child: Text("Posts",
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(color: Theme
+                            .of(context)
+                            .primaryColorLight)),
+                  ) : const SizedBox.shrink(),
+                  ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: posts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return postCard(context, title: posts[index]['Title'],
+                            description: posts[index]['Description'],
+                            position: PositionPadding.start,
+                            type: PostType.post);
+                      }),
                 ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
-            child: Text("Posts",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4
-                    ?.copyWith(color: Theme.of(context).primaryColorLight)),
-          ),
-          postCard(context, title: "Term 2 Week 6", description: "Senior Problems for Term 2 Week 6", position: PositionPadding.start, type: PostType.post),
-          postCard(context, title: "Term 2 Week 5", description: "Senior Problems for Term 2 Week 5", type: PostType.post),
-          postCard(context, title: "Term 2 Week 4", description: "Senior Problems for Term 2 Week 4", type: PostType.post),
-          postCard(context, title: "Term 2 Week 3", description: "Senior Problems for Term 2 Week 3", type: PostType.post),
-          postCard(context, title: "Term 2 Week 2", description: "Senior Problems for Term 2 Week 2", type: PostType.post),
-          postCard(context, title: "Term 2 Week 1", description: "Senior Problems for Term 2 Week 1", position: PositionPadding.start, type: PostType.post),
-        ],
+              );
+            }
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        }
       ),
     );
   }
