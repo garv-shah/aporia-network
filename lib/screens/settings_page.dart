@@ -9,7 +9,6 @@ import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:maths_club/screens/auth/landing_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
 

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:maths_club/screens/edit_question.dart';
+import 'package:maths_club/screens/post_creation/edit_question.dart';
 import 'package:maths_club/utils/components.dart';
 import 'package:uuid/uuid.dart';
 
@@ -333,15 +333,19 @@ class _CreatePostState extends State<CreatePost> {
             formData['questionData'] = questionData;
             formData['Group'] = selectedGroup;
             formData['creationTime'] = DateTime.now();
-            formData['Start Date'] =
-                DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
-            formData['End Date'] =
-                DateFormat('dd/MM/yyyy').parse(formData['End Date']);
+            if (createQuiz) {
+              formData['Start Date'] =
+                  DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
+              formData['End Date'] =
+                  DateFormat('dd/MM/yyyy').parse(formData['End Date']);
+            }
 
             // If the ID is null, create an ID.
             id ??= const Uuid().v4();
 
             FirebaseFirestore.instance.collection("posts").doc(id).set(formData);
+
+            Navigator.pop(context);
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

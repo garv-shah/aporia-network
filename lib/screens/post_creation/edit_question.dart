@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:visual_editor/visual-editor.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 
-import '../utils/components.dart';
+import '../../utils/components.dart';
 
 typedef DataCallback = void Function(List<dynamic> data);
 typedef TexCallback = void Function(String solution);
