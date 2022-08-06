@@ -1,4 +1,6 @@
 import * as functions from "firebase-functions";
+
+const MathExpression = require('math-expressions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
@@ -9,7 +11,8 @@ exports.createUser = functions
     .auth.user().onCreate(async (user) => {
         await db.collection('quizPoints').doc(user.uid).set({
             'username': '',
-            'experience': 0
+            'experience': 0,
+            'completedQuizzes': []
         });
 
         console.log(`Creating User For ${user.uid}`)
@@ -87,5 +90,66 @@ exports.updatePfp = functions
                 profilePicture: profilePicture,
                 pfpType: pfpType,
             });
+        }
+    });
+
+exports.markQuestions = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let questionAnswers: object = data.questionAnswers;
+        console.log(questionAnswers);
+        console.log(typeof questionAnswers);
+        let quizID: string = data.quizID;
+        console.log(quizID);
+        console.log(typeof quizID);
+        if (questionAnswers == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'Question answers must be provided!');
+        } else if (quizID == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'A question ID must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Marking questions for ${context.auth?.uid} with quiz ${quizID}`, {structuredData: true});
+
+            let markedObject: { [key: string]: any; } = {'Experience': 0};
+            let quiz = await db.collection("posts").doc(quizID).get();
+
+            for (let i = 1; i <= Object.keys(questionAnswers).length; i++) {
+                const data: { [key: string]: any; } = Object(quiz.data() as object)['questionData'][`Question ${i}`];
+                const experience: number = data['Experience'];
+
+                const correctAnswerLatex: string = data['Solution TEX'];
+                console.log(correctAnswerLatex);
+                const correctAnswer = MathExpression.fromLatex(correctAnswerLatex);
+
+                const userAnswerLatex: string | undefined = Object(questionAnswers)[`Question ${i}`];
+                console.log(userAnswerLatex);
+                const userAnswer = MathExpression.fromLatex(userAnswerLatex);
+
+                const isCorrect: boolean = correctAnswer.equals(userAnswer);
+                markedObject[`Question ${i}`] = isCorrect;
+
+                if (isCorrect) {
+                    markedObject['Experience'] += experience;
+                }
+            }
+
+            await db.collection("quizPoints").doc(context.auth!.uid).get().then((points: any) => {
+                const currentData: { [key: string]: any; } = Object(points.data() as object)
+                const completedQuizzes: string[] = currentData['completedQuizzes'];
+
+                if (completedQuizzes.includes(quizID)) {
+                    markedObject['Experience'] = 0
+                } else {
+                    completedQuizzes.push(quizID);
+
+                    db.collection("quizPoints").doc(context.auth!.uid).update({
+                        experience: currentData['experience'] + markedObject['Experience'],
+                        completedQuizzes: completedQuizzes
+                    });
+                }
+            });
+
+            return markedObject;
         }
     });

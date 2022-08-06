@@ -51,6 +51,7 @@ class _EditQuestionState extends State<EditQuestion> {
             children: [
               header(widget.title, context, fontSize: 20, backArrow: true, customBackLogic: () {
                 widget.onSave(_controller.document.toDelta().toJson());
+                print(_mathController.root.buildTeXString(cursorColor: Colors.black));
                 widget.onSolution?.call(_mathController.root.buildTeXString(cursorColor: Colors.black));
                 Navigator.of(context).pop();
               }),

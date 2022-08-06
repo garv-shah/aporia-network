@@ -1,4 +1,6 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:visual_editor/controller/controllers/editor-controller.dart';
@@ -8,12 +10,9 @@ import 'package:visual_editor/main.dart';
 
 import '../../utils/components.dart';
 
-
 /**
  * The following section includes functions for the quiz page.
  */
-
-
 
 /**
  * The following section includes the actual QuizView page.
@@ -22,6 +21,7 @@ import '../../utils/components.dart';
 /// This is the view where new posts can be created.
 class QuizView extends StatefulWidget {
   Map<String, dynamic> data;
+
   QuizView({Key? key, required this.data}) : super(key: key);
 
   @override
@@ -31,7 +31,12 @@ class QuizView extends StatefulWidget {
 class _QuizViewState extends State<QuizView> {
   MathFieldEditingController mathController = MathFieldEditingController();
   late Map<String, dynamic> questionData;
+  Map<String, dynamic> questionAnswers = {};
   int questionIndex = 0;
+
+  // The region cloud functions should be invoked from.
+  final functions =
+      FirebaseFunctions.instanceFor(region: 'australia-southeast1');
 
   @override
   void initState() {
@@ -41,85 +46,352 @@ class _QuizViewState extends State<QuizView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-
-        },
-        label: const Text('Next'),
-        icon: const Icon(Icons.arrow_forward_ios),
-      ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 32.0, 8.0, 32.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        icon: Icon(Icons.arrow_back,
-                            color: Theme.of(context).primaryColorLight),
+    return MathKeyboardViewInsets(
+      child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: (questionIndex != 0)
+                    ? FloatingActionButton.extended(
+                        key: const ValueKey<String>("Back Button"),
                         onPressed: () {
-                          Navigator.of(context).pop();
-                        }),
-                    Text(
-                      "Problem ${questionIndex + 1}",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 38),
+                          setState(() {
+                            if (questionIndex != 0) {
+                              // If not on the last page, save current page answer to map.
+                              if (questionData.keys.length != questionIndex) {
+                                questionAnswers[
+                                        'Question ${questionIndex + 1}'] =
+                                    mathController.root
+                                        .buildTeXString(
+                                            cursorColor: Colors.black)
+                                        .replaceAll(
+                                            r"\textcolor{#000000}{\cursor}",
+                                            '');
+                                mathController.clear();
+                              }
+
+                              // If previous answer is already answered, load it from map.
+                              if (questionAnswers['Question $questionIndex'] !=
+                                  null) {
+                                try {
+                                  mathController.updateValue(TeXParser(
+                                          questionAnswers[
+                                              'Question $questionIndex'])
+                                      .parse());
+                                } catch (error) {
+                                  // Do nothing.
+                                }
+                              }
+
+                              questionIndex--;
+                            }
+                          });
+                        },
+                        label: const Text('Back'),
+                        icon: const Icon(Icons.arrow_back_ios),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+                child: (questionData.keys.length == questionIndex)
+                    ? FloatingActionButton.extended(
+                        key: const ValueKey<String>("Finish Button"),
+                        onPressed: () {
+                          setState(() {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        },
+                        label: Row(
+                          children: const [
+                            Text('Finish'),
+                            SizedBox(width: 10),
+                            Icon(Icons.done)
+                          ],
+                        ),
+                      )
+                    : FloatingActionButton.extended(
+                        key: const ValueKey<String>("Next Button"),
+                        onPressed: () {
+                          setState(() {
+                            if (questionData.keys.length > questionIndex) {
+                              // Saves current answer to map.
+                              questionAnswers['Question ${questionIndex + 1}'] =
+                                  mathController.root
+                                      .buildTeXString(cursorColor: Colors.black)
+                                      .replaceAll(
+                                          r"\textcolor{#000000}{\cursor}", '');
+                              mathController.clear();
+
+                              // If next answer is already answered, load it from map.
+                              if (questionAnswers[
+                                      'Question ${questionIndex + 2}'] !=
+                                  null) {
+                                try {
+                                  mathController.updateValue(TeXParser(
+                                          questionAnswers[
+                                              'Question ${questionIndex + 2}'])
+                                      .parse());
+                                } catch (error) {
+                                  // Do nothing.
+                                }
+                              }
+
+                              questionIndex++;
+                            }
+                          });
+                        },
+                        label: Row(
+                          children: const [
+                            Text('Next'),
+                            SizedBox(width: 10),
+                            Icon(Icons.arrow_forward_ios)
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+        body: AnimatedSwitcher(
+          transitionBuilder: (child, animation) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.ease;
+
+            final tween = Tween(begin: begin, end: end);
+            final curvedAnimation = CurvedAnimation(
+              parent: animation,
+              curve: curve,
+            );
+
+            return SlideTransition(
+              position: tween.animate(curvedAnimation),
+              child: child,
+            );
+          },
+          duration: const Duration(milliseconds: 500),
+          child: ListView(
+            key: ValueKey<int>(questionIndex),
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 32.0, 8.0, 32.0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                            icon: Icon(Icons.arrow_back,
+                                color: Theme.of(context).primaryColorLight),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            }),
+                        Text(
+                          (questionData.keys.length == questionIndex)
+                              ? "Quiz Complete!"
+                              : "Problem ${questionIndex + 1}",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 38),
+                        ),
+                        // Extra sized box to make the title in the center
+                        const SizedBox(height: 48, width: 48)
+                      ],
                     ),
-                    // Extra sized box to make the title in the center
-                    const SizedBox(height: 48, width: 48)
+                    const SizedBox(height: 8),
+                    Center(
+                        child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
+                      child: Text(
+                        widget.data['Quiz Title'],
+                        textAlign: TextAlign.center,
+                      ),
+                    )),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 65,
+                      height: 65,
+                      child: SvgPicture.asset('assets/app_icon.svg',
+                          semanticsLabel: "maths club icon"),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Center(child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
-                  child: Text(widget.data['Quiz Title'], textAlign: TextAlign.center,),
-                )),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 65,
-                  height: 65,
-                  child: SvgPicture.asset('assets/app_icon.svg',
-                      semanticsLabel: "maths club icon"),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(22.0, 16.0, 22.0, 16.0),
-            child: Card(
-              elevation: 5,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15)),
               ),
-              child: VisualEditor(
-                scrollController: ScrollController(),
-                focusNode: FocusNode(),
-                controller: EditorController(document: DocumentM.fromJson(questionData['Question ${questionIndex + 1}']['Question'])),
-                config: EditorConfigM(
-                  scrollable: true,
-                  autoFocus: true,
-                  expands: false,
-                  padding: const EdgeInsets.fromLTRB(16.0, 42.0, 16.0, 42.0),
-                  readOnly: true,
-                  keyboardAppearance: Theme.of(context).brightness,
-                ),
-              ),
-            ),
+              (questionData.keys.length == questionIndex)
+                  ? Column(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 48.0),
+                          child: SvgPicture.asset('assets/party-popper.svg',
+                              height: 200,
+                              width: 200,
+                              semanticsLabel: 'Party Popper'),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(22.0, 16.0, 22.0, 16.0),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Card(
+                              elevation: 5,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    16.0, 42.0, 16.0, 42.0),
+                                child: FutureBuilder<
+                                        HttpsCallableResult<
+                                            Map<String, dynamic>>>(
+                                    future: functions
+                                        .httpsCallable('markQuestions')
+                                        .call<Map<String, dynamic>>({
+                                      'questionAnswers': questionAnswers,
+                                      'quizID': widget.data['ID']
+                                    }),
+                                    builder: (context, resultSnapshot) {
+                                      if (resultSnapshot.connectionState ==
+                                          ConnectionState.done) {
+                                        print(questionAnswers);
+                                        Map<String, dynamic>? correctedMap =
+                                            resultSnapshot.data?.data;
+                                        print(correctedMap);
+                                        return Column(
+                                          children: [
+                                            const Padding(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 16.0),
+                                              child: Text("You got:"),
+                                            ),
+                                            RichText(
+                                              text: TextSpan(
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline4,
+                                                children: <TextSpan>[
+                                                  TextSpan(
+                                                      text: correctedMap
+                                                          ?.where(
+                                                              (key, value) =>
+                                                                  value == true)
+                                                          .length
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary)),
+                                                  const TextSpan(text: ' / '),
+                                                  TextSpan(
+                                                      // Count's how many questions there are. This takes away one, because experience will be one of the keys, so it counts the keys and then takes away what would be experience.
+                                                      text: ((correctedMap
+                                                                      ?.length ??
+                                                                  1) -
+                                                              1)
+                                                          .toString()),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 16.0),
+                                              child: DefaultTextStyle(
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary),
+                                                  child: ((correctedMap?[
+                                                                  'Experience'] ??
+                                                              0) >
+                                                          0)
+                                                      ? Text(
+                                                          '+${correctedMap?['Experience']} Experience')
+                                                      : const Text(
+                                                          'No Experience Gained')),
+                                            )
+                                          ],
+                                        );
+                                      } else {
+                                        return Column(
+                                          children: const [
+                                            Padding(
+                                              padding:
+                                                  EdgeInsets.only(bottom: 32.0),
+                                              child: Text("Loading Results..."),
+                                            ),
+                                            CircularProgressIndicator()
+                                          ],
+                                        );
+                                      }
+                                    }),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(22.0, 16.0, 22.0, 16.0),
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: VisualEditor(
+                              scrollController: ScrollController(),
+                              focusNode: FocusNode(),
+                              controller: EditorController(
+                                  document: DocumentM.fromJson(questionData[
+                                          'Question ${questionIndex + 1}']
+                                      ['Question'])),
+                              config: EditorConfigM(
+                                scrollable: true,
+                                autoFocus: true,
+                                expands: false,
+                                padding: const EdgeInsets.fromLTRB(
+                                    16.0, 42.0, 16.0, 42.0),
+                                readOnly: true,
+                                keyboardAppearance:
+                                    Theme.of(context).brightness,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
+                          child: MathField(
+                            controller: mathController,
+                            variables: const ['x', 'y', 'z'],
+                            decoration:
+                                const InputDecoration(labelText: "Solution"),
+                            onChanged: (String value) {},
+                            onSubmitted: (String value) {},
+                          ),
+                        )
+                      ],
+                    )
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
-            child: MathField(
-              controller: mathController,
-              variables: const ['x', 'y', 'z'],
-              decoration: const InputDecoration(labelText: "Solution"),
-              onChanged: (String value) {},
-              onSubmitted: (String value) {},
-            ),
-          )
-        ],
+        ),
       ),
     );
   }

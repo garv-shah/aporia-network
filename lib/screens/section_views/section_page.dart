@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:algolia/algolia.dart';
+import 'package:maths_club/screens/post_creation/create_post_view.dart';
 import 'package:maths_club/screens/section_views/post_view.dart';
 import 'package:maths_club/screens/section_views/quiz_view.dart';
 import 'package:maths_club/widgets/section_app_bar.dart';
@@ -28,7 +29,7 @@ Widget postCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
     required String title,
     required String description,
-    required PostType type, required Map<String, dynamic> data}) {
+    required PostType type, required Map<String, dynamic> data, required String role}) {
   return Padding(
     padding: (type == PostType.quiz)
         ? position.padding
@@ -70,11 +71,34 @@ Widget postCard(BuildContext context,
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 16.0, 8.0, 8.0),
-                  child: Text(title,
-                      style: Theme.of(context).textTheme.headline5?.copyWith(
-                          color: Theme.of(context).primaryColorLight,
-                          fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(title,
+                            style: Theme.of(context).textTheme.headline5?.copyWith(
+                                color: Theme.of(context).primaryColorLight,
+                                fontWeight: FontWeight.w600),
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                      (role == 'Admin') ? SizedBox(
+                        height: 32.0,
+                        width: 32.0,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CreatePost(postData: data)
+                              ),
+                            );
+                          },
+                          child: Icon(Icons.edit, color: Theme.of(context).hintColor)
+                        ),
+                      ) : const SizedBox.shrink(),
+                    ],
+                  ),
                 ),
                 Text(description,
                     style: Theme.of(context).textTheme.bodyText2,
@@ -125,10 +149,11 @@ Widget postCard(BuildContext context,
 /// This is the section page which allows for access to quizzes and posts
 class SectionPage extends StatefulWidget {
   Map<String, dynamic> userData;
+  String role;
   String title;
   String? id;
   SectionPage(
-      {Key? key, required this.userData, required this.title, required this.id})
+      {Key? key, required this.userData, required this.title, required this.id, required this.role})
       : super(key: key);
 
   @override
@@ -136,8 +161,31 @@ class SectionPage extends StatefulWidget {
 }
 
 class _SectionPageState extends State<SectionPage> {
+  String searchValue = '';
+
+  Future<List<AlgoliaObjectSnapshot>> _search() async {
+
+    Algolia algolia = const Algolia.init(
+      applicationId: '3AX0WXX57C',
+      apiKey: '7d3fc81ef87a6ade4dcf5b845e3f8984',
+    );
+
+    AlgoliaQuery query = algolia.instance.index('maths-club-posts').query(searchValue);
+
+    return (await query.getObjects()).hits;
+  }
+
+  updateSearch(String value) {
+    setState(() {
+      searchValue = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _search().then((value) {
+      print(value);
+    });
     return Scaffold(
       /// main body
       body: StreamBuilder<QuerySnapshot>(
@@ -159,16 +207,18 @@ class _SectionPageState extends State<SectionPage> {
                   // following check will throw an error if the date properties
                   // are not defined, and that would be the case in a post.
                   if (doc?['Start Date'].toDate().isBefore(DateTime.now()) &&
-                      doc?['End Date'].toDate().isAfter(DateTime.now())) {
+                      doc?['End Date'].toDate().isAfter(DateTime.now()) && doc?['createQuiz'] == true) {
                     // Gets the JSON version of the quiz
                     Map<String, dynamic> json = postsSnapshot.data?.docs[i]
                         .data() as Map<String, dynamic>;
+                    json['ID'] = postsSnapshot.data?.docs[i].id;
                     quizzes.add(json);
                   }
                 } on StateError catch (_) {
                   // Gets the JSON version of the post
                   Map<String, dynamic> json = postsSnapshot.data?.docs[i].data()
                       as Map<String, dynamic>;
+                  json['ID'] = postsSnapshot.data?.docs[i].id;
                   posts.add(json);
                 }
               }
@@ -188,7 +238,7 @@ class _SectionPageState extends State<SectionPage> {
                 return ListView(
                   children: [
                     SectionAppBar(context,
-                        title: widget.title, userData: widget.userData),
+                        title: widget.title, userData: widget.userData, onSearch: updateSearch),
                     // Don't show "quizzes" title if there are no posts
                     (quizzes.isNotEmpty)
                         ? Padding(
@@ -215,7 +265,8 @@ class _SectionPageState extends State<SectionPage> {
                                 description: quizzes[index]['Quiz Description'],
                                 position: PositionPadding.start,
                                 type: PostType.quiz,
-                                data: quizzes[index]);
+                                data: quizzes[index],
+                            role: widget.role);
                           },
                         ),
                       ),
@@ -243,7 +294,8 @@ class _SectionPageState extends State<SectionPage> {
                               description: posts[index]['Description'],
                               position: PositionPadding.start,
                               type: PostType.post,
-                              data: posts[index]);
+                              data: posts[index],
+                          role: widget.role);
                         }),
                   ],
                 );

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
-import 'package:maths_club/screens/auth/landing_page.dart';
 import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/widgets/forks/search_bar.dart';
+
+typedef StringCallback = void Function(String string);
 
 /// This is a widget that creates a custom app bar for the section view
 //ignore: must_be_immutable
@@ -17,9 +18,11 @@ class SectionAppBar extends StatefulWidget {
   final String title;
   Map<String, dynamic> userData;
 
+  final StringCallback onSearch;
+
   SectionAppBar(BuildContext context,
       {Key? key,
-      required this.title, required this.userData})
+      required this.title, required this.userData, required this.onSearch})
       : super(key: key);
 
   @override
@@ -86,7 +89,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     helpTextColor:
                         Theme.of(context).primaryColorLight.withAlpha(200),
                     onSubmitted: (String value) async {
-                      debugPrint("The user searched for $value");
+                      widget.onSearch(value);
 
                       await Future.delayed(const Duration(milliseconds: 350),
                           () {

@@ -15,7 +15,8 @@
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "^10.2.0",
-    "firebase-functions": "^3.21.0"
+    "firebase-functions": "^3.21.0",
+    "math-expressions": "^2.0.0-alpha44"
   },
   "devDependencies": {
     "typescript": "^4.6.4"

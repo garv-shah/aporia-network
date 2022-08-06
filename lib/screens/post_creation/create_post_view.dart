@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -62,7 +63,8 @@ enum JsonType { question, solution, hints }
 
 /// This is the view where new posts can be created.
 class CreatePost extends StatefulWidget {
-  const CreatePost({Key? key}) : super(key: key);
+  Map<String, dynamic>? postData;
+  CreatePost({Key? key, this.postData}) : super(key: key);
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -70,7 +72,7 @@ class CreatePost extends StatefulWidget {
 
 class _CreatePostState extends State<CreatePost> {
   // Stateful values for quiz checkbox and group dropdown.
-  bool createQuiz = true;
+  late bool createQuiz;
   String? selectedGroup;
 
   // Controllers for the date input range.
@@ -88,18 +90,31 @@ class _CreatePostState extends State<CreatePost> {
   int questionIndex = 0;
 
   // Data for the questions selected, and the entire form respectively
-  Map<String, dynamic> questionData = {};
-  Map<String, dynamic> formData = {};
+  late Map<String, dynamic> questionData;
+  late Map<String, dynamic> formData;
 
   // ID for the post
   String? id;
 
   @override
   void initState() {
-    // Clears date input range text.
-    dateInputStart.text = "";
-    dateInputEnd.text = "";
-    currentDateRange = null;
+    // Sets the form to the existing values if they are specified in postData,
+    // allowing for loading documents
+    createQuiz = widget.postData?['createQuiz'] ?? true;
+    selectedGroup = widget.postData?['Group'];
+    questionData = widget.postData?['questionData'] ?? {};
+    formData = widget.postData ?? {};
+    id = widget.postData?['ID'];
+
+    if (widget.postData?['Start Date'] != null && widget.postData?['End Date'] != null) {
+      currentDateRange = DateTimeRange(start: widget.postData?['Start Date'].toDate(), end: widget.postData?['End Date'].toDate());
+      dateInputStart.text = DateFormat('dd/MM/yyyy').format(widget.postData?['Start Date'].toDate());
+      dateInputEnd.text = DateFormat('dd/MM/yyyy').format(widget.postData?['End Date'].toDate());
+    } else {
+      dateInputStart.text = "";
+      dateInputEnd.text = "";
+    }
+
     super.initState();
   }
 
@@ -152,23 +167,54 @@ class _CreatePostState extends State<CreatePost> {
                                     color: Theme.of(context).primaryColorLight,
                                     fontWeight: FontWeight.w600),
                             overflow: TextOverflow.ellipsis),
-                        IconButton(
-                            onPressed: () {
-                              // Removes this item from the AnimatedList
-                              AnimatedList.of(context).removeItem(
-                                  questionNumber - 1, (context, animation) {
-                                // Calls the onDelete function if it exists.
-                                onDelete?.call();
-                                // Removed the question from the JSON data
-                                questionData.remove('Question $questionNumber');
-                                // The temporary widget to display while deleting.
-                                return questionCard(context,
-                                    questionNumber: questionNumber,
-                                    animation: animation);
-                              });
-                            },
-                            icon: Icon(Icons.delete,
-                                color: Theme.of(context).errorColor))
+                        Row(
+                          children: [
+                            IconButton(
+                                onPressed: () async {
+                                  final experience = await showTextInputDialog(
+                                    style: AdaptiveStyle.material,
+                                    context: context,
+                                    textFields: [
+                                      DialogTextField(
+                                        hintText: 'Experience',
+                                        initialText: questionData['Question $questionNumber']['Experience'].toString(),
+                                        keyboardType: TextInputType.number,
+                                        validator: (value) => value!.isEmpty
+                                            ? "Must provide a number"
+                                            : null,
+                                      ),
+                                    ],
+                                    title: 'Assign Experience',
+                                    autoSubmit: true,
+                                  );
+
+                                  if (experience != null) {
+                                    setState(() {
+                                      questionData['Question $questionNumber']['Experience'] = int.parse(experience.first);
+                                    });
+                                  }
+                                },
+                                icon: Icon(Icons.people, color: Theme.of(context).hintColor)
+                            ),
+                            IconButton(
+                                onPressed: () {
+                                  // Removes this item from the AnimatedList
+                                  AnimatedList.of(context).removeItem(
+                                      questionNumber - 1, (context, animation) {
+                                    // Calls the onDelete function if it exists.
+                                    onDelete?.call();
+                                    // Removed the question from the JSON data
+                                    questionData.remove('Question $questionNumber');
+                                    // The temporary widget to display while deleting.
+                                    return questionCard(context,
+                                        questionNumber: questionNumber,
+                                        animation: animation);
+                                  });
+                                },
+                                icon: Icon(Icons.delete,
+                                    color: Theme.of(context).errorColor)),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -373,6 +419,7 @@ class _CreatePostState extends State<CreatePost> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
                     child: TextFormField(
+                      initialValue: formData['Title'],
                       onSaved: (value) {
                         formData['Title'] = value;
                       },
@@ -389,6 +436,7 @@ class _CreatePostState extends State<CreatePost> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
                     child: TextFormField(
+                      initialValue: formData['Description'],
                       onSaved: (value) {
                         formData['Description'] = value;
                       },
@@ -420,7 +468,7 @@ class _CreatePostState extends State<CreatePost> {
                               groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
                             }
 
-                            // If there is so selected group, set it to something
+                            // If there is no selected group, set it to something
                             selectedGroup ??= groups.first.value ?? 'drafts';
 
                             return DropdownButtonFormField(items: groups, onChanged: (String? value) {
@@ -557,6 +605,7 @@ class _CreatePostState extends State<CreatePost> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
                       child: TextFormField(
+                        initialValue: formData['Quiz Title'],
                         decoration:
                             const InputDecoration(labelText: "Quiz Title"),
                         onSaved: (value) {
@@ -577,6 +626,7 @@ class _CreatePostState extends State<CreatePost> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
                       child: TextFormField(
+                        initialValue: formData['Quiz Description'],
                         decoration: const InputDecoration(
                             labelText: "Quiz Description"),
                         onSaved: (value) {
@@ -598,9 +648,11 @@ class _CreatePostState extends State<CreatePost> {
             key: _animatedListKey,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
+            initialItemCount: questionData.length,
             itemBuilder: (context, index, animation) {
               if (questionData['Question ${index + 1}'] == null) {
                 questionData['Question ${index + 1}'] = {};
+                questionData['Question ${index + 1}']['Experience'] = 25;
               }
 
               questionIndex = index + 1;

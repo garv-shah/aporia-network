@@ -78,7 +78,7 @@ Widget actionCard(BuildContext context,
 
 /// Creates section based cards that lead to quizzes/posts.
 Widget sectionCard(
-    BuildContext context, Map<String, dynamic> userData, String title, String? sectionID) {
+    BuildContext context, Map<String, dynamic> userData, String title, String? sectionID, String role) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(38.0, 16.0, 16.0, 16.0),
     child: Card(
@@ -104,7 +104,7 @@ Widget sectionCard(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              SectionPage(userData: userData, title: title, id: sectionID)),
+                              SectionPage(userData: userData, title: title, id: sectionID, role: role)),
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -465,7 +465,7 @@ class _HomePageState extends State<HomePage> {
                                       ? actionCard(context,
                                       icon: Icons.create,
                                       text: "Create Post",
-                                      navigateTo: const CreatePost())
+                                      navigateTo: CreatePost())
                                       : const SizedBox.shrink(),
                                   actionCard(context,
                                       icon: Icons.settings,
@@ -493,7 +493,7 @@ class _HomePageState extends State<HomePage> {
                                     padding: EdgeInsets.zero,
                                     itemCount: postsGroupSnapshot.data?.docs.length,
                                       itemBuilder: (BuildContext context, int index) {
-                                        return sectionCard(context, widget.userData, postsGroupSnapshot.data?.docs[index]["tag"], postsGroupSnapshot.data?.docs[index].id);
+                                        return sectionCard(context, widget.userData, postsGroupSnapshot.data?.docs[index]["tag"], postsGroupSnapshot.data?.docs[index].id, rolesSnapshot.data?.docs[0]['tag']);
                                       }
                                   );
                                 } else {

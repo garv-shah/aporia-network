@@ -56,6 +56,7 @@ dependencies:
   mime: ^1.0.2
   crop_your_image: ^0.7.2
   uuid: ^3.0.6
+  algolia: ^1.1.1
 
 dependency_overrides:
   flutter_colorpicker:
@@ -94,7 +95,7 @@ flutter:
   assets:
     - assets/
     - assets/app_icon.svg
-    - assets/profile.gif
+    - assets/party-popper.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

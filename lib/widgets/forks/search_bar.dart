@@ -103,6 +103,7 @@ class AnimSearchBar extends StatefulWidget {
   _AnimSearchBarState createState() => _AnimSearchBarState();
 }
 
+
 ///toggle - 0 => false or closed
 ///toggle 1 => true or open
 int toggle = 0;
@@ -118,6 +119,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
 
   @override
   void initState() {
+    toggle = 0;
     super.initState();
 
     ///Initializing the animationController which is responsible for the expanding and shrinking of the search bar
@@ -295,6 +297,10 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                       ),
                       alignLabelWithHint: true,
                       border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                         borderSide: BorderSide.none,
                       ),
