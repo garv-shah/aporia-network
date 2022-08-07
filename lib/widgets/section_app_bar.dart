@@ -4,12 +4,12 @@ import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/widgets/forks/search_bar.dart';
 
-typedef StringCallback = void Function(String string);
+typedef StringCallback = Future<void> Function(String string);
 
 /// This is a widget that creates a custom app bar for the section view
 //ignore: must_be_immutable
 class SectionAppBar extends StatefulWidget {
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController searchController;
 
   // These are stateful booleans to control what the bar displays.
   bool hideTitle = false;
@@ -22,7 +22,10 @@ class SectionAppBar extends StatefulWidget {
 
   SectionAppBar(BuildContext context,
       {Key? key,
-      required this.title, required this.userData, required this.onSearch})
+      required this.title,
+      required this.userData,
+      required this.onSearch,
+      required this.searchController})
       : super(key: key);
 
   @override
@@ -58,9 +61,10 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
-                        child: IconButton(onPressed: () {
-                          Navigator.of(context).pop();
-                        },
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                           color: Theme.of(context)
                               .primaryColorLight
                               .withAlpha(100),
@@ -78,6 +82,9 @@ class _SectionAppBarState extends State<SectionAppBar> {
                 children: [
                   // This is the animated search bar, a fork of the package.
                   AnimSearchBar(
+                    autoFocus: true,
+                    style:
+                        TextStyle(color: Theme.of(context).primaryColorLight),
                     width: MediaQuery.of(context).size.width - 152,
                     textController: widget.searchController,
                     textFieldColor: Theme.of(context).cardColor,
@@ -89,9 +96,9 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     helpTextColor:
                         Theme.of(context).primaryColorLight.withAlpha(200),
                     onSubmitted: (String value) async {
-                      widget.onSearch(value);
+                      await widget.onSearch(value);
 
-                      await Future.delayed(const Duration(milliseconds: 350),
+                      await Future.delayed(const Duration(milliseconds: 200),
                           () {
                         setState(() {
                           // Goes back to normal on submit.
@@ -101,14 +108,18 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       });
                     },
                     onSuffixTap: () async {
-                      await Future.delayed(const Duration(milliseconds: 350),
-                          () {
-                        setState(() {
-                          // Goes back to normal if back button press.
-                          widget.hideTitle = false;
-                          widget.fadeTitle = false;
+                      if (widget.searchController.text.isNotEmpty) {
+                        widget.searchController.clear();
+                      } else {
+                        await Future.delayed(const Duration(milliseconds: 250),
+                            () {
+                          setState(() {
+                            // Goes back to normal if back button press.
+                            widget.hideTitle = false;
+                            widget.fadeTitle = false;
+                          });
                         });
-                      });
+                      }
                     },
                     onOpen: () async {
                       // First fades the title away and then removes it from
@@ -144,7 +155,8 @@ class _SectionAppBarState extends State<SectionAppBar> {
                         // Goes to the leaderboards when the icon is tapped.
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Leaderboards()),
+                          MaterialPageRoute(
+                              builder: (context) => const Leaderboards()),
                         );
                       },
                       icon: Icon(Icons.people,
@@ -163,16 +175,21 @@ class _SectionAppBarState extends State<SectionAppBar> {
                       // tapped.
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SettingsPage(userData: widget.userData)),
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                SettingsPage(userData: widget.userData)),
                       );
                     },
                     // If the profile picture exists, show it, if not show a
                     // placeholder image.
                     child: SizedBox(
-                      height: 30,
+                        height: 30,
                         width: 30,
-                        child: fetchProfilePicture(widget.userData['profilePicture'], widget.userData['pfpType'], widget.userData['username'], padding: false)
-                    ),
+                        child: fetchProfilePicture(
+                            widget.userData['profilePicture'],
+                            widget.userData['pfpType'],
+                            widget.userData['username'],
+                            padding: false)),
                   ),
                   const SizedBox(width: 16)
                 ],

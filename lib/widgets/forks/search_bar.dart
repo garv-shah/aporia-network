@@ -30,6 +30,7 @@ class AnimSearchBar extends StatefulWidget {
   final int animationDurationInMilli;
   final onSuffixTap;
   final onOpen;
+  final onFocus;
   final onClose;
   final bool rtl;
   final bool autoFocus;
@@ -43,7 +44,7 @@ class AnimSearchBar extends StatefulWidget {
   final Color? cursorColor;
   final List<TextInputFormatter>? inputFormatters;
   final bool boxShadow;
-  final Function(String) onSubmitted;
+  final Future<void> Function(String) onSubmitted;
 
   const AnimSearchBar({
     Key? key,
@@ -74,6 +75,7 @@ class AnimSearchBar extends StatefulWidget {
     /// The onSuffixTap cannot be null
     required this.onSuffixTap,
     this.onOpen,
+    this.onFocus,
     this.onClose,
     this.animationDurationInMilli = 375,
 
@@ -255,54 +257,61 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                   padding: const EdgeInsets.only(left: 10),
                   alignment: Alignment.center,
                   width: widget.width / 1.7,
-                  child: TextField(
-                    ///Text Controller. you can manipulate the text inside this textField by calling this controller.
-                    controller: widget.textController,
-                    inputFormatters: widget.inputFormatters,
-                    focusNode: focusNode,
-                    cursorRadius: Radius.circular(10.0),
-                    cursorWidth: 2.0,
-                    onChanged: (value) {
-                      textFieldValue = value;
+                  child: Focus(
+                    onFocusChange: (hasFocus) {
+                      if (hasFocus) {
+                        widget.onFocus?.call();
+                      }
                     },
-                    onSubmitted: (value) => {
-                      widget.onSubmitted(value),
-                      unfocusKeyboard(),
-                      setState(() {
-                        toggle = 0;
-                      }),
-                      widget.textController.clear(),
-                    },
-                    onEditingComplete: () {
-                      /// on editing complete the keyboard will be closed and the search bar will be closed
-                      unfocusKeyboard();
-                      setState(() {
-                        toggle = 0;
-                      });
-                    },
+                    child: TextField(
+                      ///Text Controller. you can manipulate the text inside this textField by calling this controller.
+                      controller: widget.textController,
+                      inputFormatters: widget.inputFormatters,
+                      focusNode: focusNode,
+                      cursorRadius: Radius.circular(10.0),
+                      cursorWidth: 2.0,
+                      onChanged: (value) {
+                        textFieldValue = value;
+                      },
+                      onSubmitted: (value)  async {
+                        await widget.onSubmitted(value);
+                        unfocusKeyboard();
+                        setState(() {
+                          toggle = 0;
+                        });
+                        widget.textController.clear();
+                      },
+                      onEditingComplete: () {
+                        /// on editing complete the keyboard will be closed and the search bar will be closed
+                        unfocusKeyboard();
+                        setState(() {
+                          toggle = 0;
+                        });
+                      },
 
-                    ///style is of type TextStyle, the default is just a color black
-                    style: widget.style != null
-                        ? widget.style
-                        : TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.only(bottom: 8),
-                      isDense: true,
-                      floatingLabelBehavior: FloatingLabelBehavior.never,
-                      labelText: widget.helpText,
-                      labelStyle: TextStyle(
-                        color: widget.helpTextColor,
-                        fontSize: 17.0,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      alignLabelWithHint: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide.none,
+                      ///style is of type TextStyle, the default is just a color black
+                      style: widget.style != null
+                          ? widget.style
+                          : TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(bottom: 8),
+                        isDense: true,
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
+                        labelText: widget.helpText,
+                        labelStyle: TextStyle(
+                          color: widget.helpTextColor,
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ),

@@ -1,4 +1,7 @@
 import * as functions from "firebase-functions";
+import {firestore} from "firebase-admin";
+import QueryDocumentSnapshot = firestore.QueryDocumentSnapshot;
+import {UserRecord} from "firebase-admin/lib/auth";
 
 const MathExpression = require('math-expressions');
 const admin = require('firebase-admin');
@@ -29,6 +32,40 @@ exports.createUser = functions
         }).then(() => {
             console.log(`Creation of ${user.uid} successful`)
         });
+    });
+
+async function deleteFromRole(doc: QueryDocumentSnapshot, user: UserRecord) {
+
+    let docData = await doc.data();
+    let members: string[] = docData['members'];
+    console.log(`Current Members: ${members}`)
+
+    const index = members.indexOf(user.uid, 0);
+    if (index > -1) {
+        members.splice(index, 1);
+    }
+
+    await db.collection('roles').doc(doc.id).update({
+        'members': members
+    }).then(() => {
+        console.log(`Deletion of ${user.uid} successful`)
+    });
+    //end if
+
+}
+
+exports.deleteUser = functions
+    .region('australia-southeast1')
+    .auth.user().onDelete(async (user) => {
+        console.log(`Deleting User ${user.uid}`)
+        await db.collection('quizPoints').doc(user.uid).delete()
+        await db.collection('userInfo').doc(user.uid).delete()
+
+        const userRoles = db.collection('roles');
+        for (let index = 0; index < userRoles.docs.length; index++) {
+            const doc = userRoles.docs[index];
+            await deleteFromRole(doc, user);
+        }
     });
 
 exports.updateUsername = functions

@@ -205,8 +205,20 @@ class _SettingsPageState extends State<SettingsPage> {
                           );
 
                           // If username is not empty (which it shouldn't be),
-                          // send it to the server.
+                          // go back to homepage and send it to the server.
                           if (newUsername != null) {
+                            Navigator.pop(context);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Updating Username! (this might take a second)",
+                                  style: TextStyle(color: Theme.of(context).primaryColorLight),
+                                ),
+                                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                              ),
+                            );
+
                             await functions
                                 .httpsCallable('updateUsername')
                                 .call({'username': newUsername.first});
@@ -306,19 +318,12 @@ class _SettingsPageState extends State<SettingsPage> {
                                   if (rolesSnapshot.connectionState ==
                                       ConnectionState.active) {
                                     try {
-                                      for (var i = 0;
-                                          i <
-                                              (rolesSnapshot
-                                                      .data?.docs.length ??
-                                                  1);
-                                          i++) {
-                                        if ((rolesSnapshot.data?.docs[i]
-                                                ['members'])
+                                      for (var doc in (rolesSnapshot.data?.docs ?? [])) {
+                                        if ((doc?['members'])
                                             .contains(FirebaseAuth
                                                 .instance.currentUser?.uid)) {
                                           return Text(
-                                              rolesSnapshot.data?.docs[i]
-                                                  ['tag'],
+                                              doc?['tag'],
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .subtitle1);
@@ -428,6 +433,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                 try {
                                   await FirebaseAuth.instance.currentUser
                                       ?.delete();
+
+                                  Navigator.pop(context);
                                 } catch (error) {
                                   final snackBar = SnackBar(
                                     content: Text(
@@ -474,6 +481,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           child: OutlinedButton(
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
+                              Navigator.pop(context);
                             },
                             style: ButtonStyle(
                               foregroundColor: MaterialStateProperty.all<Color>(

@@ -57,17 +57,14 @@ dependencies:
   crop_your_image: ^0.7.2
   uuid: ^3.0.6
   algolia: ^1.1.1
+  math_keyboard: ^0.1.7
 
 dependency_overrides:
   flutter_colorpicker:
     git:
-      url: https://github.com/garv-shah/flutter_colorpicker
+      url: https://github.com/mchome/flutter_colorpicker
       ref: master
-  math_keyboard:
-    git:
-      url: https://github.com/garv-shah/math_keyboard
-      path: math_keyboard
-      ref: main
+  math_keyboard: ^0.1.7
 
 dev_dependencies:
   flutter_test:

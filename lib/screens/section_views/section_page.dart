@@ -5,8 +5,7 @@ import 'package:maths_club/screens/post_creation/create_post_view.dart';
 import 'package:maths_club/screens/section_views/post_view.dart';
 import 'package:maths_club/screens/section_views/quiz_view.dart';
 import 'package:maths_club/widgets/section_app_bar.dart';
-
-import '../../utils/components.dart';
+import 'dart:ui';
 
 /// An enum for the horizontal carousel that returns padding based on position.
 enum PositionPadding {
@@ -162,148 +161,165 @@ class SectionPage extends StatefulWidget {
 
 class _SectionPageState extends State<SectionPage> {
   String searchValue = '';
+  List<String> searchResults = ['nothing'];
 
-  Future<List<AlgoliaObjectSnapshot>> _search() async {
+  Algolia algolia = const Algolia.init(
+    applicationId: '3AX0WXX57C',
+    apiKey: '7d3fc81ef87a6ade4dcf5b845e3f8984',
+  );
 
-    Algolia algolia = const Algolia.init(
-      applicationId: '3AX0WXX57C',
-      apiKey: '7d3fc81ef87a6ade4dcf5b845e3f8984',
-    );
+  updateSearch(String value) async {
+    searchResults = ['nothing'];
+    AlgoliaQuery query = algolia.instance.index('maths-club-posts').query(value);
+    List<AlgoliaObjectSnapshot> results = (await query.getObjects()).hits;
 
-    AlgoliaQuery query = algolia.instance.index('maths-club-posts').query(searchValue);
-
-    return (await query.getObjects()).hits;
-  }
-
-  updateSearch(String value) {
     setState(() {
       searchValue = value;
+
+      for (var result in results) {
+        searchResults.add(result.objectID);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    _search().then((value) {
-      print(value);
-    });
+    var pixelRatio = window.devicePixelRatio;
+    var logicalScreenSize = window.physicalSize / pixelRatio;
+    var logicalHeight = logicalScreenSize.height;
+
     return Scaffold(
       /// main body
-      body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('posts')
-              .where('Group', isEqualTo: widget.id)
-              .snapshots(),
-          builder: (context, postsSnapshot) {
-            if (postsSnapshot.connectionState == ConnectionState.active) {
-              List<Map<String, dynamic>> quizzes = [];
-              List<Map<String, dynamic>> posts = [];
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: StreamBuilder<QuerySnapshot>(
+            key: ValueKey<String>(searchValue),
+            // If there has been no search done, don't filter by search results,
+            // but if a search has been done, only return documents withtin that
+            stream: (searchValue == '') ?
+            FirebaseFirestore.instance
+                .collection('posts')
+                .where('Group', isEqualTo: widget.id)
+                .snapshots() :
+            FirebaseFirestore.instance
+                .collection('posts')
+                .where('Group', isEqualTo: widget.id)
+                .where(FieldPath.documentId, whereIn: searchResults)
+                .snapshots(),
+            builder: (context, postsSnapshot) {
+              if (postsSnapshot.connectionState == ConnectionState.active) {
+                List<Map<String, dynamic>> quizzes = [];
+                List<Map<String, dynamic>> posts = [];
 
-              for (var i = 0; i < (postsSnapshot.data?.docs.length ?? 0); i++) {
-                var doc = postsSnapshot.data?.docs[i];
-
-                try {
-                  // If the start date is before the current time and the end
-                  // date is after the current time, is inside quiz period. The
-                  // following check will throw an error if the date properties
-                  // are not defined, and that would be the case in a post.
-                  if (doc?['Start Date'].toDate().isBefore(DateTime.now()) &&
-                      doc?['End Date'].toDate().isAfter(DateTime.now()) && doc?['createQuiz'] == true) {
-                    // Gets the JSON version of the quiz
-                    Map<String, dynamic> json = postsSnapshot.data?.docs[i]
-                        .data() as Map<String, dynamic>;
-                    json['ID'] = postsSnapshot.data?.docs[i].id;
-                    quizzes.add(json);
-                  }
-                } on StateError catch (_) {
-                  // Gets the JSON version of the post
-                  Map<String, dynamic> json = postsSnapshot.data?.docs[i].data()
+                for (QueryDocumentSnapshot<Object?>? doc in (postsSnapshot.data?.docs ?? [])) {
+                  try {
+                    // If the start date is before the current time and the end
+                    // date is after the current time, is inside quiz period. The
+                    // following check will throw an error if the date properties
+                    // are not defined, and that would be the case in a post.
+                    if (doc?['Start Date'].toDate().isBefore(DateTime.now()) &&
+                        doc?['End Date'].toDate().isAfter(DateTime.now()) && doc?['createQuiz'] == true) {
+                      // Gets the JSON version of the quiz
+                      Map<String, dynamic> json = doc?.data() as Map<String, dynamic>;
+                      json['ID'] = doc?.id;
+                      quizzes.add(json);
+                    } else {
+                      // This path is normally called for what used to be a valid
+                      // quiz, but the valid range has expired
+                      Map<String, dynamic> json = doc?.data()
                       as Map<String, dynamic>;
-                  json['ID'] = postsSnapshot.data?.docs[i].id;
-                  posts.add(json);
+                      json['ID'] = doc?.id;
+                      posts.add(json);
+                    }
+                  } on StateError catch (_) {
+                    // Gets the JSON version of the post
+                    Map<String, dynamic> json = doc?.data()
+                        as Map<String, dynamic>;
+                    json['ID'] = doc?.id;
+                    posts.add(json);
+                  }
                 }
-              }
 
-              if (posts.isEmpty && quizzes.isEmpty) {
-                return SafeArea(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        header(widget.title, context,
-                            fontSize: 30, backArrow: true),
-                        const Expanded(
-                            child: Center(child: Text("No posts yet!"))),
-                      ]),
-                );
-              } else {
-                return ListView(
-                  children: [
-                    SectionAppBar(context,
-                        title: widget.title, userData: widget.userData, onSearch: updateSearch),
-                    // Don't show "quizzes" title if there are no posts
-                    (quizzes.isNotEmpty)
-                        ? Padding(
-                            padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
-                            child: Text("Active Quizzes",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline4
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .primaryColorLight)),
-                          )
-                        : const SizedBox.shrink(),
-                    SizedBox(
-                      height: 175,
-                      child: Center(
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          itemCount: quizzes.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return postCard(context,
-                                title: quizzes[index]['Quiz Title'],
-                                description: quizzes[index]['Quiz Description'],
-                                position: PositionPadding.start,
-                                type: PostType.quiz,
-                                data: quizzes[index],
-                            role: widget.role);
-                          },
-                        ),
+                  return ListView(
+                    children: [
+                      SectionAppBar(context,
+                          title: widget.title, userData: widget.userData, onSearch: (String search) => updateSearch(search), searchController: TextEditingController(text: searchValue)),
+                      // If no posts are found, don't try to display posts!
+                      (posts.isEmpty && quizzes.isEmpty) ? SizedBox(height: logicalHeight - 120, child: const Center(child: Text('Nothing found!'))) : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Don't show "quizzes" title if there are no posts
+                          (quizzes.isNotEmpty)
+                              ? Padding(
+                                  padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
+                                  child: Text("Active Quizzes",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .primaryColorLight)),
+                                )
+                              : const SizedBox.shrink(),
+                          (quizzes.isNotEmpty)
+                              ? SizedBox(
+                            height: 175,
+                            child: Center(
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                itemCount: quizzes.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return postCard(context,
+                                      title: quizzes[index]['Quiz Title'],
+                                      description: quizzes[index]['Quiz Description'],
+                                      position: PositionPadding.start,
+                                      type: PostType.quiz,
+                                      data: quizzes[index],
+                                  role: widget.role);
+                                },
+                              ),
+                            ),
+                          ) : const SizedBox.shrink(),
+                          // Don't show "posts" title if there are no posts
+                          (posts.isNotEmpty)
+                              ? Padding(
+                                  padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
+                                  child: Text("Posts",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline4
+                                          ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .primaryColorLight)),
+                                )
+                              : const SizedBox.shrink(),
+                          (posts.isNotEmpty)
+                              ? ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: posts.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return postCard(context,
+                                    title: posts[index]['Title'],
+                                    description: posts[index]['Description'],
+                                    position: PositionPadding.start,
+                                    type: PostType.post,
+                                    data: posts[index],
+                                role: widget.role);
+                              }) : const SizedBox.shrink(),
+                        ],
                       ),
-                    ),
-                    // Don't show "posts" title if there are no posts
-                    (posts.isNotEmpty)
-                        ? Padding(
-                            padding: const EdgeInsets.fromLTRB(26, 16, 0, 16),
-                            child: Text("Posts",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline4
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .primaryColorLight)),
-                          )
-                        : const SizedBox.shrink(),
-                    ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: posts.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return postCard(context,
-                              title: posts[index]['Title'],
-                              description: posts[index]['Description'],
-                              position: PositionPadding.start,
-                              type: PostType.post,
-                              data: posts[index],
-                          role: widget.role);
-                        }),
-                  ],
-                );
+                    ],
+                  );
+              } else {
+                return const Center(child: CircularProgressIndicator());
               }
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          }),
+            }),
+      ),
     );
   }
 }

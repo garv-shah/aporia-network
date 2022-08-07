@@ -63,8 +63,8 @@ enum JsonType { question, solution, hints }
 
 /// This is the view where new posts can be created.
 class CreatePost extends StatefulWidget {
-  Map<String, dynamic>? postData;
-  CreatePost({Key? key, this.postData}) : super(key: key);
+  final Map<String, dynamic>? postData;
+  const CreatePost({Key? key, this.postData}) : super(key: key);
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -463,8 +463,7 @@ class _CreatePostState extends State<CreatePost> {
                             List<DropdownMenuItem<String>> groups = [];
 
                             // Iterates through the documents in he collection and creates a list of dropdown menu options.
-                            for (var i = 0; i < (postGroupsSnapshot.data?.docs.length ?? 0); i++) {
-                              QueryDocumentSnapshot<Map<String, dynamic>>? doc = postGroupsSnapshot.data?.docs[i];
+                            for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in (postGroupsSnapshot.data?.docs ?? [])) {
                               groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
                             }
 

@@ -8,8 +8,6 @@ import 'package:visual_editor/documents/models/document.model.dart';
 import 'package:visual_editor/editor/models/editor-cfg.model.dart';
 import 'package:visual_editor/main.dart';
 
-import '../../utils/components.dart';
-
 /**
  * The following section includes functions for the quiz page.
  */
@@ -20,9 +18,9 @@ import '../../utils/components.dart';
 
 /// This is the view where new posts can be created.
 class QuizView extends StatefulWidget {
-  Map<String, dynamic> data;
+  final Map<String, dynamic> data;
 
-  QuizView({Key? key, required this.data}) : super(key: key);
+  const QuizView({Key? key, required this.data}) : super(key: key);
 
   @override
   State<QuizView> createState() => _QuizViewState();
@@ -266,10 +264,8 @@ class _QuizViewState extends State<QuizView> {
                                     builder: (context, resultSnapshot) {
                                       if (resultSnapshot.connectionState ==
                                           ConnectionState.done) {
-                                        print(questionAnswers);
                                         Map<String, dynamic>? correctedMap =
                                             resultSnapshot.data?.data;
-                                        print(correctedMap);
                                         return Column(
                                           children: [
                                             const Padding(
