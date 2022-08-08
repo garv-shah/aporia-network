@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:math_keyboard/math_keyboard.dart';
 import 'package:visual_editor/controller/controllers/editor-controller.dart';
 import 'package:visual_editor/documents/models/document.model.dart';
 import 'package:visual_editor/editor/models/editor-cfg.model.dart';
 import 'package:visual_editor/main.dart';
 
-import '../../utils/components.dart';
-
-
-/**
- * The following section includes functions for the post page.
- */
-
-
-
 /**
  * The following section includes the actual PostView page.
  */
 
-/// This is the view where new posts can be created.
+/// This is the view where posts can be seen.
 class PostView extends StatefulWidget {
-  Map<String, dynamic> data;
-  PostView({Key? key, required this.data}) : super(key: key);
+  final Map<String, dynamic> data;
+  const PostView({Key? key, required this.data}) : super(key: key);
 
   @override
   State<PostView> createState() => _PostViewState();
@@ -32,7 +22,9 @@ class _PostViewState extends State<PostView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // List view builder to dynamically build the post from the JSON data provided
       body: ListView.builder(
+        // The number of questions (+1 because of the header)
         itemCount: widget.data['questionData'].keys.length + 1,
         itemBuilder: (BuildContext context, int index) {
           // If index is the first, then create header
@@ -67,6 +59,7 @@ class _PostViewState extends State<PostView> {
               ),
             );
           } else {
+            // Delta data of the question
             Map<String, dynamic> questionData = widget.data['questionData']['Question $index'];
             return Padding(
               padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
@@ -74,6 +67,7 @@ class _PostViewState extends State<PostView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Question $index", style: Theme.of(context).textTheme.headline4?.copyWith(color: Theme.of(context).primaryColorLight)),
+                  // Parse the Delta JSON
                   VisualEditor(
                     scrollController: ScrollController(),
                     focusNode: FocusNode(),
@@ -87,8 +81,10 @@ class _PostViewState extends State<PostView> {
                       keyboardAppearance: Theme.of(context).brightness,
                     ),
                   ),
+                  // Hints and Solution buttons
                   Row(
                     children: [
+                      // Only show hints button if there are hints to show
                       (questionData['Hints'] != null) ? Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
                         child: OutlinedButton(
@@ -129,7 +125,9 @@ class _PostViewState extends State<PostView> {
                                   color: Theme.of(context).colorScheme.primary),
                             )),
                       ) : const SizedBox.shrink(),
+                      // padding
                       const SizedBox(width: 10),
+                      // Only show solution button if there are solutions to show
                       (questionData['Solution'] != null) ? Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
                         child: OutlinedButton(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../screens/auth/landing_page.dart';
-
 /// A header to display maths club branding with logo and name.
 Widget header(String title, BuildContext context,
     {double iconWidth = 80,
@@ -30,8 +28,11 @@ Widget header(String title, BuildContext context,
           child: SizedBox(
             width: iconWidth,
             height: iconWidth,
-            child: SvgPicture.asset('assets/app_icon.svg',
-                semanticsLabel: "$title icon"),
+            child: Hero(
+              tag: '$title icon',
+              child: SvgPicture.asset('assets/app_icon.svg',
+                  semanticsLabel: '$title icon'),
+            ),
           ),
         ),
         SizedBox(width: paddingWidth),

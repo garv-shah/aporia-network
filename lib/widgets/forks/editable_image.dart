@@ -28,7 +28,7 @@ enum Position {
 /// It can be used in profile picture or settings views to edit the image and
 /// update them on Firebase.
 class EditableImage extends StatelessWidget {
-  EditableImage({
+  const EditableImage({
     Key? key,
     required this.onChange,
     this.image,

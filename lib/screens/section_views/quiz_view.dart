@@ -8,15 +8,7 @@ import 'package:visual_editor/documents/models/document.model.dart';
 import 'package:visual_editor/editor/models/editor-cfg.model.dart';
 import 'package:visual_editor/main.dart';
 
-/**
- * The following section includes functions for the quiz page.
- */
-
-/**
- * The following section includes the actual QuizView page.
- */
-
-/// This is the view where new posts can be created.
+/// Where quizzes can be answered and viewed.
 class QuizView extends StatefulWidget {
   final Map<String, dynamic> data;
 
@@ -29,6 +21,7 @@ class QuizView extends StatefulWidget {
 class _QuizViewState extends State<QuizView> {
   MathFieldEditingController mathController = MathFieldEditingController();
   late Map<String, dynamic> questionData;
+  // A map for question answers and an int for what question we're on respectively.
   Map<String, dynamic> questionAnswers = {};
   int questionIndex = 0;
 
@@ -52,11 +45,14 @@ class _QuizViewState extends State<QuizView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Back button
+              // AnimatedSwitcher so it animates in and out
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return FadeTransition(opacity: animation, child: child);
                 },
+                // Don't show back button on first page.
                 child: (questionIndex != 0)
                     ? FloatingActionButton.extended(
                         key: const ValueKey<String>("Back Button"),
@@ -98,6 +94,8 @@ class _QuizViewState extends State<QuizView> {
                       )
                     : const SizedBox.shrink(),
               ),
+              // Next/Finish Button
+              // AnimatedSwitcher so it animates between the two
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (Widget child, Animation<double> animation) {
@@ -108,6 +106,7 @@ class _QuizViewState extends State<QuizView> {
                         key: const ValueKey<String>("Finish Button"),
                         onPressed: () {
                           setState(() {
+                            // Will go back to the home page.
                             Navigator.pop(context);
                             Navigator.pop(context);
                           });
@@ -163,6 +162,8 @@ class _QuizViewState extends State<QuizView> {
             ],
           ),
         ),
+        // Main questions
+        // AnimatedSwitcher so the questions will animate when changed
         body: AnimatedSwitcher(
           transitionBuilder: (child, animation) {
             const begin = Offset(1.0, 0.0);
@@ -184,10 +185,12 @@ class _QuizViewState extends State<QuizView> {
           child: ListView(
             key: ValueKey<int>(questionIndex),
             children: [
+              // Header
               Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 32.0, 8.0, 32.0),
                 child: Column(
                   children: [
+                    // Heading Title
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -208,7 +211,9 @@ class _QuizViewState extends State<QuizView> {
                         const SizedBox(height: 48, width: 48)
                       ],
                     ),
+                    // padding
                     const SizedBox(height: 8),
+                    // Quiz Title
                     Center(
                         child: Padding(
                       padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 0.0),
@@ -217,6 +222,7 @@ class _QuizViewState extends State<QuizView> {
                         textAlign: TextAlign.center,
                       ),
                     )),
+                    // padding
                     const SizedBox(height: 16),
                     SizedBox(
                       width: 65,
@@ -227,6 +233,8 @@ class _QuizViewState extends State<QuizView> {
                   ],
                 ),
               ),
+              // If the question is the final page, show final page, if not
+              // show questions like normal
               (questionData.keys.length == questionIndex)
                   ? Column(
                       children: [
@@ -238,6 +246,7 @@ class _QuizViewState extends State<QuizView> {
                               width: 200,
                               semanticsLabel: 'Party Popper'),
                         ),
+                        // Card with results
                         Padding(
                           padding:
                               const EdgeInsets.fromLTRB(22.0, 16.0, 22.0, 16.0),
@@ -252,6 +261,7 @@ class _QuizViewState extends State<QuizView> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     16.0, 42.0, 16.0, 42.0),
+                                // Gets results from cloud function and displays them
                                 child: FutureBuilder<
                                         HttpsCallableResult<
                                             Map<String, dynamic>>>(
@@ -266,6 +276,7 @@ class _QuizViewState extends State<QuizView> {
                                           ConnectionState.done) {
                                         Map<String, dynamic>? correctedMap =
                                             resultSnapshot.data?.data;
+
                                         return Column(
                                           children: [
                                             const Padding(
@@ -280,11 +291,16 @@ class _QuizViewState extends State<QuizView> {
                                                     .headline4,
                                                 children: <TextSpan>[
                                                   TextSpan(
-                                                      text: correctedMap
-                                                          ?.where(
-                                                              (key, value) =>
-                                                                  value == true)
-                                                          .length
+                                                      // Counts number of correct
+                                                      // questions, if the correctedMap
+                                                      // is null, this would be 0
+                                                      text: (correctedMap
+                                                                  ?.where((key,
+                                                                          value) =>
+                                                                      value ==
+                                                                      true)
+                                                                  .length ??
+                                                              0)
                                                           .toString(),
                                                       style: TextStyle(
                                                           color:
@@ -293,7 +309,13 @@ class _QuizViewState extends State<QuizView> {
                                                                   .primary)),
                                                   const TextSpan(text: ' / '),
                                                   TextSpan(
-                                                      // Count's how many questions there are. This takes away one, because experience will be one of the keys, so it counts the keys and then takes away what would be experience.
+                                                      // Count's how many questions
+                                                      // there are. This takes away
+                                                      // one, because experience will
+                                                      // be one of the keys, so it
+                                                      // counts the keys and then
+                                                      // takes away what would be
+                                                      // experience.
                                                       text: ((correctedMap
                                                                       ?.length ??
                                                                   1) -
@@ -302,6 +324,7 @@ class _QuizViewState extends State<QuizView> {
                                                 ],
                                               ),
                                             ),
+                                            // Amount of experience gained
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   top: 16.0),
@@ -310,6 +333,9 @@ class _QuizViewState extends State<QuizView> {
                                                       color: Theme.of(context)
                                                           .colorScheme
                                                           .primary),
+                                                  // If no experience is gained,
+                                                  // say so, if not display how
+                                                  // much was gained
                                                   child: ((correctedMap?[
                                                                   'Experience'] ??
                                                               0) >
@@ -351,6 +377,7 @@ class _QuizViewState extends State<QuizView> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(15)),
                             ),
+                            // Displays question from Delta
                             child: VisualEditor(
                               scrollController: ScrollController(),
                               focusNode: FocusNode(),

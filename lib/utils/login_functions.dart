@@ -63,7 +63,7 @@ String getClientID() {
   }
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
+      return '1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com';
     case TargetPlatform.iOS:
       return '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com';
     case TargetPlatform.macOS:

@@ -3,13 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maths_club/screens/auth/register_page.dart';
 import 'package:maths_club/screens/auth/login_page.dart';
-import 'package:maths_club/screens/post_creation/create_post_view.dart';
-import 'package:maths_club/screens/post_creation/edit_question.dart';
 import 'package:maths_club/screens/home_page.dart';
-import 'package:maths_club/screens/leaderboards.dart';
-import 'package:maths_club/screens/section_views/quiz_view.dart';
-import 'package:maths_club/screens/section_views/section_page.dart';
-import 'package:maths_club/screens/settings_page.dart';
 
 // View documentation here: https://github.com/cgs-math/app#landing-page.
 

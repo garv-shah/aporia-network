@@ -57,6 +57,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     storageBucket: 'cgs-maths-club.appspot.com',
+    androidClientId: '1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com',
     iosClientId: '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com',
     iosBundleId: 'com.garv.mathsClub',
   );
@@ -67,6 +68,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1001095842193',
     projectId: 'cgs-maths-club',
     storageBucket: 'cgs-maths-club.appspot.com',
+    androidClientId: '1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com',
     iosClientId: '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com',
     iosBundleId: 'com.garv.mathsClub',
   );

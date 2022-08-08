@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.garv.maths_club",
+            "certificate_hash": "7b77181beb0e98b9d72943a2ba561da0cb7ccbef"
+          }
+        },
+        {
           "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:visual_editor/visual-editor.dart';
 import 'package:math_keyboard/math_keyboard.dart';
@@ -51,7 +49,6 @@ class _EditQuestionState extends State<EditQuestion> {
             children: [
               header(widget.title, context, fontSize: 20, backArrow: true, customBackLogic: () {
                 widget.onSave(_controller.document.toDelta().toJson());
-                print(_mathController.root.buildTeXString(cursorColor: Colors.black));
                 widget.onSolution?.call(_mathController.root.buildTeXString(cursorColor: Colors.black));
                 Navigator.of(context).pop();
               }),

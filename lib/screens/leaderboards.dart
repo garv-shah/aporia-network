@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 
@@ -14,11 +15,15 @@ Widget user(BuildContext context,
     required int position,
     required Widget profilePicture,
     required int experience,
-    required bool infinity}) {
+    required bool infinity,
+    required bool removeBackground}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
     child: Card(
-      elevation: 3,
+      // If the background is to be removed, have transparent background and 0
+      // elevation.
+      color: removeBackground ? Colors.transparent : null,
+      elevation: removeBackground ? 0 : 3,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(15)),
       ),
@@ -41,6 +46,7 @@ Widget user(BuildContext context,
                       style: Theme.of(context).textTheme.headline6),
                   const SizedBox(width: 10),
                   Flexible(
+                    // If user has infinite experience somehow, render that
                     child: Text(infinity ? "Infinity" : experience.toString(),
                         style: Theme.of(context).textTheme.headline6?.copyWith(
                             color: Theme.of(context).colorScheme.primary),
@@ -79,6 +85,8 @@ class _LeaderboardsState extends State<Leaderboards> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          // Gets the quizPoints collection ordered by the amount of experience
+          // each user has.
           stream: FirebaseFirestore.instance
               .collection('quizPoints')
               .orderBy('experience', descending: true)
@@ -103,6 +111,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                         ],
                       );
                     } else {
+                      // Current doc's data.
                       QueryDocumentSnapshot<Map<String, dynamic>>? data =
                           quizPointsSnapshot.data?.docs[index - 1];
 
@@ -116,8 +125,15 @@ class _LeaderboardsState extends State<Leaderboards> {
                             }
                           }()),
                           position: index,
-                          experience: (data?['experience'].isInfinite == false) ? (data?['experience'].round()) : 0,
+                          experience: (data?['experience'].isInfinite == false)
+                              ? (data?['experience'].round())
+                              : 0,
                           infinity: data?['experience'].isInfinite,
+                          // Remove the background if the user's card is the
+                          // user that's logged in. This adds a bit of visual
+                          // difference and makes it easier to identify yourself.
+                          removeBackground: data?.id ==
+                              FirebaseAuth.instance.currentUser?.uid,
                           profilePicture: (() {
                             try {
                               return SizedBox(
@@ -145,6 +161,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                 ),
               );
             } else {
+              // Display loading indicator while page is loading.
               return const Center(child: CircularProgressIndicator());
             }
           }),

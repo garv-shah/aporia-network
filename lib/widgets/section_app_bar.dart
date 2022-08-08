@@ -185,11 +185,14 @@ class _SectionAppBarState extends State<SectionAppBar> {
                     child: SizedBox(
                         height: 30,
                         width: 30,
-                        child: fetchProfilePicture(
-                            widget.userData['profilePicture'],
-                            widget.userData['pfpType'],
-                            widget.userData['username'],
-                            padding: false)),
+                        child: Hero(
+                          tag: '${widget.userData['username']} Profile Picture',
+                          child: fetchProfilePicture(
+                              widget.userData['profilePicture'],
+                              widget.userData['pfpType'],
+                              widget.userData['username'],
+                              padding: false),
+                        )),
                   ),
                   const SizedBox(width: 16)
                 ],

@@ -147,11 +147,11 @@ Widget postCard(BuildContext context,
 
 /// This is the section page which allows for access to quizzes and posts
 class SectionPage extends StatefulWidget {
-  Map<String, dynamic> userData;
-  String role;
-  String title;
-  String? id;
-  SectionPage(
+  final Map<String, dynamic> userData;
+  final String role;
+  final String title;
+  final String? id;
+  const SectionPage(
       {Key? key, required this.userData, required this.title, required this.id, required this.role})
       : super(key: key);
 

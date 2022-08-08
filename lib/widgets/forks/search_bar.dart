@@ -28,7 +28,7 @@ class AnimSearchBar extends StatefulWidget {
   final Icon? prefixIcon;
   final String helpText;
   final int animationDurationInMilli;
-  final onSuffixTap;
+  final Function? onSuffixTap;
   final onOpen;
   final onFocus;
   final onClose;
@@ -188,11 +188,19 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: AnimatedBuilder(
+                    builder: (context, widget) {
+                      ///Using Transform.rotate to rotate the suffix icon when it gets expanded
+                      return Transform.rotate(
+                        angle: _con.value * 2.0 * pi,
+                        child: widget,
+                      );
+                    },
+                    animation: _con,
                     child: GestureDetector(
                       onTap: () {
                         try {
                           ///trying to execute the onSuffixTap function
-                          widget.onSuffixTap();
+                          widget.onSuffixTap?.call();
 
                           // * if field empty then the user trying to close bar
                           if (textFieldValue == '') {
@@ -223,22 +231,12 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                       },
 
                       ///suffixIcon is of type Icon
-                      child: widget.suffixIcon != null
-                          ? widget.suffixIcon
-                          : Icon(
+                      child: widget.suffixIcon ?? Icon(
                               Icons.close,
                               size: 20.0,
                               color: widget.textFieldIconColor,
                             ),
                     ),
-                    builder: (context, widget) {
-                      ///Using Transform.rotate to rotate the suffix icon when it gets expanded
-                      return Transform.rotate(
-                        angle: _con.value * 2.0 * pi,
-                        child: widget,
-                      );
-                    },
-                    animation: _con,
                   ),
                 ),
               ),

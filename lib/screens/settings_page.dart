@@ -16,7 +16,7 @@ import 'package:mime/mime.dart';
  * The following section includes functions for the settings page.
  */
 
-/// Creates card buttons within settings.
+/// Creates card buttons within settings, that lead to a url.
 Widget settingsCard(BuildContext context,
     {required String text, required Uri url}) {
   return Padding(
@@ -59,12 +59,11 @@ extension StringExtension on String {
  * The following section includes the actual settings page.
  */
 
-/// This is the main home page leading to other pages.
+/// This is the settings page.
 class SettingsPage extends StatefulWidget {
   final Map<String, dynamic> userData;
 
-  const SettingsPage({Key? key, required this.userData})
-      : super(key: key);
+  const SettingsPage({Key? key, required this.userData}) : super(key: key);
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -137,6 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Navigator.of(context).pop();
             }),
       ),
+      // Similar to before, gets the amount of points a user has!
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('quizPoints')
@@ -213,9 +213,12 @@ class _SettingsPageState extends State<SettingsPage> {
                               SnackBar(
                                 content: Text(
                                   "Updating Username! (this might take a second)",
-                                  style: TextStyle(color: Theme.of(context).primaryColorLight),
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).primaryColorLight),
                                 ),
-                                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                                backgroundColor:
+                                    Theme.of(context).scaffoldBackgroundColor,
                               ),
                             );
 
@@ -292,6 +295,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                         padding: const EdgeInsets.fromLTRB(
                                             16, 0, 16, 0),
                                         child: Text(
+                                          // If level if infinity, render text
+                                          // to say so, if not get the positive
+                                          // value and show how far to next level
                                           (experience.isInfinite)
                                               ? "Infinity"
                                               : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
@@ -310,25 +316,32 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ),
                               ],
                             ),
+                            // Displays the user's role
                             StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                                 stream: FirebaseFirestore.instance
                                     .collection('roles')
+                                    // Roles that contain the user's UID
+                                    .where('members',
+                                        arrayContains: FirebaseAuth
+                                            .instance.currentUser?.uid)
                                     .snapshots(),
                                 builder: (context, rolesSnapshot) {
                                   if (rolesSnapshot.connectionState ==
                                       ConnectionState.active) {
                                     try {
-                                      for (var doc in (rolesSnapshot.data?.docs ?? [])) {
-                                        if ((doc?['members'])
-                                            .contains(FirebaseAuth
-                                                .instance.currentUser?.uid)) {
-                                          return Text(
-                                              doc?['tag'],
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .subtitle1);
-                                        }
-                                      }
+                                      return Text(
+                                        // Similar to before, this gets each of
+                                        // the roles the user is in, gets its
+                                        // tag, puts that into a list and
+                                        // returns a string of that
+                                          rolesSnapshot.data?.docs
+                                                  .map((doc) => doc['tag'])
+                                                  .toList()
+                                                  .join(', ') ??
+                                              "Error: couldn't map roles",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle1);
                                     } on StateError {
                                       return Text(
                                           'Error: Firestore key not found!',
@@ -336,11 +349,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                               .textTheme
                                               .subtitle1);
                                     }
-
-                                    return Text('Error!',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .subtitle1);
                                   } else {
                                     return Text("Loading...",
                                         style: Theme.of(context)
@@ -378,6 +386,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            // Gets the current theme from AdaptiveTheme.
                             ValueListenableBuilder(
                               valueListenable:
                                   AdaptiveTheme.of(context).modeChangeNotifier,
@@ -419,6 +428,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 settingsCard(context,
                     text: "GitHub",
                     url: Uri.parse("https://github.com/cgs-math/app")),
+                // Delete Account and Logout Buttons
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
