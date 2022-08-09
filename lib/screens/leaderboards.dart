@@ -105,6 +105,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                     if (index == 0) {
                       // Header.
                       return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           header("Leaderboards", context,
                               fontSize: 30, backArrow: true),
