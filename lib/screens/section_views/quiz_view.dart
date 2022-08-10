@@ -1,3 +1,10 @@
+/*
+File: quiz_view.dart
+Description: The view for quizzes inside sections
+Author: Garv Shah
+Created: Fri Aug 5 22:25:21 2022
+ */
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extensions/flutter_extensions.dart';

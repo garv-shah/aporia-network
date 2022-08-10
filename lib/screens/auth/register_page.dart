@@ -1,3 +1,10 @@
+/*
+File: register_page.dart
+Description: The page where users select their username after account creation
+Author: Garv Shah
+Created: Fri Jul 29 22:00:08 2022
+ */
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

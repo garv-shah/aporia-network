@@ -1,3 +1,10 @@
+/*
+File: settings_page.dart
+Description: The settings page for the Maths Club App
+Author: Garv Shah
+Created: Tue Jul 19 21:41:22 2022
+ */
+
 import 'dart:typed_data';
 
 import 'package:adaptive_theme/adaptive_theme.dart';

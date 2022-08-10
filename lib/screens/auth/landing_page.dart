@@ -1,11 +1,17 @@
+/*
+File: landing_page.dart
+Description: The AuthGate, which handles user status based on their state
+Author: Garv Shah
+Created: Fri Jul 29 22:00:08 2022
+Doc Link: https://github.com/cgs-math/app#landing-page
+ */
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:maths_club/screens/auth/register_page.dart';
 import 'package:maths_club/screens/auth/login_page.dart';
 import 'package:maths_club/screens/home_page.dart';
-
-// View documentation here: https://github.com/cgs-math/app#landing-page.
 
 /// Provides the current widget to go to based on the authentication state.
 getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {

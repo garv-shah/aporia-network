@@ -1,3 +1,10 @@
+/*
+File: post_view.dart
+Description: The view for posts inside sections
+Author: Garv Shah
+Created: Fri Aug 5 22:25:21 2022
+ */
+
 import 'package:flutter/material.dart';
 import 'package:visual_editor/controller/controllers/editor-controller.dart';
 import 'package:visual_editor/documents/models/document.model.dart';

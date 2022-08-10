@@ -1,3 +1,10 @@
+/*
+File: home_page.dart
+Description: The home page for the Maths Club App
+Author: Garv Shah
+Created: Sat Jun 18 18:29:00 2022
+ */
+
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';

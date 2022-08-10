@@ -1,6 +1,12 @@
-import 'package:flutter/material.dart';
+/*
+File: theme.dart
+Description: Defines ThemeData for the rest of the app, with a utility class
+Author: Garv Shah
+Created: Sat Jun 18 18:29:00 2022
+Doc Link: https://github.com/cgs-math/app#theme-data
+ */
 
-// View documentation here: https://github.com/cgs-math/app#theme-data.
+import 'package:flutter/material.dart';
 
 class AppThemes {
   /// light mode theme

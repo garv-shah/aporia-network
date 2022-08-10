@@ -1,11 +1,17 @@
+/*
+File: main.dart
+Description: The file serves as the entrypoint of the Maths Club App, leading to the AuthGate
+Author: Garv Shah
+Created: Sat Jun 18 18:29:00 2022
+Doc Link: https://github.com/cgs-math/app#adaptive-theme
+ */
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
 import 'package:maths_club/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
-// View documentation here: https://github.com/cgs-math/app#adaptive-theme.
 
 void main() async {
   // Initialises Firebase.

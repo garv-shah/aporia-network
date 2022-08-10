@@ -1,3 +1,10 @@
+/*
+File: section_page.dart
+Description: The general pages for sections where quizzes and posts can be viewed
+Author: Garv Shah
+Created: Fri Aug 5 22:25:21 2022
+ */
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';

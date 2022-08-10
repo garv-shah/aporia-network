@@ -1,3 +1,10 @@
+/*
+File: section_app_bar.dart
+Description: App bar with search ui for the individual section pages, utilising a fork of AnimSearchBar
+Author: Garv Shah
+Created: Mon Jul 18 21:25:01 2022
+ */
+
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/home_page.dart';
 import 'package:maths_club/screens/leaderboards.dart';

@@ -1,3 +1,10 @@
+/*
+File: leaderboards.dart
+Description: The leaderboards page for the Maths Club App
+Author: Garv Shah
+Created: Wed Jul 20 20:11:15 2022
+ */
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

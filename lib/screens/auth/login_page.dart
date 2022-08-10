@@ -1,10 +1,15 @@
+/*
+File: login_page.dart
+Description: The login page, where users can register or sign in
+Author: Garv Shah
+Created: Sat Jun 18 18:29:00 2022
+Doc Link: https://github.com/cgs-math/app#login-page
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
-
-import '../../utils/components.dart';
-import '../../utils/login_functions.dart';
-
-// View documentation here: https://github.com/cgs-math/app#login-page.
+import 'package:maths_club/utils/components.dart';
+import 'package:maths_club/utils/login_functions.dart';
 
 /// This is the login page for users.
 ///

@@ -1,3 +1,10 @@
+/*
+File: components.dart
+Description: Miscellaneous utility components, such as headers and footers
+Author: Garv Shah
+Created: Sun Jul 17 16:37:36 2022
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

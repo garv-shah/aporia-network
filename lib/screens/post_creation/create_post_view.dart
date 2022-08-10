@@ -1,3 +1,10 @@
+/*
+File: create_post_view.dart
+Description: Where post data can be created and modified (such as title, description, etc)
+Author: Garv Shah
+Created: Sat Jul 23 18:21:21 2022
+ */
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';

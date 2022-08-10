@@ -1,3 +1,10 @@
+/*
+File: edit_questions.dart
+Description: The page where individual questions can be edited, via Quill/VisualEditor
+Author: Garv Shah
+Created: Sat Jul 23 18:21:21 2022
+ */
+
 import 'package:flutter/material.dart';
 import 'package:visual_editor/visual-editor.dart';
 import 'package:math_keyboard/math_keyboard.dart';
