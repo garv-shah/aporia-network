@@ -38,7 +38,7 @@ class _EditQuestionState extends State<EditQuestion> {
   void initState() {
     _controller = EditorController(document: DocumentM.fromJson(widget.document));
 
-    if (widget.solution != null && widget.solution != r"\textcolor{#000000}{\cursor}") {
+    if ((widget.solution?.isNotEmpty ?? false) && widget.solution != r"\textcolor{#000000}{\cursor}") {
       var json = widget.solution!.replaceAll(
           r"\textcolor{#000000}{\cursor}", '');
       _mathController.updateValue(TeXParser(json).parse());

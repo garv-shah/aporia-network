@@ -70,32 +70,40 @@ exports.deleteUser = functions
 
 exports.updateUsername = functions
     .region('australia-southeast1')
-    .https.onCall((data, context) => {
-    let username = data.username;
-    if (username == null) {
-        throw new functions.https.HttpsError('invalid-argument', 'A username must be provided!');
-    } else if (context.auth?.uid == null) {
-        throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
-    } else {
-        functions.logger.info(`Updating username for ${context.auth?.uid}`, {structuredData: true});
+    .https.onCall(async (data, context) => {
+        let username = data.username;
+        if (!username) {
+            throw new functions.https.HttpsError('invalid-argument', 'A username must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else if (username.length > 12) {
+            throw new functions.https.HttpsError('permission-denied', 'The username cannot exceed 12 characters');
+        } else {
+            let userInfoList = (await db.collection('userInfo').where("lowerUsername", '==', username.toLowerCase()).get()).docs;
 
-        // set displayName username
-        admin.auth().updateUser(context.auth!.uid, {
-            displayName: username,
-        })
+            if (userInfoList.length != 0) {
+                throw new functions.https.HttpsError('already-exists', 'The username already exists!');
+            }
 
-        // set userInfo username
-        db.collection("userInfo").doc(context.auth!.uid).update({
-            lowerUsername: username.toString().toLowerCase(),
-            username: username,
-        });
+            functions.logger.info(`Updating username for ${context.auth?.uid}`, {structuredData: true});
 
-        // set quizPoints username
-        db.collection("quizPoints").doc(context.auth!.uid).update({
-            username: username,
-        });
-    }
-});
+            // set displayName username
+            await admin.auth().updateUser(context.auth!.uid, {
+                displayName: username,
+            })
+
+            // set userInfo username
+            await db.collection("userInfo").doc(context.auth!.uid).update({
+                lowerUsername: username.toString().toLowerCase(),
+                username: username,
+            });
+
+            // set quizPoints username
+            await db.collection("quizPoints").doc(context.auth!.uid).update({
+                username: username,
+            });
+        }
+    });
 
 exports.updatePfp = functions
     .region('australia-southeast1')

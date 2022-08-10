@@ -42,7 +42,7 @@ Widget user(BuildContext context,
           children: [
             // profile picture and name
             SizedBox(
-              width: MediaQuery.of(context).size.width - 95,
+              width: MediaQuery.of(context).size.width - 125,
               child: Row(
                 children: [
                   Padding(
@@ -66,7 +66,7 @@ Widget user(BuildContext context,
             ),
             Padding(
               padding: const EdgeInsets.all(22.0),
-              child: Text(position.toString()),
+              child: Text(position.toString(), overflow: TextOverflow.ellipsis),
             )
           ],
         ),

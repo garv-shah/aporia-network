@@ -133,7 +133,7 @@ class _PostViewState extends State<PostView> {
                             )),
                       ) : const SizedBox.shrink(),
                       // padding
-                      const SizedBox(width: 10),
+                      (questionData['Hints'] != null) ? const SizedBox(width: 10) : const SizedBox.shrink(),
                       // Only show solution button if there are solutions to show
                       (questionData['Solution'] != null) ? Padding(
                         padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),

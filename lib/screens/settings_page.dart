@@ -127,6 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     String username = widget.userData['username'] ?? "...";
+    late List<DocumentSnapshot> userInfoList;
 
     return Scaffold(
       appBar: AppBar(
@@ -202,9 +203,16 @@ class _SettingsPageState extends State<SettingsPage> {
                             textFields: [
                               DialogTextField(
                                 hintText: 'Username',
-                                validator: (value) => value!.isEmpty
-                                    ? "The username can't be empty"
-                                    : null,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "A username is required";
+                                  }
+
+                                  if (value.length > 12) {
+                                    return "Cannot exceed 12 characters";
+                                  }
+                                  return null;
+                                },
                               ),
                             ],
                             title: 'Change Username',
@@ -214,12 +222,19 @@ class _SettingsPageState extends State<SettingsPage> {
                           // If username is not empty (which it shouldn't be),
                           // go back to homepage and send it to the server.
                           if (newUsername != null) {
-                            Navigator.pop(context);
+                            String username = newUsername.first;
+
+                            // username's that are the same as the one the user entered
+                            userInfoList = (await FirebaseFirestore.instance.collection('userInfo')
+                                .where("lowerUsername",
+                                isEqualTo: username.toLowerCase())
+                                .get())
+                                .docs;
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  "Updating Username! (this might take a second)",
+                                  userInfoList.isEmpty ? "Updating Username! (this might take a second)" : "Sorry this name is already taken, please try again!",
                                   style: TextStyle(
                                       color:
                                           Theme.of(context).primaryColorLight),
@@ -229,9 +244,13 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             );
 
-                            await functions
-                                .httpsCallable('updateUsername')
-                                .call({'username': newUsername.first});
+                            if (userInfoList.isEmpty) {
+                              Navigator.pop(context);
+
+                              await functions
+                                  .httpsCallable('updateUsername')
+                                  .call({'username': newUsername.first});
+                            }
                           }
                         },
                         icon: const Icon(Icons.edit))
