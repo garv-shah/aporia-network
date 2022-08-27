@@ -70,7 +70,8 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.9.3
+  icons_launcher: ^2.0.3
+  # flutter_launcher_icons: ^0.10.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -121,12 +122,33 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
-flutter_icons:
-  android: true
-  ios: true
+#flutter_icons:
+#  android: true
+#  ios: true
+#  image_path: "assets/full_icon.png"
+#  adaptive_icon_background: "#f7e8d3"
+#  adaptive_icon_foreground: "assets/foreground_icon.png"
+
+icons_launcher:
   image_path: "assets/full_icon.png"
-  adaptive_icon_background: "#f7e8d3"
-  adaptive_icon_foreground: "assets/foreground_icon.png"
+  platforms:
+    android:
+      enable: true
+      adaptive_background_color: '#f7e8d3'
+      adaptive_foreground_image: 'assets/foreground_icon.png'
+    ios:
+      enable: true
+    web:
+      enable: true
+    macos:
+      image_path: 'assets/app_icon_desktop.png'
+      enable: true
+    windows:
+      image_path: 'assets/app_icon_desktop.png'
+      enable: true
+    linux:
+      image_path: 'assets/app_icon_desktop.png'
+      enable: true
 
 flutter_native_splash:
   # This package generates native code to customize Flutter's default white native splash screen

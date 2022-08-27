@@ -11,4 +11,4 @@ PRODUCT_NAME = maths_club
 PRODUCT_BUNDLE_IDENTIFIER = com.garv.mathsClub
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2022 com.garv. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2022 Garv Shah. All rights reserved.

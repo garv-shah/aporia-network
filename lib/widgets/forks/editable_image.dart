@@ -96,16 +96,18 @@ class EditableImage extends StatelessWidget {
   final Position? editIconPosition;
 
   /// A function that processes the image and sends a cropped version.
-  void processImage(ImageSource source, XFile? profileImage, BuildContext context) async {
+  void processImage(ImageSource source, XFile? profileImage, BuildContext context, Uint8List? bytes) async {
     final cropController = CropController();
 
-    profileImage = await ImagePicker()
-        .pickImage(source: source);
+    if (bytes == null) {
+      profileImage = await ImagePicker()
+          .pickImage(source: source);
 
-    Uint8List bytes = await profileImage!.readAsBytes();
+      bytes = await profileImage!.readAsBytes();
+
+      Navigator.pop(context);
+    }
     if (bytes.isEmpty) return;
-
-    Navigator.pop(context);
 
     double cropDialogSize = min(
         MediaQuery.of(context).size.width,
@@ -120,9 +122,9 @@ class EditableImage extends StatelessWidget {
               children: <Widget>[
                 SizedBox(
                   width: cropDialogSize,
-                  height: cropDialogSize,
+                  height: cropDialogSize - 140,
                   child: Crop(
-                      image: bytes,
+                      image: bytes!,
                       controller: cropController,
                       withCircleUi: true,
                       interactive: true,
@@ -150,7 +152,7 @@ class EditableImage extends StatelessWidget {
                     const Expanded(child: SizedBox(height: 5)),
                     ElevatedButton(
                         onPressed: () {
-                          onChange(bytes);
+                          onChange(bytes!);
                           Navigator.pop(context);
                         },
                         child: Text('Skip',
@@ -177,12 +179,14 @@ class EditableImage extends StatelessWidget {
     XFile? profileImage;
     if (kIsWeb) {
       profileImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+      processImage(ImageSource.gallery, profileImage, context, await profileImage?.readAsBytes());
     } else if (Platform.isMacOS) {
       XTypeGroup typeGroup;
       typeGroup = XTypeGroup(
           label: 'images', extensions: ['jpg', 'png', 'gif', 'jpeg']);
 
       profileImage = await openFile(acceptedTypeGroups: [typeGroup]);
+      processImage(ImageSource.gallery, profileImage, context, await profileImage?.readAsBytes());
     } else {
       showDialog(
           context: context,
@@ -192,13 +196,13 @@ class EditableImage extends StatelessWidget {
                 children: <Widget>[
                   SimpleDialogOption(
                     onPressed: () async {
-                      processImage(ImageSource.gallery, profileImage, context);
+                      processImage(ImageSource.gallery, profileImage, context, null);
                     },
                     child: const Text('Pick From Gallery'),
                   ),
                   SimpleDialogOption(
                     onPressed: () async {
-                      processImage(ImageSource.camera, profileImage, context);
+                      processImage(ImageSource.camera, profileImage, context, null);
                     },
                     child: const Text('Take A New Picture'),
                   ),
