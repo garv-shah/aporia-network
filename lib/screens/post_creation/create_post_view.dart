@@ -8,6 +8,7 @@ Created: Sat Jul 23 18:21:21 2022
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:maths_club/screens/post_creation/edit_question.dart';
 import 'package:maths_club/utils/components.dart';
@@ -380,35 +381,56 @@ class _CreatePostState extends State<CreatePost> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            _formKey.currentState?.save();
+            MapEntry<String, dynamic>? incompleteQuestion = questionData.firstWhereOrNull((key, value) => value['Solution TEX'] == null);
 
-            formData['createQuiz'] = createQuiz;
-            formData['questionData'] = questionData;
-            formData['Group'] = selectedGroup;
-            formData['creationTime'] = DateTime.now();
-            if (createQuiz) {
-              formData['Start Date'] =
-                  DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
-              formData['End Date'] =
-                  DateFormat('dd/MM/yyyy').parse(formData['End Date']);
-            }
-
-            // If the ID is null, create an ID.
-            id ??= const Uuid().v4();
-
-            FirebaseFirestore.instance.collection("posts").doc(id).set(formData);
-
-            Navigator.pop(context);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Uploading Post!",
-                  style: TextStyle(color: Theme.of(context).primaryColorLight),
+            // If there are no incomplete questions
+            if (incompleteQuestion != null && selectedGroup != 'drafts') {
+              print(questionData);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${incompleteQuestion.key} is missing a solution!',
+                    style: TextStyle(color: Theme.of(context).primaryColorLight),
+                  ),
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 ),
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              ),
-            );
+              );
+            } else {
+              _formKey.currentState?.save();
+
+              formData['createQuiz'] = createQuiz;
+              formData['questionData'] = questionData;
+              formData['Group'] = selectedGroup;
+              formData['creationTime'] = DateTime.now();
+              if (createQuiz) {
+                formData['Start Date'] =
+                    DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
+                formData['End Date'] =
+                    DateFormat('dd/MM/yyyy').parse(formData['End Date']);
+              }
+
+              // If the ID is null, create an ID.
+              id ??= const Uuid().v4();
+
+              FirebaseFirestore.instance.collection("posts").doc(id).set(
+                  formData);
+
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "Uploading Post!",
+                    style: TextStyle(color: Theme
+                        .of(context)
+                        .primaryColorLight),
+                  ),
+                  backgroundColor: Theme
+                      .of(context)
+                      .scaffoldBackgroundColor,
+                ),
+              );
+            }
           }
         },
         label: const Text('Publish'),
@@ -416,7 +438,18 @@ class _CreatePostState extends State<CreatePost> {
       ),
       body: ListView(
         children: [
-          header("Create Quiz/Post", context, fontSize: 20, backArrow: true),
+          header("Create Quiz/Post", context, fontSize: 20, backArrow: true, customBackLogic: () {
+            showOkCancelAlertDialog(
+              okLabel: 'Confirm',
+                title: 'Save Changes',
+                message: 'Your changes have not been saved, are you sure you want to leave?',
+                context: context
+            ).then((result) {
+              if (result == OkCancelResult.ok) {
+                Navigator.pop(context);
+              }
+            });
+          }),
           const SizedBox(height: 20),
           Form(
               key: _formKey,
@@ -663,9 +696,10 @@ class _CreatePostState extends State<CreatePost> {
 
               questionIndex = index + 1;
               return questionCard(context,
-                  questionNumber: index + 1,
+                  questionNumber: questionIndex,
                   animation: animation, onDelete: () {
                 questionIndex -= 1;
+                questionData.remove(questionIndex);
               });
             },
           ),
