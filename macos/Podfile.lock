@@ -868,6 +868,8 @@ PODS:
     - FMDB (>= 2.7.5)
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
+  - video_player_macos (0.0.1):
+    - FlutterMacOS
 
 DEPENDENCIES:
   - cloud_firestore (from `Flutter/ephemeral/.symlinks/plugins/cloud_firestore/macos`)
@@ -888,6 +890,7 @@ DEPENDENCIES:
   - sign_in_with_apple (from `Flutter/ephemeral/.symlinks/plugins/sign_in_with_apple/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
+  - video_player_macos (from `Flutter/ephemeral/.symlinks/plugins/video_player_macos/macos`)
 
 SPEC REPOS:
   trunk:
@@ -959,6 +962,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
+  video_player_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/video_player_macos/macos
 
 SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
@@ -1009,6 +1014,7 @@ SPEC CHECKSUMS:
   sign_in_with_apple: a9e97e744e8edc36aefc2723111f652102a7a727
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
+  video_player_macos: 7a50b407d775a45392851b1218a9cf4be395cf7f
 
 PODFILE CHECKSUM: 9cd7f93214365cd2984f00afa4f803402e16339d
 

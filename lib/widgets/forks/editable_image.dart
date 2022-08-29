@@ -118,7 +118,7 @@ class EditableImage extends StatelessWidget {
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
-              title: const Text("Crop Profile Picture"),
+              title: const Text("Crop Image"),
               children: <Widget>[
                 SizedBox(
                   width: cropDialogSize,
