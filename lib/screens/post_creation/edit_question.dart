@@ -229,45 +229,21 @@ class _EditQuestionState extends State<EditQuestion> {
                   return uploadFile(file.readAsBytesSync(), basename(file.path), extension(file.path), context);
                 },
                 webImagePickImpl: (onImagePickCallback) async {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Uploading images is not supported on the web! Please try again from the app',
-                        style: TextStyle(
-                            color:
-                            Theme.of(context).primaryColorLight),
-                      ),
-                      backgroundColor:
-                      Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                  );
+                  XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  Uint8List bytes = await image!.readAsBytes();
 
-                  final file = File('');
-
-                  return onImagePickCallback(file);
+                  return processImage(context, bytes, basename(image.path), extension(image.path));
                 },
                 webVideoPickImpl: (onVideoPickCallback) async {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Uploading videos is not supported on the web! Please try again from the app',
-                        style: TextStyle(
-                            color:
-                            Theme.of(context).primaryColorLight),
-                      ),
-                      backgroundColor:
-                      Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                  );
+                  XFile? video = await ImagePicker().pickVideo(source: ImageSource.gallery);
+                  Uint8List bytes = await video!.readAsBytes();
 
-                  final file = File('');
-
-                  return onVideoPickCallback(file);
+                  return uploadFile(bytes, basename(video.path), extension(video.path), context);
                 },
                 filePickImpl: (context) async {
                   XTypeGroup typeGroup;
                   typeGroup = XTypeGroup(
-                      label: 'files', extensions: ['jpg', 'png', 'gif', 'jpeg', 'mp4', 'mov', 'avi', 'mkv']);
+                      label: 'files', extensions: ['jpg', 'png', 'gif', 'jpeg', 'mp4', 'mov', 'avi', 'mkv', 'webp', 'tif', 'heic']);
 
                   return (await openFile(acceptedTypeGroups: [typeGroup]))?.path;
                 },
