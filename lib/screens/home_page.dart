@@ -475,12 +475,18 @@ class _HomePageState extends State<HomePage> {
                                       navigateTo: const Leaderboards(),
                                       position: PositionPadding.start),
                                   // Only show tile if user is admin
-                                  (rolesSnapshot.data?.docs[0]['tag'] ==
-                                          'Admin')
-                                      ? actionCard(context,
-                                          icon: Icons.admin_panel_settings,
-                                          text: "Admin View")
-                                      : const SizedBox.shrink(),
+                                  //
+                                  // Note: the Admin View was temporarily
+                                  // removed to not cause confusion in the UI.
+                                  // It is planned outside the scope of the first
+                                  // two sprints.
+                                  //
+                                  // (rolesSnapshot.data?.docs[0]['tag'] ==
+                                  //         'Admin')
+                                  //     ? actionCard(context,
+                                  //         icon: Icons.admin_panel_settings,
+                                  //         text: "Admin View")
+                                  //     : const SizedBox.shrink(),
                                   // Only show tile if user is admin
                                   (rolesSnapshot.data?.docs[0]['tag'] ==
                                           'Admin')
