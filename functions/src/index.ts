@@ -2,6 +2,8 @@ import * as functions from "firebase-functions";
 import {firestore} from "firebase-admin";
 import QueryDocumentSnapshot = firestore.QueryDocumentSnapshot;
 import {UserRecord} from "firebase-admin/lib/auth";
+import DocumentData = firestore.DocumentData;
+import {createTraverser} from '@firecode/admin';
 
 const MathExpression = require('math-expressions');
 const admin = require('firebase-admin');
@@ -196,5 +198,55 @@ exports.markQuestions = functions
             });
 
             return markedObject;
+        }
+    });
+
+exports.fixValidationIssues = functions
+    .region("australia-southeast1")
+    .pubsub.schedule("0 * * * *")
+    .timeZone("Australia/Melbourne")
+    .onRun(async () => {
+        const quizPointsCollections = await db.collection("quizPoints");
+        const traverser = createTraverser(quizPointsCollections);
+
+        const requiredFields = ['pfpType', 'profilePicture', 'username']
+        let missingFields: {[key: string]: Array<string>} = {};
+
+        await traverser.traverse(async (batchDocs) => {
+            await Promise.all(
+                batchDocs.map(async (document: QueryDocumentSnapshot<DocumentData>) => {
+                    const data = document.data();
+
+                    requiredFields.forEach((field) => {
+                        if (data[field] == undefined || data[field]?.isEmpty || data[field] == '') {
+                            if (missingFields[document.id] == undefined) {
+                                missingFields[document.id] = [];
+                            }
+
+                            missingFields[document.id].push(field);
+                        }
+                    })
+                })
+            );
+        });
+
+        for (let uid in missingFields) {
+            await db.collection("userInfo").doc(uid).get().then(async (data: any) => {
+                const userInfo: { [key: string]: any; } = Object(data.data() as object)
+
+                if (userInfo['username'] != undefined) {
+                    let updateObject: { [key: string]: string; } = {};
+
+                    missingFields[uid].forEach((entry) => {
+                        updateObject[entry] = userInfo[entry];
+                    });
+
+                    await db.collection('quizPoints').doc(uid).update(updateObject);
+                    console.log(`Fixed validation issues for user ${userInfo['username']} with uid ${uid}`);
+                } else {
+                    await admin.auth().deleteUser(uid);
+                    console.log(`Deleted user ${userInfo['username']} with uid ${uid} for likely being a bot account`)
+                }
+            });
         }
     });

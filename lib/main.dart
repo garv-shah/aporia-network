@@ -27,7 +27,7 @@ void main() async {
 ///
 /// The whole app is wrapped with an [AdaptiveTheme] to provide easy light and
 /// dark mode theming, based on the [AppThemes] class.
-///t
+///
 /// More documentation can be viewed [here](https://github.com/cgs-math/app#adaptive-theme)
 class MathsClubApp extends StatelessWidget {
   MathsClubApp({Key? key}) : super(key: key);
