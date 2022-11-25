@@ -1,6 +1,11 @@
 # Maths Club App
 
-App for Garv Shah's Software Development SAT.
+App for CGS Maths Club, By Garv
+More detail on the creation process can be found [here](https://github.com/garv-shah/software-dev)
+
+- Apple: [https://apps.apple.com/us/app/maths-club/id1633075771](https://apps.apple.com/us/app/maths-club/id1633075771)
+- Android: [https://play.google.com/store/apps/details?id=com.garv.maths_club](https://play.google.com/store/apps/details?id=com.garv.maths_club)
+- Website: [http://cgs-math.github.io](http://cgs-math.github.io)
 
 # Documentation
 
