@@ -10,8 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
+import 'package:maths_club/utils/formula_embed.dart';
 import 'package:visual_editor/controller/controllers/editor-controller.dart';
-import 'package:visual_editor/documents/models/document.model.dart';
+import 'package:visual_editor/document/models/document.model.dart';
 import 'package:visual_editor/editor/models/editor-cfg.model.dart';
 import 'package:visual_editor/main.dart';
 
@@ -401,6 +402,9 @@ class _QuizViewState extends State<QuizView> {
                                 readOnly: true,
                                 keyboardAppearance:
                                     Theme.of(context).brightness,
+                                customEmbedBuilders: const [
+                                  FormulaEmbedBuilderM()
+                                ],
                               ),
                             ),
                           ),

@@ -84,7 +84,7 @@ Widget postCard(BuildContext context,
                         child: Text(title,
                             style: Theme.of(context)
                                 .textTheme
-                                .headline5
+                                .headlineSmall
                                 ?.copyWith(
                                     color: Theme.of(context).primaryColorLight,
                                     fontWeight: FontWeight.w600),
@@ -138,7 +138,7 @@ Widget postCard(BuildContext context,
                                         },
                                         child: Icon(Icons.delete,
                                             color:
-                                                Theme.of(context).errorColor)),
+                                                Theme.of(context).colorScheme.error)),
                                   ),
                                 ],
                               ),
@@ -148,7 +148,7 @@ Widget postCard(BuildContext context,
                   ),
                 ),
                 Text(description,
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme.of(context).textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
@@ -169,7 +169,7 @@ Widget postCard(BuildContext context,
                         }
                       },
                       style: OutlinedButton.styleFrom(
-                          primary: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.primary,
                           side: BorderSide(
                               color: Theme.of(context).colorScheme.primary),
                           minimumSize: const Size(80, 40),
@@ -300,11 +300,20 @@ class _SectionPageState extends State<SectionPage> {
                   }
                 }
 
+                if (posts.isNotEmpty) {
+                  posts.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
+                }
+
+                if (quizzes.isNotEmpty) {
+                  quizzes.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
+                }
+
                 return ListView(
                   children: [
                     SectionAppBar(context,
                         title: widget.title,
                         userData: widget.userData,
+                        isAdmin: widget.role == "Admin",
                         onSearch: (String search) => updateSearch(search),
                         searchController:
                             TextEditingController(text: searchValue)),
@@ -324,7 +333,7 @@ class _SectionPageState extends State<SectionPage> {
                                       child: Text("Active Quizzes",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline4
+                                              .headlineMedium
                                               ?.copyWith(
                                                   color: Theme.of(context)
                                                       .primaryColorLight)),
@@ -362,7 +371,7 @@ class _SectionPageState extends State<SectionPage> {
                                       child: Text("Posts",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline4
+                                              .headlineMedium
                                               ?.copyWith(
                                                   color: Theme.of(context)
                                                       .primaryColorLight)),

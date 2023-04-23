@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:maths_club/screens/post_creation/create_post_view.dart';
 import 'package:maths_club/screens/leaderboards.dart';
+import 'package:maths_club/screens/section_views/admin_view/user_list_view.dart';
 import 'package:maths_club/screens/section_views/section_page.dart';
 import 'package:maths_club/screens/settings_page.dart';
 import 'package:maths_club/utils/components.dart';
@@ -89,7 +90,7 @@ Widget actionCard(BuildContext context,
 Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
     String title, String? sectionID, String role) {
   return Padding(
-    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 16.0, 16.0),
+    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
     child: Card(
       elevation: 5,
       shape: const RoundedRectangleBorder(
@@ -103,7 +104,7 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
             Text(title,
                 style: Theme.of(context)
                     .textTheme
-                    .headline4
+                    .headlineMedium
                     ?.copyWith(color: Theme.of(context).primaryColorLight)),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -121,9 +122,10 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                      primary: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.primary,
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary),
+                          color: Theme.of(context).colorScheme.primary
+                      ),
                       minimumSize: const Size(double.infinity, 40),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -207,7 +209,7 @@ Map<String, dynamic> calculateLevel(experience) {
 
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
-    {required Map<String, dynamic> userData, required Widget profilePicture}) {
+    {required Map<String, dynamic> userData, required Widget profilePicture, required bool isAdmin}) {
   return StreamBuilder<DocumentSnapshot>(
       // Stream for user's quiz points.
       stream: FirebaseFirestore.instance
@@ -240,6 +242,7 @@ Widget userInfo(BuildContext context,
                   MaterialPageRoute(
                       builder: (context) => SettingsPage(
                             userData: userData,
+                            isAdmin: isAdmin,
                           )),
                 );
               },
@@ -253,70 +256,67 @@ Widget userInfo(BuildContext context,
                       Padding(
                         padding:
                             const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width - 290,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // The fitted box allows the text to resize based on how long it is.
-                              FittedBox(
-                                fit: BoxFit.fitWidth,
-                                child: Text(userData['username'],
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // The fitted box allows the text to resize based on how long it is.
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(userData['username'],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .primaryColorLight)),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Level',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headline4
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .primaryColorLight)),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Level',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1),
-                                  Text(
-                                    levelMap['level'].toString(),
+                                        .titleMedium),
+                                Text(
+                                  levelMap['level'].toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Experience',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headline6
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary),
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Experience',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle1),
-                                  Text(
-                                    // If the experience is infinity, render the text "infinity", if not, get the positive experience value.
-                                    (experience.isInfinite)
-                                        ? "Infinity"
-                                        : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline6
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary),
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                        .titleMedium),
+                                Text(
+                                  // If the experience is infinity, render the text "infinity", if not, get the positive experience value.
+                                  (experience.isInfinite)
+                                      ? "Infinity"
+                                      : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       Padding(
@@ -341,26 +341,30 @@ Widget userInfo(BuildContext context,
 
 Widget fetchProfilePicture(
     String? profilePicture, String? pfpType, String? username,
-    {bool padding = true, double? customPadding}) {
+    {bool padding = false, double? customPadding}) {
   String imageUrl = profilePicture ??
       "https://avatars.dicebear.com/api/avataaars/$username.svg";
 
   if (imageUrl.isEmpty) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      return Center(
-        child: UserAvatar(
-            size: padding ? constraints.maxHeight - (padding ? 10 : 0) : null),
-      );
-    });
+    return Padding(
+      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Center(
+              child: UserAvatar(size: constraints.maxHeight),
+            );
+          }),
+    );
   } else if (pfpType == 'image/svg+xml') {
-    return Center(
-      child: Padding(
-        padding:
-            padding ? EdgeInsets.all(customPadding ?? 15) : EdgeInsets.zero,
-        child: ClipOval(
+    return Padding(
+      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      child: ClipOval(
+        child: CircleAvatar(
+          backgroundColor: const Color.fromRGBO(65, 65, 65, 0.4),
           child: SvgPicture.network(
             imageUrl,
+            width: 1000,
+            height: 1000,
             semanticsLabel: '$username profile picture svg',
             placeholderBuilder: (BuildContext context) => const SizedBox(
                 height: 30, width: 30, child: CircularProgressIndicator()),
@@ -369,32 +373,34 @@ Widget fetchProfilePicture(
       ),
     );
   } else {
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      imageBuilder: (context, imageProvider) => LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        return Center(
-          child: CircleAvatar(
-            backgroundColor: Colors.transparent,
-            backgroundImage: imageProvider,
-            radius: constraints.maxWidth / 2 -
-                (padding ? (customPadding ?? 15) : 0),
+    return Padding(
+      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        imageBuilder: (context, imageProvider) => LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Center(
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: imageProvider,
+                  radius: 1000,
+                ),
+              );
+            }),
+        progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+          child: SizedBox(
+            height: 30,
+            width: 30,
+            child: CircularProgressIndicator(value: downloadProgress.progress),
           ),
-        );
-      }),
-      progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-        child: SizedBox(
-          height: 30,
-          width: 30,
-          child: CircularProgressIndicator(value: downloadProgress.progress),
         ),
+        errorWidget: (context, url, error) => LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Center(
+                child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
+              );
+            }),
       ),
-      errorWidget: (context, url, error) => LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        return Center(
-          child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
-        );
-      }),
     );
   }
 }
@@ -447,105 +453,109 @@ class _HomePageState extends State<HomePage> {
                             "Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
                       ));
                     } else {
+                      List roleList = rolesSnapshot.data!.docs.map((doc) => doc['tag']).toList();
+                      bool isAdmin = roleList.contains("Admin");
                       // If user is in role, return normal ListView
-                      return ListView(
-                        padding: EdgeInsets.zero,
-                        children: [
-                          /// user info display
-                          userInfo(context,
-                              userData: widget.userData,
-                              profilePicture: Hero(
-                                  tag: '$username Profile Picture',
-                                  child: fetchProfilePicture(
-                                      widget.userData['profilePicture'],
-                                      widget.userData['pfpType'],
-                                      username))),
+                      return SizedBox(
+                        width: isAdmin ? 760 : 600,
+                        child: ListView(
+                          padding: EdgeInsets.zero,
+                          children: [
+                            /// user info display
+                            userInfo(context,
+                                userData: widget.userData,
+                                isAdmin: isAdmin,
+                                profilePicture: Hero(
+                                    tag: '$username Profile Picture',
+                                    child: fetchProfilePicture(
+                                        widget.userData['profilePicture'],
+                                        widget.userData['pfpType'],
+                                        username,
+                                        padding: true
+                                    ))),
 
-                          /// horizontal carousel for actions
-                          SizedBox(
-                            height: 175,
-                            child: Center(
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                children: [
-                                  actionCard(context,
-                                      icon: Icons.people,
-                                      text: "Leaderboards",
-                                      navigateTo: const Leaderboards(),
-                                      position: PositionPadding.start),
-                                  // Only show tile if user is admin
-                                  //
-                                  // Note: the Admin View was temporarily
-                                  // removed to not cause confusion in the UI.
-                                  // It is planned outside the scope of the first
-                                  // two sprints.
-                                  //
-                                  // (rolesSnapshot.data?.docs[0]['tag'] ==
-                                  //         'Admin')
-                                  //     ? actionCard(context,
-                                  //         icon: Icons.admin_panel_settings,
-                                  //         text: "Admin View")
-                                  //     : const SizedBox.shrink(),
-                                  // Only show tile if user is admin
-                                  (rolesSnapshot.data?.docs[0]['tag'] ==
-                                          'Admin')
-                                      ? actionCard(context,
-                                          icon: Icons.create,
-                                          text: "Create Post",
-                                          navigateTo: const CreatePost())
-                                      : const SizedBox.shrink(),
-                                  actionCard(context,
-                                      icon: Icons.settings,
-                                      text: "Settings",
-                                      navigateTo: SettingsPage(
-                                          userData: widget.userData),
-                                      position: PositionPadding.end),
-                                ],
+                            /// horizontal carousel for actions
+                            SizedBox(
+                              height: 175,
+                              child: Center(
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  children: [
+                                    actionCard(context,
+                                        icon: Icons.people,
+                                        text: "Leaderboards",
+                                        navigateTo: Leaderboards(isAdmin: isAdmin),
+                                        position: PositionPadding.start),
+                                    // Only show tile if user is admin
+                                    (rolesSnapshot.data?.docs[0]['tag'] ==
+                                            'Admin')
+                                        ? actionCard(context,
+                                            icon: Icons.admin_panel_settings,
+                                            text: "Admin View",
+                                            navigateTo: UsersPage())
+                                        : const SizedBox.shrink(),
+                                    // Only show tile if user is admin
+                                    (rolesSnapshot.data?.docs[0]['tag'] ==
+                                            'Admin')
+                                        ? actionCard(context,
+                                            icon: Icons.create,
+                                            text: "Create Post",
+                                            navigateTo: const CreatePost())
+                                        : const SizedBox.shrink(),
+                                    actionCard(context,
+                                        icon: Icons.settings,
+                                        text: "Settings",
+                                        navigateTo: SettingsPage(
+                                            userData: widget.userData,
+                                            isAdmin: isAdmin),
+                                        position: PositionPadding.end),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
 
-                          /// cards leading to individual sections
-                          StreamBuilder<QuerySnapshot>(
-                              // The postGroups collection includes which roles
-                              // can access which groups. This stream gets all
-                              // postGroups where the roles includes the roles
-                              // that the user can access.
-                              stream: FirebaseFirestore.instance
-                                  .collection('postGroups')
-                                  // Since a user can have multiple roles, this gets all the roles a user is in
-                                  .where('roles', arrayContainsAny: rolesSnapshot.data?.docs.map((doc) => doc.id).toList())
-                                  .snapshots(),
-                              builder: (context, postsGroupSnapshot) {
-                                if (postsGroupSnapshot.connectionState ==
-                                    ConnectionState.active) {
-                                  // Builds section cards based on the
-                                  // postGroups a user is a part of.
-                                  return ListView.builder(
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      shrinkWrap: true,
-                                      padding: EdgeInsets.zero,
-                                      itemCount:
-                                          postsGroupSnapshot.data?.docs.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return sectionCard(
-                                            context,
-                                            widget.userData,
-                                            postsGroupSnapshot.data?.docs[index]
-                                                ["tag"],
-                                            postsGroupSnapshot
-                                                .data?.docs[index].id,
-                                            rolesSnapshot.data?.docs[0]['tag']);
-                                      });
-                                } else {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-                              }),
-                        ],
+                            /// cards leading to individual sections
+                            StreamBuilder<QuerySnapshot>(
+                                // The postGroups collection includes which roles
+                                // can access which groups. This stream gets all
+                                // postGroups where the roles includes the roles
+                                // that the user can access.
+                                stream: FirebaseFirestore.instance
+                                    .collection('postGroups')
+                                    // Since a user can have multiple roles, this gets all the roles a user is in
+                                    .where('roles', arrayContainsAny: rolesSnapshot.data?.docs.map((doc) => doc.id).toList())
+                                    .snapshots(),
+                                builder: (context, postsGroupSnapshot) {
+                                  if (postsGroupSnapshot.connectionState ==
+                                      ConnectionState.active) {
+                                    // Builds section cards based on the
+                                    // postGroups a user is a part of.
+                                    return ListView.builder(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        padding: EdgeInsets.zero,
+                                        itemCount:
+                                            postsGroupSnapshot.data?.docs.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return sectionCard(
+                                              context,
+                                              widget.userData,
+                                              postsGroupSnapshot.data?.docs[index]
+                                                  ["tag"],
+                                              postsGroupSnapshot
+                                                  .data?.docs[index].id,
+                                              rolesSnapshot.data?.docs[0]['tag']);
+                                        });
+                                  } else {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                }),
+                          ],
+                        ),
                       );
                     }
                   } else {

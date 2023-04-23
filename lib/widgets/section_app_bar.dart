@@ -27,11 +27,14 @@ class SectionAppBar extends StatefulWidget {
 
   final StringCallback onSearch;
 
+  final bool isAdmin;
+
   SectionAppBar(BuildContext context,
       {Key? key,
       required this.title,
       required this.userData,
       required this.onSearch,
+      required this.isAdmin,
       required this.searchController})
       : super(key: key);
 
@@ -79,7 +82,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                         ),
                       ),
                       Text(widget.title,
-                          style: Theme.of(context).textTheme.headline6)
+                          style: Theme.of(context).textTheme.titleLarge)
                     ],
                   ),
                 ),
@@ -163,7 +166,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Leaderboards()),
+                              builder: (context) => Leaderboards(isAdmin: widget.isAdmin)),
                         );
                       },
                       icon: Icon(Icons.people,
@@ -184,7 +187,7 @@ class _SectionAppBarState extends State<SectionAppBar> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                SettingsPage(userData: widget.userData)),
+                                SettingsPage(userData: widget.userData, isAdmin: widget.isAdmin)),
                       );
                     },
                     // If the profile picture exists, show it, if not show a

@@ -62,5 +62,7 @@
 	<string>The Maths Club app requires access to your camera to upload photos or change profile pictures</string>
 	<key>UIStatusBarHidden</key>
 	<false/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>

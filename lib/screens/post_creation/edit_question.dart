@@ -21,6 +21,7 @@ import 'package:math_keyboard/math_keyboard.dart';
 import 'package:path/path.dart';
 
 import '../../utils/components.dart';
+import '../../utils/formula_embed.dart';
 
 /// A function that processes the image and sends a cropped version.
 Future<String?> processImage(BuildContext context, Uint8List bytes, String imageName, String fileExtension) async {
@@ -186,7 +187,7 @@ class _EditQuestionState extends State<EditQuestion> {
           child: Column(
             children: [
               header(widget.title, context, fontSize: 20, backArrow: true, customBackLogic: () {
-                widget.onSave(_controller.document.toDelta().toJson());
+                widget.onSave(_controller.document.delta.toJson());
                 widget.onSolution?.call(_mathController.root.buildTeXString(cursorColor: Colors.black));
                 Navigator.of(context).pop();
               }),
@@ -209,6 +210,9 @@ class _EditQuestionState extends State<EditQuestion> {
                     padding: const EdgeInsets.all(16.0),
                     readOnly: false,
                     keyboardAppearance: Theme.of(context).brightness,
+                    customEmbedBuilders: const [
+                      FormulaEmbedBuilderM()
+                    ],
                   ),
                 ),
               ),
@@ -216,6 +220,29 @@ class _EditQuestionState extends State<EditQuestion> {
                 controller: _controller,
                 showAlignmentButtons: true,
                 multiRowsDisplay: false,
+                customButtons: [
+                  CustomToolbarButtonM(
+                      icon: Icons.functions,
+                      onTap: () {
+                        showDialog<String>(
+                          context: context,
+                          builder: (_) => const FormulaDialog(),
+                        ).then((value) {
+                            if (value != null && value.isNotEmpty) {
+                              final index = _controller.selection.baseOffset;
+                              final length = _controller.selection.extentOffset - index;
+
+                              _controller.replaceText(
+                              index,
+                              length,
+                              EmbedM('formula', value),
+                              null,
+                            );
+                          }
+                        });
+                      }
+                  ),
+                ],
                 iconTheme: EditorIconThemeM(
                   iconSelectedFillColor: Theme.of(context).colorScheme.primary,
                   iconSelectedColor: Colors.white,
@@ -240,7 +267,7 @@ class _EditQuestionState extends State<EditQuestion> {
                 },
                 filePickImpl: (context) async {
                   XTypeGroup typeGroup;
-                  typeGroup = XTypeGroup(
+                  typeGroup = const XTypeGroup(
                       label: 'files', extensions: ['jpg', 'png', 'gif', 'jpeg', 'mp4', 'mov', 'avi', 'mkv', 'webp', 'tif', 'heic']);
 
                   return (await openFile(acceptedTypeGroups: [typeGroup]))?.path;

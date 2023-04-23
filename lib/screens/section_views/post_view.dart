@@ -8,9 +8,11 @@ Created: Fri Aug 5 22:25:21 2022
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:visual_editor/controller/controllers/editor-controller.dart';
-import 'package:visual_editor/documents/models/document.model.dart';
+import 'package:visual_editor/document/models/document.model.dart';
 import 'package:visual_editor/editor/models/editor-cfg.model.dart';
 import 'package:visual_editor/main.dart';
+
+import '../../utils/formula_embed.dart';
 
 /**
  * The following section includes the actual PostView page.
@@ -87,6 +89,9 @@ class _PostViewState extends State<PostView> {
                       padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
                       readOnly: true,
                       keyboardAppearance: Theme.of(context).brightness,
+                      customEmbedBuilders: const [
+                        FormulaEmbedBuilderM()
+                      ],
                     ),
                   ),
                   // Hints and Solution buttons
@@ -114,6 +119,9 @@ class _PostViewState extends State<PostView> {
                                               padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
                                               readOnly: true,
                                               keyboardAppearance: Theme.of(context).brightness,
+                                              customEmbedBuilders: const [
+                                                FormulaEmbedBuilderM()
+                                              ],
                                             ),
                                           )
                                         ]);
@@ -161,6 +169,9 @@ class _PostViewState extends State<PostView> {
                                               padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
                                               readOnly: true,
                                               keyboardAppearance: Theme.of(context).brightness,
+                                              customEmbedBuilders: const [
+                                                FormulaEmbedBuilderM()
+                                              ],
                                             ),
                                           )
                                         ]);

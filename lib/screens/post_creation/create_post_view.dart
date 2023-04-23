@@ -401,7 +401,7 @@ class _CreatePostState extends State<CreatePost> {
               formData['createQuiz'] = createQuiz;
               formData['questionData'] = questionData;
               formData['Group'] = selectedGroup;
-              formData['creationTime'] = DateTime.now();
+              formData['creationTime'] = widget.postData?['creationTime'] ?? DateTime.now();
               if (createQuiz) {
                 formData['Start Date'] =
                     DateFormat('dd/MM/yyyy').parse(formData['Start Date']);
@@ -436,304 +436,312 @@ class _CreatePostState extends State<CreatePost> {
         label: const Text('Publish'),
         icon: const Icon(Icons.check),
       ),
-      body: ListView(
-        children: [
-          header("Create Quiz/Post", context, fontSize: 20, backArrow: true, customBackLogic: () {
-            showOkCancelAlertDialog(
-              okLabel: 'Confirm',
-                title: 'Save Changes',
-                message: 'Your changes have not been saved, are you sure you want to leave?',
-                context: context
-            ).then((result) {
-              if (result == OkCancelResult.ok) {
-                Navigator.pop(context);
-              }
-            });
-          }),
-          const SizedBox(height: 20),
-          Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // title input
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                    child: TextFormField(
-                      initialValue: formData['Title'],
-                      onSaved: (value) {
-                        formData['Title'] = value;
-                      },
-                      decoration: const InputDecoration(labelText: "Title"),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a title!';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  // description input
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                    child: TextFormField(
-                      initialValue: formData['Description'],
-                      onSaved: (value) {
-                        formData['Description'] = value;
-                      },
-                      decoration:
-                          const InputDecoration(labelText: "Description"),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a description!';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  // group input
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                    child: FutureBuilder(
-                      future: FirebaseFirestore.instance.collection('postGroups').get(),
-                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> postGroupsSnapshot) {
-                        if (postGroupsSnapshot.connectionState == ConnectionState.done) {
-                          if (postGroupsSnapshot.hasError) {
-                            return Text(postGroupsSnapshot.error.toString());
-                          } else {
-                            List<DropdownMenuItem<String>> groups = [];
-
-                            // Iterates through the documents in he collection and creates a list of dropdown menu options.
-                            for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in (postGroupsSnapshot.data?.docs ?? [])) {
-                              groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
+      body: Center(
+        child: SizedBox(
+          width: 760,
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 50),
+                child: header("Create Quiz/Post", context, fontSize: 20, backArrow: true, customBackLogic: () {
+                  showOkCancelAlertDialog(
+                    okLabel: 'Confirm',
+                      title: 'Save Changes',
+                      message: 'Your changes have not been saved, are you sure you want to leave?',
+                      context: context
+                  ).then((result) {
+                    if (result == OkCancelResult.ok) {
+                      Navigator.pop(context);
+                    }
+                  });
+                }),
+              ),
+              const SizedBox(height: 20),
+              Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // title input
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                        child: TextFormField(
+                          initialValue: formData['Title'],
+                          onSaved: (value) {
+                            formData['Title'] = value;
+                          },
+                          decoration: const InputDecoration(labelText: "Title"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a title!';
                             }
-
-                            // If there is no selected group, set it to something
-                            selectedGroup ??= groups.first.value ?? 'drafts';
-
-                            return DropdownButtonFormField(items: groups, onChanged: (String? value) {
-                              selectedGroup = value;
-                            },
-                              value: selectedGroup,
-                            hint: const Text("Publishing Group"),);
-                          }
-                        } else {
-                          return DropdownButtonFormField(items: const [DropdownMenuItem(value: "Loading...", child: Text("Loading..."),)], onChanged: (String? value) {},);
-                        }
-                      },
-                    )
-                  ),
-                  // create quiz checkbox
-                  LabeledCheckbox(
-                    label: "Create Quiz From Post",
-                    value: createQuiz,
-                    onChanged: (value) {
-                      setState(() {
-                        createQuiz = value;
-                      });
-                    },
-                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                  ),
-                  // date range
-                  Visibility(
-                    visible: createQuiz,
-                    child: InkWell(
-                      onTap: () async {
-                        // Hides keyboard since it was giving me an overflow.
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        DateTimeRange? pickedRange = await showDateRangePicker(
-                          context: context,
-                          initialDateRange: currentDateRange,
-                          firstDate: DateTime(1950),
-                          lastDate: DateTime(2100),
-                          // Overrides the theme of the picker to work with dark mode.
-                          builder: (context, Widget? child) => Theme(
-                            data: Theme.of(context).copyWith(
-                                dialogBackgroundColor: Theme.of(context)
-                                    .scaffoldBackgroundColor,
-                                appBarTheme: Theme.of(context)
-                                    .appBarTheme
-                                    .copyWith(
-                                        iconTheme: IconThemeData(
-                                            color:
-                                                Theme.of(context)
-                                                    .primaryColorLight)),
-                                colorScheme: Theme.of(context)
-                                    .colorScheme
-                                    .copyWith(
-                                        onPrimary:
-                                            Theme.of(context).primaryColorLight,
-                                        primary: Theme.of(context)
-                                            .colorScheme
-                                            .primary)),
-                            child: child!,
-                          ),
-                        );
-
-                        if (pickedRange != null) {
-                          setState(() {
-                            // Sets the text input boxes to the selected range.
-                            currentDateRange = pickedRange;
-                            dateInputStart.text = DateFormat('dd/MM/yyyy')
-                                .format(pickedRange.start);
-                            dateInputEnd.text = DateFormat('dd/MM/yyyy')
-                                .format(pickedRange.end);
-                          });
-                        }
-                      },
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                        // These two TextFields are just there for looks and cannot be
-                        // interacted with, rather acting as buttons that upon up the
-                        // DatePicker. This then writes it to their fields.
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                onSaved: (value) {
-                                  formData['Start Date'] = value;
-                                },
-                                // Editing controller of this TextField.
-                                controller: dateInputStart,
-                                decoration: const InputDecoration(
-                                    labelText:
-                                        "Start Date" //label text of field
-                                    ),
-                                readOnly: true,
-                                enabled: false,
-                                validator: (value) {
-                                  if ((value == null || value.isEmpty) &&
-                                      createQuiz) {
-                                    return 'Please enter a start date!';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: TextFormField(
-                                onSaved: (value) {
-                                  formData['End Date'] = value;
-                                },
-                                // Editing controller of this TextField.
-                                controller: dateInputEnd,
-                                decoration: const InputDecoration(
-                                    labelText: "End Date" //label text of field
-                                    ),
-                                readOnly: true,
-                                enabled: false,
-                                validator: (value) {
-                                  if ((value == null || value.isEmpty) &&
-                                      createQuiz) {
-                                    return 'Please enter an end date!';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                            return null;
+                          },
                         ),
                       ),
-                    ),
-                  ),
-                  // quiz title input
-                  Visibility(
-                    visible: createQuiz,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                      child: TextFormField(
-                        initialValue: formData['Quiz Title'],
-                        decoration:
-                            const InputDecoration(labelText: "Quiz Title"),
-                        onSaved: (value) {
-                          formData['Quiz Title'] = value;
-                        },
-                        validator: (value) {
-                          if ((value == null || value.isEmpty) && createQuiz) {
-                            return 'Please enter a quiz title!';
-                          }
-                          return null;
-                        },
+                      // description input
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                        child: TextFormField(
+                          initialValue: formData['Description'],
+                          onSaved: (value) {
+                            formData['Description'] = value;
+                          },
+                          decoration:
+                              const InputDecoration(labelText: "Description"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a description!';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ),
-                  // quiz description input
-                  Visibility(
-                    visible: createQuiz,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                      child: TextFormField(
-                        initialValue: formData['Quiz Description'],
-                        decoration: const InputDecoration(
-                            labelText: "Quiz Description"),
-                        onSaved: (value) {
-                          formData['Quiz Description'] = value;
+                      // group input
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                        child: FutureBuilder(
+                          future: FirebaseFirestore.instance.collection('postGroups').get(),
+                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> postGroupsSnapshot) {
+                            if (postGroupsSnapshot.connectionState == ConnectionState.done) {
+                              if (postGroupsSnapshot.hasError) {
+                                return Text(postGroupsSnapshot.error.toString());
+                              } else {
+                                List<DropdownMenuItem<String>> groups = [];
+
+                                // Iterates through the documents in he collection and creates a list of dropdown menu options.
+                                for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in (postGroupsSnapshot.data?.docs ?? [])) {
+                                  groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
+                                }
+
+                                // If there is no selected group, set it to something
+                                selectedGroup ??= groups.first.value ?? 'drafts';
+
+                                return DropdownButtonFormField(items: groups, onChanged: (String? value) {
+                                  selectedGroup = value;
+                                },
+                                  value: selectedGroup,
+                                hint: const Text("Publishing Group"),);
+                              }
+                            } else {
+                              return DropdownButtonFormField(items: const [DropdownMenuItem(value: "Loading...", child: Text("Loading..."),)], onChanged: (String? value) {},);
+                            }
+                          },
+                        )
+                      ),
+                      // create quiz checkbox
+                      LabeledCheckbox(
+                        label: "Create Quiz From Post",
+                        value: createQuiz,
+                        onChanged: (value) {
+                          setState(() {
+                            createQuiz = value;
+                          });
                         },
-                        validator: (value) {
-                          if ((value == null || value.isEmpty) && createQuiz) {
-                            return 'Please enter a quiz description!';
-                          }
-                          return null;
+                        padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                      ),
+                      // date range
+                      Visibility(
+                        visible: createQuiz,
+                        child: InkWell(
+                          onTap: () async {
+                            // Hides keyboard since it was giving me an overflow.
+                            FocusManager.instance.primaryFocus?.unfocus();
+
+                            DateTimeRange? pickedRange = await showDateRangePicker(
+                              context: context,
+                              initialDateRange: currentDateRange,
+                              firstDate: DateTime(1950),
+                              lastDate: DateTime(2100),
+                              // Overrides the theme of the picker to work with dark mode.
+                              builder: (context, Widget? child) => Theme(
+                                data: Theme.of(context).copyWith(
+                                    dialogBackgroundColor: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    appBarTheme: Theme.of(context)
+                                        .appBarTheme
+                                        .copyWith(
+                                            iconTheme: IconThemeData(
+                                                color:
+                                                    Theme.of(context)
+                                                        .primaryColorLight)),
+                                    colorScheme: Theme.of(context)
+                                        .colorScheme
+                                        .copyWith(
+                                            onPrimary:
+                                                Theme.of(context).primaryColorLight,
+                                            primary: Theme.of(context)
+                                                .colorScheme
+                                                .primary)),
+                                child: child!,
+                              ),
+                            );
+
+                            if (pickedRange != null) {
+                              setState(() {
+                                // Sets the text input boxes to the selected range.
+                                currentDateRange = pickedRange;
+                                dateInputStart.text = DateFormat('dd/MM/yyyy')
+                                    .format(pickedRange.start);
+                                dateInputEnd.text = DateFormat('dd/MM/yyyy')
+                                    .format(pickedRange.end);
+                              });
+                            }
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                            // These two TextFields are just there for looks and cannot be
+                            // interacted with, rather acting as buttons that upon up the
+                            // DatePicker. This then writes it to their fields.
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    onSaved: (value) {
+                                      formData['Start Date'] = value;
+                                    },
+                                    // Editing controller of this TextField.
+                                    controller: dateInputStart,
+                                    decoration: const InputDecoration(
+                                        labelText:
+                                            "Start Date" //label text of field
+                                        ),
+                                    readOnly: true,
+                                    enabled: false,
+                                    validator: (value) {
+                                      if ((value == null || value.isEmpty) &&
+                                          createQuiz) {
+                                        return 'Please enter a start date!';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: TextFormField(
+                                    onSaved: (value) {
+                                      formData['End Date'] = value;
+                                    },
+                                    // Editing controller of this TextField.
+                                    controller: dateInputEnd,
+                                    decoration: const InputDecoration(
+                                        labelText: "End Date" //label text of field
+                                        ),
+                                    readOnly: true,
+                                    enabled: false,
+                                    validator: (value) {
+                                      if ((value == null || value.isEmpty) &&
+                                          createQuiz) {
+                                        return 'Please enter an end date!';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // quiz title input
+                      Visibility(
+                        visible: createQuiz,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                          child: TextFormField(
+                            initialValue: formData['Quiz Title'],
+                            decoration:
+                                const InputDecoration(labelText: "Quiz Title"),
+                            onSaved: (value) {
+                              formData['Quiz Title'] = value;
+                            },
+                            validator: (value) {
+                              if ((value == null || value.isEmpty) && createQuiz) {
+                                return 'Please enter a quiz title!';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                      // quiz description input
+                      Visibility(
+                        visible: createQuiz,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                          child: TextFormField(
+                            initialValue: formData['Quiz Description'],
+                            decoration: const InputDecoration(
+                                labelText: "Quiz Description"),
+                            onSaved: (value) {
+                              formData['Quiz Description'] = value;
+                            },
+                            validator: (value) {
+                              if ((value == null || value.isEmpty) && createQuiz) {
+                                return 'Please enter a quiz description!';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+              // the place where questions pop up
+              AnimatedList(
+                key: _animatedListKey,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                initialItemCount: questionData.length,
+                itemBuilder: (context, index, animation) {
+                  if (questionData['Question ${index + 1}'] == null) {
+                    questionData['Question ${index + 1}'] = {};
+                    questionData['Question ${index + 1}']['Experience'] = 25;
+                  }
+
+                  questionIndex = index + 1;
+                  return questionCard(context,
+                      questionNumber: questionIndex,
+                      animation: animation, onDelete: () {
+                    questionIndex -= 1;
+                    questionData.remove(questionIndex);
+                  });
+                },
+              ),
+              // add questions button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          // This inserts a question into the animated list.
+                          _animatedListKey.currentState?.insertItem(questionIndex);
                         },
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Theme.of(context).colorScheme.primary),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                  side: BorderSide(
+                                      color:
+                                          Theme.of(context).colorScheme.primary))),
+                        ),
+                        child: const Text('Add Question'),
                       ),
                     ),
                   ),
                 ],
-              )),
-          // the place where questions pop up
-          AnimatedList(
-            key: _animatedListKey,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            initialItemCount: questionData.length,
-            itemBuilder: (context, index, animation) {
-              if (questionData['Question ${index + 1}'] == null) {
-                questionData['Question ${index + 1}'] = {};
-                questionData['Question ${index + 1}']['Experience'] = 25;
-              }
-
-              questionIndex = index + 1;
-              return questionCard(context,
-                  questionNumber: questionIndex,
-                  animation: animation, onDelete: () {
-                questionIndex -= 1;
-                questionData.remove(questionIndex);
-              });
-            },
-          ),
-          // add questions button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: SizedBox(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // This inserts a question into the animated list.
-                      _animatedListKey.currentState?.insertItem(questionIndex);
-                    },
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.primary),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                              side: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.primary))),
-                    ),
-                    child: const Text('Add Question'),
-                  ),
-                ),
-              ),
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.2
+version: 1.0.3
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
@@ -30,39 +30,39 @@ dependencies:
   flutter:
     sdk: flutter
   adaptive_theme: ^3.1.1
-  flutterfire_ui: ^0.4.3+2
-  firebase_core: ^1.20.0
-  google_sign_in: ^5.4.0
-  flutter_svg: ^1.1.1+1
-  firebase_auth: ^3.7.0
+  flutterfire_ui: ^0.4.3+20
+  firebase_core: ^2.7.1
+  google_sign_in: ^5.2.1
+  flutter_svg: ^1.0.0
+  firebase_auth: ^4.2.10
   file_selector: ^0.9.2
   image_picker: ^0.8.5+3
   url_launcher: ^6.1.5
   intl: ^0.17.0
   flutter_extensions: ^4.2.0
   visual_editor:
-    git:
-      url: https://github.com/garv-shah/visual-editor
-      ref: develop
+    git: https://github.com/visual-space/visual-editor.git
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
-  cloud_firestore: ^3.4.1
-  firebase_database_web: ^0.2.1+1
+  cloud_firestore: ^4.4.4
+  firebase_database_web: ^0.2.1+24
   cached_network_image: ^3.2.2
-  cloud_functions: ^3.3.3
+  cloud_functions: ^4.0.12
   adaptive_dialog: ^1.7.0
-  firebase_storage: ^10.3.4
-  firebase_storage_web: ^3.3.2
+  firebase_storage: ^11.0.15
+  firebase_storage_web: ^3.3.24
   mime: ^1.0.2
   crop_your_image: ^0.7.2
   uuid: ^3.0.6
   algolia: ^1.1.1
   math_keyboard: ^0.1.7
-  flutter_native_splash: ^2.2.7
+  flutter_native_splash: ^2.2.19
   flutter_math_fork: ^0.6.3+1
-  firebase_analytics: ^9.3.3
-  path: ^1.8.1
+  firebase_analytics: ^10.1.5
+  path: ^1.8.2
   video_player_macos: 1.0.6
+  scrollable_positioned_list: ^0.2.3
+  azlistview: ^2.0.0
 
 dependency_overrides:
   flutter_colorpicker:
