@@ -258,7 +258,7 @@ class _SectionPageState extends State<SectionPage> {
                 : FirebaseFirestore.instance
                     .collection('posts')
                     .where('Group', isEqualTo: widget.id)
-                    .where(FieldPath.documentId, whereIn: searchResults)
+                    .where(FieldPath.documentId, whereIn: searchResults.take(10))
                     .snapshots(),
             builder: (context, postsSnapshot) {
               if (postsSnapshot.connectionState == ConnectionState.active) {
