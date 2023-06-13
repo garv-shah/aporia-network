@@ -12,8 +12,8 @@ import 'dart:math' as math;
 part 'curve_painter.dart';
 part 'custom_gesture_recognizer.dart';
 
-typedef void OnChange(double value);
-typedef Widget InnerWidget(double percentage);
+typedef OnChange = void Function(double value);
+typedef InnerWidget = Widget Function(double percentage);
 
 class SleekCircularSlider extends StatefulWidget {
   final double initialValue;
@@ -214,7 +214,7 @@ class _SleekCircularSliderState extends State<SleekCircularSlider>
   Widget _buildPainter({required Size size}) {
     return CustomPaint(
         painter: _painter,
-        child: Container(
+        child: SizedBox(
             width: size.width,
             height: size.height,
             child: _buildChildWidget()));

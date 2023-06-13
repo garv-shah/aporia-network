@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 class AppThemes {
   /// light mode theme
   static ThemeData lightTheme = ThemeData(
-      backgroundColor: const Color(0xfffcfcff),
       primaryColorLight: Colors.black,
       primaryColor: const Color(0xfffcfcff),
       scaffoldBackgroundColor: const Color(0xfffcfcff),
@@ -30,8 +29,8 @@ class AppThemes {
       ),
       textTheme:
           const TextTheme(
-              button: TextStyle(color: Colors.deepPurpleAccent),
-            bodyText2: TextStyle(color: Colors.black)
+              labelLarge: TextStyle(color: Colors.deepPurpleAccent),
+            bodyMedium: TextStyle(color: Colors.black)
           ),
       inputDecorationTheme: InputDecorationTheme(
         disabledBorder: OutlineInputBorder(
@@ -47,18 +46,16 @@ class AppThemes {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      colorScheme: const ColorScheme.light().copyWith(
-          primary: Colors.deepPurpleAccent,
-          secondary: Colors.deepPurple,
-          brightness: Brightness.light),
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.all(Colors.deepPurpleAccent),
         side: const BorderSide(color: Color(0xff585858)),
-      ));
+      ), colorScheme: const ColorScheme.light().copyWith(
+          primary: Colors.deepPurpleAccent,
+          secondary: Colors.deepPurple,
+          brightness: Brightness.light).copyWith(background: const Color(0xfffcfcff)));
 
   /// dark mode theme
   static ThemeData darkTheme = ThemeData(
-    backgroundColor: Colors.black,
     primaryColorLight: const Color(0xfffcfcff),
     primaryColor: Colors.black,
     scaffoldBackgroundColor: const Color(0xff12162B),
@@ -76,7 +73,7 @@ class AppThemes {
         fontSize: 20.0,
       ),
     ),
-    textTheme: const TextTheme(button: TextStyle(color: Colors.indigoAccent)),
+    textTheme: const TextTheme(labelLarge: TextStyle(color: Colors.indigoAccent)),
     inputDecorationTheme: InputDecorationTheme(
       disabledBorder: OutlineInputBorder(
         borderSide: const BorderSide(color: Colors.white38),
@@ -91,13 +88,12 @@ class AppThemes {
         borderRadius: BorderRadius.circular(8),
       ),
     ),
-    colorScheme: const ColorScheme.dark().copyWith(
-        primary: Colors.indigoAccent,
-        secondary: Colors.indigo,
-        brightness: Brightness.dark),
       checkboxTheme: CheckboxThemeData(
         fillColor: MaterialStateProperty.all(Colors.indigoAccent),
         side: const BorderSide(color: Color(0xff585858)),
-      )
+      ), colorScheme: const ColorScheme.dark().copyWith(
+        primary: Colors.indigoAccent,
+        secondary: Colors.indigo,
+        brightness: Brightness.dark).copyWith(background: Colors.black)
   );
 }

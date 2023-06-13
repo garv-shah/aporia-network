@@ -7,8 +7,12 @@ Doc Link: https://github.com/cgs-math/app#adaptive-theme
  */
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_oauth_apple/firebase_ui_oauth_apple.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/utils/login_functions.dart';
 import 'package:maths_club/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -20,6 +24,20 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // These provide configuration for Sign-In providers.
+  FirebaseUIAuth.configureProviders([
+    EmailAuthProvider(),
+    GoogleProvider(
+        clientId: getClientID(),
+        scopes: ['profile', 'email'],
+        redirectUri:
+        'https://cgs-maths-club.firebaseapp.com/__/auth/handler'
+    ),
+    AppleProvider()
+  ]);
+
+  // Runs the app.
   runApp(MathsClubApp());
 }
 

@@ -76,7 +76,7 @@ class _PostViewState extends State<PostView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Question $index", style: Theme.of(context).textTheme.headline4?.copyWith(color: Theme.of(context).primaryColorLight)),
+                  Text("Question $index", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).primaryColorLight)),
                   // Parse the Delta JSON
                   VisualEditor(
                     scrollController: ScrollController(),
@@ -128,8 +128,7 @@ class _PostViewState extends State<PostView> {
                                   });
                             },
                             style: OutlinedButton.styleFrom(
-                                primary: Theme.of(context).colorScheme.primary,
-                                side: BorderSide(
+                                foregroundColor: Theme.of(context).colorScheme.primary, side: BorderSide(
                                     color: Theme.of(context).colorScheme.primary),
                                 minimumSize: const Size(80, 40),
                                 shape: const RoundedRectangleBorder(
@@ -156,7 +155,7 @@ class _PostViewState extends State<PostView> {
                                         children: <Widget>[
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
-                                            child: Math.tex(questionData['Solution TEX'], textStyle: Theme.of(context).textTheme.headline4),
+                                            child: Math.tex(questionData['Solution TEX'], textStyle: Theme.of(context).textTheme.headlineMedium),
                                           ),
                                           VisualEditor(
                                             scrollController: ScrollController(),
@@ -178,8 +177,7 @@ class _PostViewState extends State<PostView> {
                                   });
                             },
                             style: OutlinedButton.styleFrom(
-                                primary: Theme.of(context).colorScheme.primary,
-                                side: BorderSide(
+                                foregroundColor: Theme.of(context).colorScheme.primary, side: BorderSide(
                                     color: Theme.of(context).colorScheme.primary),
                                 minimumSize: const Size(80, 40),
                                 shape: const RoundedRectangleBorder(

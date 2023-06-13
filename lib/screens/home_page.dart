@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:maths_club/screens/post_creation/create_post_view.dart';
 import 'package:maths_club/screens/leaderboards.dart';
 import 'package:maths_club/screens/section_views/admin_view/user_list_view.dart';

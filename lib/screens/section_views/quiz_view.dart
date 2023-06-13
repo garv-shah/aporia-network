@@ -7,7 +7,6 @@ Created: Fri Aug 5 22:25:21 2022
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:maths_club/utils/formula_embed.dart';
@@ -119,8 +118,8 @@ class _QuizViewState extends State<QuizView> {
                             Navigator.pop(context);
                           });
                         },
-                        label: Row(
-                          children: const [
+                        label: const Row(
+                          children: [
                             Text('Finish'),
                             SizedBox(width: 10),
                             Icon(Icons.done)
@@ -158,8 +157,8 @@ class _QuizViewState extends State<QuizView> {
                             }
                           });
                         },
-                        label: Row(
-                          children: const [
+                        label: const Row(
+                          children: [
                             Text('Next'),
                             SizedBox(width: 10),
                             Icon(Icons.arrow_forward_ios)
@@ -296,17 +295,14 @@ class _QuizViewState extends State<QuizView> {
                                               text: TextSpan(
                                                 style: Theme.of(context)
                                                     .textTheme
-                                                    .headline4,
+                                                    .headlineMedium,
                                                 children: <TextSpan>[
                                                   TextSpan(
                                                       // Counts number of correct
                                                       // questions, if the correctedMap
                                                       // is null, this would be 0
                                                       text: (correctedMap
-                                                                  ?.where((key,
-                                                                          value) =>
-                                                                      value ==
-                                                                      true)
+                                                                  ?.entries.where((entry) => entry.value == true)
                                                                   .length ??
                                                               0)
                                                           .toString(),
@@ -356,8 +352,8 @@ class _QuizViewState extends State<QuizView> {
                                           ],
                                         );
                                       } else {
-                                        return Column(
-                                          children: const [
+                                        return const Column(
+                                          children: [
                                             Padding(
                                               padding:
                                                   EdgeInsets.only(bottom: 32.0),

@@ -4,7 +4,6 @@
 
 library editable_image;
 
-import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
@@ -182,7 +181,7 @@ class EditableImage extends StatelessWidget {
       processImage(ImageSource.gallery, profileImage, context, await profileImage?.readAsBytes());
     } else if (Platform.isMacOS) {
       XTypeGroup typeGroup;
-      typeGroup = XTypeGroup(
+      typeGroup = const XTypeGroup(
           label: 'images', extensions: ['jpg', 'png', 'gif', 'jpeg']);
 
       profileImage = await openFile(acceptedTypeGroups: [typeGroup]);

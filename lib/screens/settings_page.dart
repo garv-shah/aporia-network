@@ -46,7 +46,7 @@ Widget settingsCard(BuildContext context,
               child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(text, style: Theme.of(context).textTheme.headline6)
+              Text(text, style: Theme.of(context).textTheme.titleLarge)
             ],
           )),
         ),
@@ -134,7 +134,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: Text(
           "Settings",
-          style: Theme.of(context).textTheme.headline6,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
@@ -195,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(username,
-                            style: Theme.of(context).textTheme.headline2?.copyWith(
+                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
                                 color: Theme.of(context).primaryColorLight,
                                 fontWeight: FontWeight.w300)),
                         IconButton(
@@ -287,7 +287,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                           Text('Level',
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .subtitle1),
+                                                  .titleMedium),
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(
                                                 16, 0, 16, 0),
@@ -295,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                               levelMap['level'].toString(),
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .headline6
+                                                  .titleLarge
                                                   ?.copyWith(
                                                       color: Theme.of(context)
                                                           .colorScheme
@@ -320,7 +320,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                           Text('Experience',
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .subtitle1),
+                                                  .titleMedium),
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(
                                                 16, 0, 16, 0),
@@ -333,7 +333,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .headline6
+                                                  .titleLarge
                                                   ?.copyWith(
                                                       color: Theme.of(context)
                                                           .colorScheme
@@ -371,19 +371,19 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   "Error: couldn't map roles",
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .subtitle1);
+                                                  .titleMedium);
                                         } on StateError {
                                           return Text(
                                               'Error: Firestore key not found!',
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .subtitle1);
+                                                  .titleMedium);
                                         }
                                       } else {
                                         return Text("Loading...",
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .subtitle1);
+                                                .titleMedium);
                                       }
                                     })
                               ],
@@ -426,7 +426,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       text: TextSpan(
                                         text: 'Theme: ',
                                         style:
-                                            Theme.of(context).textTheme.headline6,
+                                            Theme.of(context).textTheme.titleLarge,
                                         children: <TextSpan>[
                                           TextSpan(
                                               text: mode
@@ -435,7 +435,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   .capitalise(),
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .headline6
+                                                  .titleLarge
                                                   ?.copyWith(
                                                       color: Theme.of(context)
                                                           .colorScheme

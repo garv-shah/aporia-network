@@ -8,11 +8,11 @@ Created: Sat Jul 23 18:21:21 2022
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:maths_club/screens/post_creation/edit_question.dart';
 import 'package:maths_club/utils/components.dart';
 import 'package:uuid/uuid.dart';
+import 'package:collection/src/iterable_extensions.dart';
 
 /**
  * The following section includes functions for the post/quiz creation page.
@@ -170,7 +170,7 @@ class _CreatePostState extends State<CreatePost> {
                         Text("Question ${questionNumber.toString()}",
                             style: Theme.of(context)
                                 .textTheme
-                                .headline5
+                                .headlineSmall
                                 ?.copyWith(
                                     color: Theme.of(context).primaryColorLight,
                                     fontWeight: FontWeight.w600),
@@ -220,7 +220,7 @@ class _CreatePostState extends State<CreatePost> {
                                   });
                                 },
                                 icon: Icon(Icons.delete,
-                                    color: Theme.of(context).errorColor)),
+                                    color: Theme.of(context).colorScheme.error)),
                           ],
                         )
                       ],
@@ -255,9 +255,7 @@ class _CreatePostState extends State<CreatePost> {
                                             )));
                               },
                               style: OutlinedButton.styleFrom(
-                                  primary:
-                                      Theme.of(context).colorScheme.primary,
-                                  minimumSize: const Size(80, 40),
+                                  foregroundColor: Theme.of(context).colorScheme.primary, minimumSize: const Size(80, 40),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8)),
@@ -310,9 +308,7 @@ class _CreatePostState extends State<CreatePost> {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                  primary:
-                                      Theme.of(context).colorScheme.primary,
-                                  minimumSize: const Size(80, 40),
+                                  foregroundColor: Theme.of(context).colorScheme.primary, minimumSize: const Size(80, 40),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8)),
@@ -349,9 +345,7 @@ class _CreatePostState extends State<CreatePost> {
                                                     questionNumber))));
                               },
                               style: OutlinedButton.styleFrom(
-                                  primary:
-                                      Theme.of(context).colorScheme.primary,
-                                  minimumSize: const Size(80, 40),
+                                  foregroundColor: Theme.of(context).colorScheme.primary, minimumSize: const Size(80, 40),
                                   shape: const RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(8)),
@@ -381,7 +375,7 @@ class _CreatePostState extends State<CreatePost> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            MapEntry<String, dynamic>? incompleteQuestion = questionData.firstWhereOrNull((key, value) => value['Solution TEX'] == null);
+            MapEntry<String, dynamic>? incompleteQuestion = questionData.entries.firstWhereOrNull((entry) => entry.value['Solution TEX'] == null);
 
             // If there are no incomplete questions
             if (incompleteQuestion != null && selectedGroup != 'drafts') {

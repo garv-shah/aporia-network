@@ -144,7 +144,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
   Widget build(BuildContext context) {
     return Container(
       ///if the rtl is true, search bar will be from right to left
-      alignment: widget.rtl ? Alignment.centerRight : Alignment(-1.0, 0.0),
+      alignment: widget.rtl ? Alignment.centerRight : const Alignment(-1.0, 0.0),
 
       ///Using Animated container to expand and shrink the widget
       child: AnimatedContainer(
@@ -161,7 +161,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
           boxShadow: !widget.boxShadow
               ? null
               : [
-                  BoxShadow(
+                  const BoxShadow(
                     color: Colors.black26,
                     spreadRadius: -10.0,
                     blurRadius: 10.0,
@@ -179,9 +179,9 @@ class _AnimSearchBarState extends State<AnimSearchBar>
               curve: Curves.easeOut,
               child: AnimatedOpacity(
                 opacity: (toggle == 0) ? 0.0 : 1.0,
-                duration: Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 200),
                 child: Container(
-                  padding: EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     /// can add custom color or the color will be white
                     color: widget.color,
@@ -250,7 +250,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
               ///Using Animated opacity to change the opacity of th textField while expanding
               child: AnimatedOpacity(
                 opacity: (toggle == 0) ? 0.0 : 1.0,
-                duration: Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 200),
                 child: Container(
                   padding: const EdgeInsets.only(left: 10),
                   alignment: Alignment.center,
@@ -266,7 +266,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                       controller: widget.textController,
                       inputFormatters: widget.inputFormatters,
                       focusNode: focusNode,
-                      cursorRadius: Radius.circular(10.0),
+                      cursorRadius: const Radius.circular(10.0),
                       cursorWidth: 2.0,
                       onChanged: (value) {
                         textFieldValue = value;
@@ -288,9 +288,7 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                       },
 
                       ///style is of type TextStyle, the default is just a color black
-                      style: widget.style != null
-                          ? widget.style
-                          : TextStyle(color: Colors.black),
+                      style: widget.style ?? const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.only(bottom: 8),
                         isDense: true,
@@ -348,19 +346,20 @@ class _AnimSearchBarState extends State<AnimSearchBar>
                   ///if the search bar is closed
                   if (toggle == 0) {
                     widget.onOpen();
-                    await Future.delayed(Duration(milliseconds: 200));
+                    await Future.delayed(const Duration(milliseconds: 200));
                     toggle = 1;
                     setState(() {
                       ///if the autoFocus is true, the keyboard will pop open, automatically
-                      if (widget.autoFocus)
+                      if (widget.autoFocus) {
                         FocusScope.of(context).requestFocus(focusNode);
+                      }
                     });
 
                     ///forward == expand
                     _con.forward();
                   } else {
                     widget.onClose();
-                    await Future.delayed(Duration(milliseconds: 200));
+                    await Future.delayed(const Duration(milliseconds: 200));
 
                     ///if the search bar is expanded
                     toggle = 0;

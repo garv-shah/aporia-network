@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-typedef String PercentageModifier(double percentage);
+typedef PercentageModifier = String Function(double percentage);
 
 class CircularSliderAppearance {
   static const double _defaultSize = 150.0;
@@ -112,21 +112,21 @@ class CircularSliderAppearance {
     return _mainLabelStyle ?? TextStyle(
         fontWeight: FontWeight.w100,
         fontSize: size / 5.0,
-        color: Color.fromRGBO(30, 0, 59, 1.0));
+        color: const Color.fromRGBO(30, 0, 59, 1.0));
   }
 
   TextStyle get infoTopLabelStyle {
     return _topLabelStyle ?? TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: size / 10.0,
-        color: Color.fromRGBO(147, 81, 120, 1.0));
+        color: const Color.fromRGBO(147, 81, 120, 1.0));
   }
 
   TextStyle get infoBottomLabelStyle {
     return _bottomLabelStyle ?? TextStyle(
         fontWeight: FontWeight.w600,
         fontSize: size / 10.0,
-        color: Color.fromRGBO(147, 81, 120, 1.0));
+        color: const Color.fromRGBO(147, 81, 120, 1.0));
   }
 
   const CircularSliderAppearance(

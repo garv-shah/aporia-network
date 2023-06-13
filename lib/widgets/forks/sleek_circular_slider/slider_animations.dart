@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'utils.dart';
 
-typedef void SpinAnimation(
+typedef SpinAnimation = void Function(
     double animation1, double animation2, double animation3);
 
 class SpinAnimationManager {
@@ -50,7 +49,7 @@ class SpinnerCurve extends Curve {
   double transform(double tr) => (tr <= 0.5) ? 1.9 * tr : 1.85 * (1 - tr);
 }
 
-typedef void ValueChangeAnimation(double animation, bool animationFinished);
+typedef ValueChangeAnimation = void Function(double animation, bool animationFinished);
 
 class ValueChangedAnimationManager {
   final TickerProvider tickerProvider;
@@ -66,7 +65,7 @@ class ValueChangedAnimationManager {
   });
 
   late Animation<double> _animation;
-  late AnimationController _animController = AnimationController(vsync: tickerProvider);
+  late final AnimationController _animController = AnimationController(vsync: tickerProvider);
   bool _animationCompleted = false;
 
 

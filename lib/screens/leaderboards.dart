@@ -53,12 +53,12 @@ Widget user(BuildContext context,
                     child: profilePicture,
                   ),
                   Text("$username:",
-                      style: Theme.of(context).textTheme.headline6),
+                      style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(width: 10),
                   Flexible(
                     // If user has infinite experience somehow, render that
                     child: Text(infinity ? "Infinity" : experience.toString(),
-                        style: Theme.of(context).textTheme.headline6?.copyWith(
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Theme.of(context).colorScheme.primary),
                         overflow: TextOverflow.fade,
                         softWrap: false,

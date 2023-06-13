@@ -7,7 +7,7 @@ Doc Link: https://github.com/cgs-math/app#login-page
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutterfire_ui/auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:maths_club/utils/components.dart';
 import 'package:maths_club/utils/login_functions.dart';
 
@@ -33,16 +33,6 @@ SignInScreen loginPage() {
               ),
             ));
       }),
-    ],
-    // These provide configuration for Sign-In providers.
-    providerConfigs: [
-      const EmailProviderConfiguration(),
-      GoogleProviderConfiguration(
-          clientId: getClientID(),
-          scopes: ['profile', 'email'],
-          redirectUri:
-              'https://cgs-maths-club.firebaseapp.com/__/auth/handler'),
-      const AppleProviderConfiguration(),
     ],
     // Images and headers are built using the utility functions found in the
     // login_functions file.

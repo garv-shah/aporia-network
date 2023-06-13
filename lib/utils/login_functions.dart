@@ -8,7 +8,7 @@ Created: Sat Jun 18 18:29:00 2022
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:flutterfire_ui/auth.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 /// Creates the header for a login page using an image.
 HeaderBuilder headerImage(String assetName) {
