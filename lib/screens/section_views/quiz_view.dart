@@ -10,10 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
 import 'package:maths_club/utils/formula_embed.dart';
-import 'package:visual_editor/controller/controllers/editor-controller.dart';
-import 'package:visual_editor/document/models/document.model.dart';
-import 'package:visual_editor/editor/models/editor-cfg.model.dart';
-import 'package:visual_editor/main.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:maths_club/widgets/text_editor.dart';
 
 /// Where quizzes can be answered and viewed.
 class QuizView extends StatefulWidget {
@@ -382,27 +380,36 @@ class _QuizViewState extends State<QuizView> {
                                   BorderRadius.all(Radius.circular(15)),
                             ),
                             // Displays question from Delta
-                            child: VisualEditor(
-                              scrollController: ScrollController(),
-                              focusNode: FocusNode(),
-                              controller: EditorController(
-                                  document: DocumentM.fromJson(questionData[
-                                          'Question ${questionIndex + 1}']
-                                      ['Question'])),
-                              config: EditorConfigM(
-                                scrollable: true,
-                                autoFocus: true,
-                                expands: false,
-                                padding: const EdgeInsets.fromLTRB(
-                                    16.0, 42.0, 16.0, 42.0),
-                                readOnly: true,
-                                keyboardAppearance:
-                                    Theme.of(context).brightness,
-                                customEmbedBuilders: const [
-                                  FormulaEmbedBuilderM()
-                                ],
-                              ),
+                            child: TextEditor(
+                              editorState: EditorState(document: questionData['Question ${questionIndex + 1}']['Question'] is List ?
+                              DeltaDocumentConvert().convertFromJSON(questionData['Question ${questionIndex + 1}']['Question']) :
+                              Document.fromJson(questionData['Question ${questionIndex + 1}']['Question'])),
+                              readOnly: true,
+                              padding: const EdgeInsets.fromLTRB(16.0, 42.0, 16.0, 42.0),
+                              desktop: PlatformExtension.isDesktopOrWeb,
                             ),
+                            // bink
+                            // child: VisualEditor(
+                            //   scrollController: ScrollController(),
+                            //   focusNode: FocusNode(),
+                            //   controller: EditorController(
+                            //       document: DocumentM.fromJson(questionData[
+                            //               'Question ${questionIndex + 1}']
+                            //           ['Question'])),
+                            //   config: EditorConfigM(
+                            //     scrollable: true,
+                            //     autoFocus: true,
+                            //     expands: false,
+                            //     padding: const EdgeInsets.fromLTRB(
+                            //         16.0, 42.0, 16.0, 42.0),
+                            //     readOnly: true,
+                            //     keyboardAppearance:
+                            //         Theme.of(context).brightness,
+                            //     customEmbedBuilders: const [
+                            //       FormulaEmbedBuilderM()
+                            //     ],
+                            //   ),
+                            // ),
                           ),
                         ),
                         Padding(

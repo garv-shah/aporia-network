@@ -6,6 +6,7 @@ Created: Sat Jul 23 18:21:21 2022
  */
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -83,6 +84,8 @@ class _CreatePostState extends State<CreatePost> {
   late bool createQuiz;
   String? selectedGroup;
 
+  Map<String,dynamic> blankJson = {"document":{"type":"page","children":[{"type":"paragraph","data":{"delta":[]}}]}};
+
   // Controllers for the date input range.
   TextEditingController dateInputStart = TextEditingController();
   TextEditingController dateInputEnd = TextEditingController();
@@ -131,7 +134,7 @@ class _CreatePostState extends State<CreatePost> {
       {required int questionNumber,
       required Animation<double> animation,
       Function? onDelete}) {
-    void updateJSON(List<dynamic> data, JsonType type, int questionNumber) {
+    void updateJSON(Map<String,dynamic> data, JsonType type, int questionNumber) {
       setState(() {
         if (type == JsonType.question) {
           questionData['Question $questionNumber']['Question'] = data;
@@ -244,10 +247,8 @@ class _CreatePostState extends State<CreatePost> {
                                               document: questionData[
                                                           'Question $questionNumber']
                                                       ['Question'] ??
-                                                  [
-                                                    {"insert": "\n"}
-                                                  ],
-                                              onSave: (List<dynamic> data) =>
+                                                  blankJson,
+                                              onSave: (Map<String,dynamic> data) =>
                                                   updateJSON(
                                                       data,
                                                       JsonType.question,
@@ -282,11 +283,9 @@ class _CreatePostState extends State<CreatePost> {
                                             document: questionData[
                                                         'Question $questionNumber']
                                                     ['Solution'] ??
-                                                [
-                                                  {"insert": "\n"}
-                                                ],
+                                                blankJson,
                                             solutionType: true,
-                                            onSave: (List<dynamic> data) =>
+                                            onSave: (Map<String,dynamic> data) =>
                                                 updateJSON(
                                                     data,
                                                     JsonType.solution,
@@ -335,10 +334,8 @@ class _CreatePostState extends State<CreatePost> {
                                             document: questionData[
                                                         'Question $questionNumber']
                                                     ['Hints'] ??
-                                                [
-                                                  {"insert": "\n"}
-                                                ],
-                                            onSave: (List<dynamic> data) =>
+                                                blankJson,
+                                            onSave: (Map<String,dynamic> data) =>
                                                 updateJSON(
                                                     data,
                                                     JsonType.hints,

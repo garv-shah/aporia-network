@@ -9,19 +9,15 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:uuid/uuid.dart';
-import 'package:visual_editor/visual-editor.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:math_keyboard/math_keyboard.dart';
-import 'package:path/path.dart';
-
-import '../../utils/components.dart';
-import '../../utils/formula_embed.dart';
+import 'package:maths_club/utils/components.dart';
+import 'package:maths_club/widgets/text_editor.dart';
 
 /// A function that processes the image and sends a cropped version.
 Future<String?> processImage(BuildContext context, Uint8List bytes, String imageName, String fileExtension) async {
@@ -143,7 +139,7 @@ Future<String?> uploadFile(Uint8List file, String name, String fileExtension, Bu
   }
 }
 
-typedef DataCallback = void Function(List<dynamic> data);
+typedef DataCallback = void Function(Map<String,dynamic> data);
 typedef TexCallback = void Function(String solution);
 
 /// This is the page where questions can be edited.
@@ -154,7 +150,7 @@ class EditQuestion extends StatefulWidget {
   final DataCallback onSave;
   final TexCallback? onSolution;
   final String? solution;
-  final List<dynamic> document;
+  final Map<String,dynamic> document;
   EditQuestion({Key? key, required this.title, required this.onSave, this.solutionType = false, this.onSolution, required this.document, this.solution}) : super(key: key);
 
   @override
@@ -162,13 +158,13 @@ class EditQuestion extends StatefulWidget {
 }
 
 class _EditQuestionState extends State<EditQuestion> {
-  late EditorController _controller;
+  late EditorState editorState;
   final FocusNode _focusNode = FocusNode();
   final MathFieldEditingController _mathController = MathFieldEditingController();
 
   @override
   void initState() {
-    _controller = EditorController(document: DocumentM.fromJson(widget.document));
+    editorState = EditorState(document: Document.fromJson(widget.document));
 
     if ((widget.solution?.isNotEmpty ?? false) && widget.solution != r"\textcolor{#000000}{\cursor}") {
       var json = widget.solution!.replaceAll(
@@ -186,11 +182,15 @@ class _EditQuestionState extends State<EditQuestion> {
         body: SafeArea(
           child: Column(
             children: [
-              header(widget.title, context, fontSize: 20, backArrow: true, customBackLogic: () {
-                widget.onSave(_controller.document.delta.toJson());
-                widget.onSolution?.call(_mathController.root.buildTeXString(cursorColor: Colors.black));
-                Navigator.of(context).pop();
-              }),
+              header(widget.title, context, fontSize: 20,
+                  backArrow: true,
+                  customBackLogic: () {
+                    widget.onSave(editorState.document.toJson());
+                    widget.onSolution?.call(
+                        _mathController.root.buildTeXString(
+                            cursorColor: Colors.black));
+                    Navigator.of(context).pop();
+                  }),
               widget.solutionType ? Padding(
                 padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
                 child: MathField(
@@ -198,81 +198,7 @@ class _EditQuestionState extends State<EditQuestion> {
                   variables: const ['x', 'y', 'z'],
                 ),
               ) : const SizedBox.shrink(),
-              Expanded(
-                child: VisualEditor(
-                  scrollController: ScrollController(),
-                  focusNode: _focusNode,
-                  controller: _controller,
-                  config: EditorConfigM(
-                    scrollable: true,
-                    autoFocus: true,
-                    expands: false,
-                    padding: const EdgeInsets.all(16.0),
-                    readOnly: false,
-                    keyboardAppearance: Theme.of(context).brightness,
-                    customEmbedBuilders: const [
-                      FormulaEmbedBuilderM()
-                    ],
-                  ),
-                ),
-              ),
-              EditorToolbar.basic(
-                controller: _controller,
-                showAlignmentButtons: true,
-                multiRowsDisplay: false,
-                customButtons: [
-                  CustomToolbarButtonM(
-                      icon: Icons.functions,
-                      onTap: () {
-                        showDialog<String>(
-                          context: context,
-                          builder: (_) => const FormulaDialog(),
-                        ).then((value) {
-                            if (value != null && value.isNotEmpty) {
-                              final index = _controller.selection.baseOffset;
-                              final length = _controller.selection.extentOffset - index;
-
-                              _controller.replaceText(
-                              index,
-                              length,
-                              EmbedM('formula', value),
-                              null,
-                            );
-                          }
-                        });
-                      }
-                  ),
-                ],
-                iconTheme: EditorIconThemeM(
-                  iconSelectedFillColor: Theme.of(context).colorScheme.primary,
-                  iconSelectedColor: Colors.white,
-                ),
-                onImagePickCallback: (file) async {
-                  return processImage(context, file.readAsBytesSync(), basename(file.path), extension(file.path),);
-                },
-                onVideoPickCallback: (file) async {
-                  return uploadFile(file.readAsBytesSync(), basename(file.path), extension(file.path), context);
-                },
-                webImagePickImpl: (onImagePickCallback) async {
-                  XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-                  Uint8List bytes = await image!.readAsBytes();
-
-                  return processImage(context, bytes, basename(image.path), extension(image.path));
-                },
-                webVideoPickImpl: (onVideoPickCallback) async {
-                  XFile? video = await ImagePicker().pickVideo(source: ImageSource.gallery);
-                  Uint8List bytes = await video!.readAsBytes();
-
-                  return uploadFile(bytes, basename(video.path), extension(video.path), context);
-                },
-                filePickImpl: (context) async {
-                  XTypeGroup typeGroup;
-                  typeGroup = const XTypeGroup(
-                      label: 'files', extensions: ['jpg', 'png', 'gif', 'jpeg', 'mp4', 'mov', 'avi', 'mkv', 'webp', 'tif', 'heic']);
-
-                  return (await openFile(acceptedTypeGroups: [typeGroup]))?.path;
-                },
-              ),
+              TextEditor(editorState: editorState, padding: const EdgeInsets.all(16.0), desktop: PlatformExtension.isDesktopOrWeb, readOnly: false),
             ],
           ),
         ),

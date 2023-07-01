@@ -7,10 +7,8 @@ Created: Fri Aug 5 22:25:21 2022
 
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
-import 'package:visual_editor/controller/controllers/editor-controller.dart';
-import 'package:visual_editor/document/models/document.model.dart';
-import 'package:visual_editor/editor/models/editor-cfg.model.dart';
-import 'package:visual_editor/main.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:maths_club/widgets/text_editor.dart';
 
 import '../../utils/formula_embed.dart';
 
@@ -71,6 +69,10 @@ class _PostViewState extends State<PostView> {
           } else {
             // Delta data of the question
             Map<String, dynamic> questionData = widget.data['questionData']['Question $index'];
+            Document? quillDocument;
+            if (questionData['Question'] is List) {
+              quillDocument = DeltaDocumentConvert().convertFromJSON(questionData['Question']);
+            }
             return Padding(
               padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
               child: Column(
@@ -78,21 +80,13 @@ class _PostViewState extends State<PostView> {
                 children: [
                   Text("Question $index", style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).primaryColorLight)),
                   // Parse the Delta JSON
-                  VisualEditor(
-                    scrollController: ScrollController(),
-                    focusNode: FocusNode(),
-                    controller: EditorController(document: DocumentM.fromJson(questionData['Question'])),
-                    config: EditorConfigM(
-                      scrollable: true,
-                      autoFocus: true,
-                      expands: false,
-                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
+                  TextEditor(
+                      editorState: EditorState(
+                        document: Document.fromJson(questionData['Question'])
+                      ),
                       readOnly: true,
-                      keyboardAppearance: Theme.of(context).brightness,
-                      customEmbedBuilders: const [
-                        FormulaEmbedBuilderM()
-                      ],
-                    ),
+                      padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
+                      desktop: PlatformExtension.isDesktopOrWeb
                   ),
                   // Hints and Solution buttons
                   Row(
@@ -108,22 +102,15 @@ class _PostViewState extends State<PostView> {
                                     return SimpleDialog(
                                         title: const Text("Hints"),
                                         children: <Widget>[
-                                          VisualEditor(
-                                            scrollController: ScrollController(),
-                                            focusNode: FocusNode(),
-                                            controller: EditorController(document: DocumentM.fromJson(questionData['Hints'])),
-                                            config: EditorConfigM(
-                                              scrollable: true,
-                                              autoFocus: true,
-                                              expands: false,
-                                              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                          TextEditor(
+                                              editorState: EditorState(
+                                                document: Document.fromJson(questionData['Hints'])
+                                              ),
                                               readOnly: true,
-                                              keyboardAppearance: Theme.of(context).brightness,
-                                              customEmbedBuilders: const [
-                                                FormulaEmbedBuilderM()
-                                              ],
-                                            ),
-                                          )
+                                              padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),
+                                              // padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                              desktop: PlatformExtension.isDesktopOrWeb
+                                          ),
                                         ]);
                                   });
                             },
@@ -157,22 +144,15 @@ class _PostViewState extends State<PostView> {
                                             padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
                                             child: Math.tex(questionData['Solution TEX'], textStyle: Theme.of(context).textTheme.headlineMedium),
                                           ),
-                                          VisualEditor(
-                                            scrollController: ScrollController(),
-                                            focusNode: FocusNode(),
-                                            controller: EditorController(document: DocumentM.fromJson(questionData['Solution'])),
-                                            config: EditorConfigM(
-                                              scrollable: true,
-                                              autoFocus: true,
-                                              expands: false,
-                                              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                          TextEditor(
+                                              editorState: EditorState(
+                                                  document: Document.fromJson(questionData['Solution'])
+                                              ),
                                               readOnly: true,
-                                              keyboardAppearance: Theme.of(context).brightness,
-                                              customEmbedBuilders: const [
-                                                FormulaEmbedBuilderM()
-                                              ],
-                                            ),
-                                          )
+                                              padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),
+                                              // padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                              desktop: PlatformExtension.isDesktopOrWeb
+                                          ),
                                         ]);
                                   });
                             },

@@ -7,6 +7,7 @@ Doc Link: https://github.com/cgs-math/app#adaptive-theme
  */
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_apple/firebase_ui_oauth_apple.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
@@ -64,6 +65,9 @@ class MathsClubApp extends StatelessWidget {
         title: 'CGS Maths Club',
         theme: theme,
         darkTheme: darkTheme,
+        localizationsDelegates: const [
+          AppFlowyEditorLocalizations.delegate,
+        ],
         home: const AuthGate(), // Leads to the AuthGate, to handle user status.
       ),
     );

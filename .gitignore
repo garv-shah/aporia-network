@@ -47,3 +47,4 @@ app.*.map.json
 /android/app/release
 
 android/play-store-credentials.json
+AppFlowy/
