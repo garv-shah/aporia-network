@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an idea or improvement to the Elixir Network
+description: Suggest an idea or improvement to the Aporia Network
 title: "[FR] "
 body:
   - type: textarea

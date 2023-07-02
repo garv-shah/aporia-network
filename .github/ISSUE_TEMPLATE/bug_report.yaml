@@ -33,8 +33,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Elixir Network Version(s)
-      description: What version(s) of Elixir do you see this bug on?
+      label: Aporia Network Version(s)
+      description: What version(s) of Aporia do you see this bug on?
     validations:
       required: true
   - type: textarea
