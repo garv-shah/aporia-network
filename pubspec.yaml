@@ -40,7 +40,9 @@ dependencies:
   url_launcher: ^6.1.5
   flutter_extensions: ^5.0.0
   appflowy_editor:
-    path: ../appflowy-editor
+    git:
+      url: https://github.com/garv-shah/appflowy-editor
+      ref: theme-fix
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^4.4.4
@@ -65,6 +67,7 @@ dependencies:
   collection: ^1.17.1
   firebase_ui_oauth_google: ^1.2.2
   firebase_ui_oauth_apple: ^1.2.2
+  universal_io: ^2.2.2
   flowy_infra_ui:
     path: packages/flowy_infra_ui
 
@@ -108,6 +111,8 @@ flutter:
     - assets/app_icon.svg
     - assets/party-popper.svg
     - assets/images/editor/
+    - assets/images/editor/align/
+    - assets/images/editor/drop_menu/
     - assets/images/grid/
 
   # An image asset can refer to one or more resolution-specific "variants", see
