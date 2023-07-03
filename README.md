@@ -1,11 +1,21 @@
-# Maths Club App
+# Aporia
 
-App for CGS Maths Club, By Garv
-More detail on the creation process can be found [here](https://github.com/garv-shah/software-dev)
+The Aporia Network: a framework for building fast, educational apps.
 
-- Apple: [https://apps.apple.com/us/app/maths-club/id1633075771](https://apps.apple.com/us/app/maths-club/id1633075771)
-- Android: [https://play.google.com/store/apps/details?id=com.garv.maths_club](https://play.google.com/store/apps/details?id=com.garv.maths_club)
-- Website: [http://cgs-math.github.io](http://cgs-math.github.io)
+Current apps made with Aporia include:
+- 2cousins
+- CGS Maths Club
+- NOVA
+
+# Cloning
+
+To get started with Aporia, begin with the following setup:
+1. Fork the repository
+2. Install the Flutter rename package
+   - `flutter pub global activate rename`
+3. Rename the app name and id globally
+   - `flutter pub global run rename --bundleId com.example.app`
+   - `flutter pub global run rename --appname "Example App"`
 
 # Documentation
 
@@ -32,7 +42,7 @@ individual functionality of certain features. Skip to any section as you like to
 
 ### Theming
 
-The Maths Club App follows the [Material UI](https://material.io/design) design standard, utilising a combination of
+The Aporia Network follows the [Material UI](https://material.io/design) design standard, utilising a combination of
 Flutter's built in theming tools, and the [Adaptive Theme](https://pub.dev/packages/adaptive_theme) package to handle
 light and dark mode changes.
 
