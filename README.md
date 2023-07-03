@@ -24,6 +24,7 @@ To get started with Aporia, begin with the following setup:
 8. Run `flutter pub get` and then `dart run icons_launcher:create` and `dart run flutter_native_splash:create`
 9. Run `flutter clean` and then `flutter pub get`
 10. Run `flutterfire configure`
+11. Update the directory in the [`gh-pages.yml`](./.github/workflows/gh-pages.yml) workflow
 
 All done!
 
