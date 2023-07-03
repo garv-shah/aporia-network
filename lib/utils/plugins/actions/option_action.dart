@@ -4,9 +4,9 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/utils/plugins/extensions/flowy_tint_extension.dart';
+import 'package:aporia_app/utils/plugins/extensions/flowy_tint_extension.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:maths_club/widgets/app_flowy/pop_up_action.dart';
+import 'package:aporia_app/widgets/app_flowy/pop_up_action.dart';
 
 enum OptionAction {
   delete,

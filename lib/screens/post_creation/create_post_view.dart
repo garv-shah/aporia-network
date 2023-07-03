@@ -10,8 +10,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:maths_club/screens/post_creation/edit_question.dart';
-import 'package:maths_club/utils/components.dart';
+import 'package:aporia_app/screens/post_creation/edit_question.dart';
+import 'package:aporia_app/utils/components.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/src/iterable_extensions.dart';
 

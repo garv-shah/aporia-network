@@ -1,9 +1,9 @@
 /*
 File: main.dart
-Description: The file serves as the entrypoint of the Maths Club App, leading to the AuthGate
+Description: The file serves as the entrypoint of the app, leading to the AuthGate
 Author: Garv Shah
 Created: Sat Jun 18 18:29:00 2022
-Doc Link: https://github.com/cgs-math/app#adaptive-theme
+Doc Link: https://github.com/garv-shah/aporia-network#adaptive-theme
  */
 
 import 'package:adaptive_theme/adaptive_theme.dart';
@@ -12,12 +12,13 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_apple/firebase_ui_oauth_apple.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/screens/auth/landing_page.dart';
-import 'package:maths_club/utils/login_functions.dart';
-import 'package:maths_club/utils/theme.dart';
+import 'package:aporia_app/screens/auth/landing_page.dart';
+import 'package:aporia_app/utils/login_functions.dart';
+import 'package:aporia_app/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:aporia_app/utils/config.dart' as config;
 
 void main() async {
   // Initialises Firebase.
@@ -33,23 +34,23 @@ void main() async {
         clientId: getClientID(),
         scopes: ['profile', 'email'],
         redirectUri:
-        'https://cgs-maths-club.firebaseapp.com/__/auth/handler'
+        'https://aporia-network.firebaseapp.com/__/auth/handler'
     ),
     AppleProvider()
   ]);
 
   // Runs the app.
-  runApp(MathsClubApp());
+  runApp(AporiaApp());
 }
 
-/// This is the root Maths Club Widget.
+/// This is the root app widget.
 ///
 /// The whole app is wrapped with an [AdaptiveTheme] to provide easy light and
 /// dark mode theming, based on the [AppThemes] class.
 ///
-/// More documentation can be viewed [here](https://github.com/cgs-math/app#adaptive-theme)
-class MathsClubApp extends StatelessWidget {
-  MathsClubApp({Key? key}) : super(key: key);
+/// More documentation can be viewed [here](https://github.com/garv-shah/aporia-network#adaptive-theme)
+class AporiaApp extends StatelessWidget {
+  AporiaApp({Key? key}) : super(key: key);
   // Add Firebase Analytics
   final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
@@ -62,7 +63,7 @@ class MathsClubApp extends StatelessWidget {
       initial: AdaptiveThemeMode.system,
       builder: (theme, darkTheme) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'CGS Maths Club',
+        title: config.detailedName,
         theme: theme,
         darkTheme: darkTheme,
         localizationsDelegates: const [

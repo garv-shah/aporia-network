@@ -3,15 +3,15 @@ File: landing_page.dart
 Description: The AuthGate, which handles user status based on their state
 Author: Garv Shah
 Created: Fri Jul 29 22:00:08 2022
-Doc Link: https://github.com/cgs-math/app#landing-page
+Doc Link: https://github.com/garv-shah/aporia-network#landing-page
  */
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:maths_club/screens/auth/register_page.dart';
-import 'package:maths_club/screens/auth/login_page.dart';
-import 'package:maths_club/screens/home_page.dart';
+import 'package:aporia_app/screens/auth/register_page.dart';
+import 'package:aporia_app/screens/auth/login_page.dart';
+import 'package:aporia_app/screens/home_page.dart';
 
 /// Provides the current widget to go to based on the authentication state.
 getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
@@ -19,7 +19,7 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
   if (userDataSnapshot.hasError) {
     return Scaffold(
       body: Center(
-        child: Text("Error: ${userDataSnapshot.error}"),
+        child: Text("UserDataSnapshot Error: ${userDataSnapshot.error}"),
       ),
     );
   }
@@ -47,7 +47,7 @@ getWidget(AsyncSnapshot<DocumentSnapshot<Object?>> userDataSnapshot) {
 /// This is the Auth Gate and acts as a router to redirect a user to the
 /// respective page based on their status.
 ///
-/// More documentation can be viewed [here](https://github.com/cgs-math/app#landing-page)
+/// More documentation can be viewed [here](https://github.com/garv-shah/aporia-network#landing-page)
 class AuthGate extends StatefulWidget {
   const AuthGate({Key? key}) : super(key: key);
 
@@ -65,7 +65,7 @@ class _AuthGateState extends State<AuthGate> {
         if (authSnapshot.hasError) {
           return Scaffold(
             body: Center(
-              child: Text("Error: ${authSnapshot.error}"),
+              child: Text("AuthSnapshot Error: ${authSnapshot.error}"),
             ),
           );
         }

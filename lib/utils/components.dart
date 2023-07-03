@@ -8,7 +8,7 @@ Created: Sun Jul 17 16:37:36 2022
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-/// A header to display maths club branding with logo and name.
+/// A header to display app branding with logo and name.
 Widget header(String title, BuildContext context,
     {double iconWidth = 80,
     double paddingWidth = 20,

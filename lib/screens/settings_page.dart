@@ -1,6 +1,6 @@
 /*
 File: settings_page.dart
-Description: The settings page for the Maths Club App
+Description: The settings page for the app
 Author: Garv Shah
 Created: Tue Jul 19 21:41:22 2022
  */
@@ -12,8 +12,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/screens/home_page.dart';
-import 'package:maths_club/widgets/forks/editable_image.dart';
+import 'package:aporia_app/screens/home_page.dart';
+import 'package:aporia_app/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -457,7 +457,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         url: Uri.parse("https://garv-shah.github.io")),
                     settingsCard(context,
                         text: "GitHub",
-                        url: Uri.parse("https://github.com/cgs-math/app")),
+                        url: Uri.parse("https://github.com/garv-shah/aporia-network")),
                     // Delete Account and Logout Buttons
                     Padding(
                       padding: const EdgeInsets.all(16.0),

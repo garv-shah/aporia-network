@@ -8,7 +8,7 @@ Created: Fri Aug 5 22:25:21 2022
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:maths_club/widgets/text_editor.dart';
+import 'package:aporia_app/widgets/text_editor.dart';
 
 import '../../utils/formula_embed.dart';
 

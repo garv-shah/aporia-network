@@ -1,4 +1,4 @@
-app_identifier("com.garv.mathsClub") # The bundle identifier of your app
+app_identifier("com.aporia.ios") # The bundle identifier of your app
 apple_id("jayeshshah@outlook.com.au") # Your Apple email address
 
 itc_team_id("123732696") # App Store Connect Team ID

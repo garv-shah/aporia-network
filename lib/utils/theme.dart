@@ -3,7 +3,7 @@ File: theme.dart
 Description: Defines ThemeData for the rest of the app, with a utility class
 Author: Garv Shah
 Created: Sat Jun 18 18:29:00 2022
-Doc Link: https://github.com/cgs-math/app#theme-data
+Doc Link: https://github.com/garv-shah/aporia-network#theme-data
  */
 
 import 'dart:typed_data';
@@ -15,9 +15,9 @@ import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/utils/plugins/actions/block_action_list.dart';
-import 'package:maths_club/utils/plugins/actions/option_action.dart';
-import 'package:maths_club/utils/plugins/math_equation/math_equation_block_component.dart';
+import 'package:aporia_app/utils/plugins/actions/block_action_list.dart';
+import 'package:aporia_app/utils/plugins/actions/option_action.dart';
+import 'package:aporia_app/utils/plugins/math_equation/math_equation_block_component.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra/colorscheme/colorscheme.dart';
 import 'package:http/http.dart' as http;

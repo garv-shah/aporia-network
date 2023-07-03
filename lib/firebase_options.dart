@@ -26,6 +26,16 @@ class DefaultFirebaseOptions {
         return ios;
       case TargetPlatform.macOS:
         return macos;
+      case TargetPlatform.windows:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      case TargetPlatform.linux:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for linux - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -34,42 +44,42 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBlghGm4XrM9js7nXyENPW7oAtrxlq0xYw',
-    appId: '1:1001095842193:web:7a0b801a33cba8a036b230',
-    messagingSenderId: '1001095842193',
-    projectId: 'cgs-maths-club',
-    authDomain: 'cgs-maths-club.firebaseapp.com',
-    storageBucket: 'cgs-maths-club.appspot.com',
-    measurementId: 'G-G2N6713YRE',
+    apiKey: 'AIzaSyAIbyOqj7fHAIFx35HKyXTV9Nff6EQqnfc',
+    appId: '1:358601933529:web:7b516f84486483936ef4c8',
+    messagingSenderId: '358601933529',
+    projectId: 'aporia-network',
+    authDomain: 'aporia-network.firebaseapp.com',
+    storageBucket: 'aporia-network.appspot.com',
+    measurementId: 'G-11Q1ZD43GX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC1ApAhNWmHqgHKxaDEs2cvPe7W8IXGoEs',
-    appId: '1:1001095842193:android:7a585f439694cb7536b230',
-    messagingSenderId: '1001095842193',
-    projectId: 'cgs-maths-club',
-    storageBucket: 'cgs-maths-club.appspot.com',
+    apiKey: 'AIzaSyB_vO8pFvLn2fy-50DMnxsuElZigDbMev0',
+    appId: '1:358601933529:android:2364b061551b873b6ef4c8',
+    messagingSenderId: '358601933529',
+    projectId: 'aporia-network',
+    storageBucket: 'aporia-network.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAD2RCwFYf1KC5mJZrByzNn0Unz8L6bfgg',
-    appId: '1:1001095842193:ios:9cd7842962d28fd336b230',
-    messagingSenderId: '1001095842193',
-    projectId: 'cgs-maths-club',
-    storageBucket: 'cgs-maths-club.appspot.com',
-    androidClientId: '1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com',
-    iosClientId: '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com',
-    iosBundleId: 'com.garv.mathsClub',
+    apiKey: 'AIzaSyBcxSoJeqdgzLyBBJAYc_halNbWEAuBzjo',
+    appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
+    messagingSenderId: '358601933529',
+    projectId: 'aporia-network',
+    storageBucket: 'aporia-network.appspot.com',
+    androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
+    iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
+    iosBundleId: 'com.aporia.ios',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAD2RCwFYf1KC5mJZrByzNn0Unz8L6bfgg',
-    appId: '1:1001095842193:ios:9cd7842962d28fd336b230',
-    messagingSenderId: '1001095842193',
-    projectId: 'cgs-maths-club',
-    storageBucket: 'cgs-maths-club.appspot.com',
-    androidClientId: '1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com',
-    iosClientId: '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com',
-    iosBundleId: 'com.garv.mathsClub',
+    apiKey: 'AIzaSyBcxSoJeqdgzLyBBJAYc_halNbWEAuBzjo',
+    appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
+    messagingSenderId: '358601933529',
+    projectId: 'aporia-network',
+    storageBucket: 'aporia-network.appspot.com',
+    androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
+    iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
+    iosBundleId: 'com.aporia.ios',
   );
 }

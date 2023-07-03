@@ -9,7 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:maths_club/screens/post_creation/create_post_view.dart';
+import 'package:aporia_app/screens/post_creation/create_post_view.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 class RegisterPage extends StatefulWidget {

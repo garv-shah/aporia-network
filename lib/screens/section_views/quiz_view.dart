@@ -9,9 +9,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
-import 'package:maths_club/utils/formula_embed.dart';
+import 'package:aporia_app/utils/config.dart' as config;
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:maths_club/widgets/text_editor.dart';
+import 'package:aporia_app/widgets/text_editor.dart';
 
 /// Where quizzes can be answered and viewed.
 class QuizView extends StatefulWidget {
@@ -233,7 +233,7 @@ class _QuizViewState extends State<QuizView> {
                       width: 65,
                       height: 65,
                       child: SvgPicture.asset('assets/app_icon.svg',
-                          semanticsLabel: "maths club icon"),
+                          semanticsLabel: "${config.name} icon"),
                     ),
                   ],
                 ),

@@ -3,7 +3,7 @@ library circular_slider;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:maths_club/widgets/forks/sleek_circular_slider/slider_animations.dart';
+import 'package:aporia_app/widgets/forks/sleek_circular_slider/slider_animations.dart';
 import 'utils.dart';
 import 'appearance.dart';
 import 'slider_label.dart';

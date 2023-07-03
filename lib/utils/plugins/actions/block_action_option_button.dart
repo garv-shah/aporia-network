@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/widgets/app_flowy/pop_up_action.dart';
+import 'package:aporia_app/widgets/app_flowy/pop_up_action.dart';
 
 import 'block_action_button.dart';
 import 'option_action.dart';

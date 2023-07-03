@@ -3,7 +3,7 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/widget/ignore_parent_gesture.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/widgets/app_flowy/pop_up_action.dart';
+import 'package:aporia_app/widgets/app_flowy/pop_up_action.dart';
 import 'option_action.dart';
 
 class OptionActionList extends StatelessWidget {

@@ -1,6 +1,6 @@
 /*
 File: home_page.dart
-Description: The home page for the Maths Club App
+Description: The home page for the app
 Author: Garv Shah
 Created: Sat Jun 18 18:29:00 2022
  */
@@ -12,15 +12,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:maths_club/screens/post_creation/create_post_view.dart';
-import 'package:maths_club/screens/leaderboards.dart';
-import 'package:maths_club/screens/section_views/admin_view/user_list_view.dart';
-import 'package:maths_club/screens/section_views/section_page.dart';
-import 'package:maths_club/screens/settings_page.dart';
-import 'package:maths_club/utils/components.dart';
+import 'package:aporia_app/screens/post_creation/create_post_view.dart';
+import 'package:aporia_app/screens/leaderboards.dart';
+import 'package:aporia_app/screens/section_views/admin_view/user_list_view.dart';
+import 'package:aporia_app/screens/section_views/section_page.dart';
+import 'package:aporia_app/screens/settings_page.dart';
+import 'package:aporia_app/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:maths_club/widgets/forks/sleek_circular_slider/appearance.dart';
-import 'package:maths_club/widgets/forks/sleek_circular_slider/circular_slider.dart';
+import 'package:aporia_app/widgets/forks/sleek_circular_slider/appearance.dart';
+import 'package:aporia_app/widgets/forks/sleek_circular_slider/circular_slider.dart';
+import 'package:aporia_app/utils/config.dart' as config;
 
 /**
  * The following section includes functions for the home page.
@@ -428,10 +429,10 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          /// top header, with maths club branding
+          /// top header, with branding
           Padding(
             padding: const EdgeInsets.only(top: 50.0),
-            child: header("Maths Club", context),
+            child: header(config.name, context),
           ),
 
           /// bottom scrollable section

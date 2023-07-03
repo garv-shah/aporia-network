@@ -9,10 +9,10 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:maths_club/screens/post_creation/create_post_view.dart';
-import 'package:maths_club/screens/section_views/post_view.dart';
-import 'package:maths_club/screens/section_views/quiz_view.dart';
-import 'package:maths_club/widgets/section_app_bar.dart';
+import 'package:aporia_app/screens/post_creation/create_post_view.dart';
+import 'package:aporia_app/screens/section_views/post_view.dart';
+import 'package:aporia_app/screens/section_views/quiz_view.dart';
+import 'package:aporia_app/widgets/section_app_bar.dart';
 import 'dart:ui';
 
 /// An enum for the horizontal carousel that returns padding based on position.
@@ -221,7 +221,7 @@ class _SectionPageState extends State<SectionPage> {
   updateSearch(String value) async {
     searchResults = ['nothing'];
     AlgoliaQuery query =
-        algolia.instance.index('maths-club-posts').query(value);
+        algolia.instance.index('posts').query(value);
     List<AlgoliaObjectSnapshot> results = (await query.getObjects()).hits;
 
     setState(() {

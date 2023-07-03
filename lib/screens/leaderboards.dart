@@ -1,6 +1,6 @@
 /*
 File: leaderboards.dart
-Description: The leaderboards page for the Maths Club App
+Description: The leaderboards page for the app
 Author: Garv Shah
 Created: Wed Jul 20 20:11:15 2022
  */
@@ -8,7 +8,7 @@ Created: Wed Jul 20 20:11:15 2022
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/screens/home_page.dart';
+import 'package:aporia_app/screens/home_page.dart';
 
 import '../utils/components.dart';
 

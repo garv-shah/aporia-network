@@ -9,13 +9,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:aporia_app/utils/config.dart' as config;
 
 /// Creates the header for a login page using an image.
 HeaderBuilder headerImage(String assetName) {
   return (context, constraints, _) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: SvgPicture.asset(assetName, semanticsLabel: 'Maths Club Logo'),
+      child: SvgPicture.asset(assetName, semanticsLabel: '${config.name} Logo'),
     );
   };
 }
@@ -40,7 +41,7 @@ SideBuilder sideImage(String assetName) {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(constraints.maxWidth / 4),
-        child: SvgPicture.asset(assetName, semanticsLabel: 'Maths Club Logo'),
+        child: SvgPicture.asset(assetName, semanticsLabel: '${config.name} Logo'),
       ),
     );
   };
@@ -63,15 +64,15 @@ SideBuilder sideIcon(BuildContext context, IconData icon) {
 /// Gets the Firebase App ID for the current user's platform.
 String getClientID() {
   if (kIsWeb) {
-    return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
+    return '358601933529-lo264k5chj8f6f4ga3lguqnum8no3goa.apps.googleusercontent.com';
   }
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
+      return '358601933529-lo264k5chj8f6f4ga3lguqnum8no3goa.apps.googleusercontent.com';
     case TargetPlatform.iOS:
       return '1001095842193-tjjil8elv8opuf533muk1qi69atstnvj.apps.googleusercontent.com';
     case TargetPlatform.macOS:
-      return '1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com';
+      return '358601933529-lo264k5chj8f6f4ga3lguqnum8no3goa.apps.googleusercontent.com';
     default:
       throw UnsupportedError(
         'There is no Sign-In ID for this platform.',

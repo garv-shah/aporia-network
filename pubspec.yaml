@@ -1,5 +1,5 @@
-name: maths_club
-description: App for CGS Maths Club
+name: aporia_app
+description: A Network for Building Fast, Educational Apps
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -153,7 +153,7 @@ icons_launcher:
   platforms:
     android:
       enable: true
-      adaptive_background_color: '#f7e8d3'
+      adaptive_background_color: '#e6e6e6'
       adaptive_foreground_image: 'assets/foreground_icon.png'
     ios:
       enable: true
@@ -181,7 +181,7 @@ flutter_native_splash:
   # of your splash screen to a solid color.  Use background_image to set the background of your
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
-  color: "#f7e8d3"
+  color: "#e6e6e6"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
   # the leading # character.

@@ -1,48 +1,84 @@
 {
   "project_info": {
-    "project_number": "1001095842193",
-    "project_id": "cgs-maths-club",
-    "storage_bucket": "cgs-maths-club.appspot.com"
+    "project_number": "358601933529",
+    "project_id": "aporia-network",
+    "storage_bucket": "aporia-network.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1001095842193:android:7a585f439694cb7536b230",
+        "mobilesdk_app_id": "1:358601933529:android:ae0933de995f5d586ef4c8",
         "android_client_info": {
-          "package_name": "com.garv.maths_club"
+          "package_name": "com.aporia.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1001095842193-i0h5mo4jf4ckf2b7gd9gnrdm4e18jv26.apps.googleusercontent.com",
+          "client_id": "358601933529-fo0e2i657ado0pn1i82ncukum12g00gu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.garv.maths_club",
+            "package_name": "com.aporia.android",
             "certificate_hash": "7b77181beb0e98b9d72943a2ba561da0cb7ccbef"
           }
         },
         {
-          "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
+          "client_id": "358601933529-lo264k5chj8f6f4ga3lguqnum8no3goa.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC1ApAhNWmHqgHKxaDEs2cvPe7W8IXGoEs"
+          "current_key": "AIzaSyB_vO8pFvLn2fy-50DMnxsuElZigDbMev0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1001095842193-c8hmlfa91qd46viea2lalrt2h9pmnn5q.apps.googleusercontent.com",
+              "client_id": "358601933529-775g3tt1n0dcngslcr2pil1327jlcd6g.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "1001095842193-2kok9bf0h05l17lc7d28f7305j4k3dpm.apps.googleusercontent.com",
+              "client_id": "358601933529-ap59j3dsiu0qn76bof0hbduaipiehjul.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.garv.mathsClubApp"
+                "bundle_id": "com.aporia.network"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358601933529:android:2364b061551b873b6ef4c8",
+        "android_client_info": {
+          "package_name": "com.aporia.network"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "358601933529-lo264k5chj8f6f4ga3lguqnum8no3goa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_vO8pFvLn2fy-50DMnxsuElZigDbMev0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "358601933529-775g3tt1n0dcngslcr2pil1327jlcd6g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "358601933529-ap59j3dsiu0qn76bof0hbduaipiehjul.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aporia.network"
               }
             }
           ]

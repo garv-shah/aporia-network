@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:maths_club/utils/theme.dart';
+import 'package:aporia_app/utils/theme.dart';
 
 class TextEditor extends StatelessWidget {
   const TextEditor({

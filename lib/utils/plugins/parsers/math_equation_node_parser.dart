@@ -1,4 +1,4 @@
-import 'package:maths_club/utils/plugins/math_equation/math_equation_block_component.dart';
+import 'package:aporia_app/utils/plugins/math_equation/math_equation_block_component.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 class MathEquationNodeParser extends NodeParser {

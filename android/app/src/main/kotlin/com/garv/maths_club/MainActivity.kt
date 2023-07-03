@@ -1,4 +1,4 @@
-package com.garv.maths_club
+package com.aporia.network
 
 import io.flutter.embedding.android.FlutterActivity
 
