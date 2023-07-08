@@ -18,6 +18,31 @@ service cloud.firestore {
       return request.auth.uid in get(/databases/$(database)/documents/roles/admins).data.members;
     }
 
+    // Checks if user is admin
+    function isCompany() {
+      return request.auth.uid in get(/databases/$(database)/documents/roles/companies).data.members;
+    }
+
+    match /global/subjects {
+      allow create, update, delete: if isAdmin();
+      allow read: if isSignedIn();
+    }
+
+    match /availability/{userID} {
+      allow create, update, delete: if (isSignedIn() && hasID(userID)) || isAdmin();
+      allow read: if isSignedIn();
+    }
+
+    match /availability/{userID}/slots/{slot} {
+      allow create, update, delete: if (isSignedIn() && hasID(userID)) || isAdmin();
+      allow read: if isSignedIn();
+    }
+
+    match /jobs/{job} {
+      allow create, delete: if (isSignedIn() && isCompany()) || isAdmin();
+      allow read, update: if isSignedIn();
+    }
+
     match /postGroups/{group} {
       allow create, update, delete: if isAdmin();
       allow read: if isSignedIn();

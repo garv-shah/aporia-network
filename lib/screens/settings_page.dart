@@ -18,6 +18,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
+import 'package:aporia_app/utils/config.dart' as config;
 
 /**
  * The following section includes functions for the settings page.
@@ -253,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                                   await functions
                                       .httpsCallable('updateUsername')
-                                      .call({'username': newUsername.first});
+                                      .call({'username': newUsername.first, 'appID': config.appID});
                                 }
                               }
                             },

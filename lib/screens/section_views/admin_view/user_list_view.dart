@@ -12,7 +12,7 @@ class UserModel extends ISuspensionBean {
   String role;
   String? profilePicture;
   String? pfpType;
-  String? companyName;
+  String? userType;
   String id;
 
   UserModel({
@@ -20,7 +20,7 @@ class UserModel extends ISuspensionBean {
     required this.role,
     required this.profilePicture,
     required this.pfpType,
-    required this.companyName,
+    required this.userType,
     required this.id,
   });
 
@@ -29,7 +29,7 @@ class UserModel extends ISuspensionBean {
         role = json['role'],
         profilePicture = json['profilePicture'],
         pfpType = json['pfpType'],
-        companyName = json['companyName'],
+        userType = json['userType'],
         id = json['id'];
 
   Map<String, dynamic> toJson() => {
@@ -37,7 +37,7 @@ class UserModel extends ISuspensionBean {
         'role': role,
         'profilePicture': profilePicture,
         'pfpType': pfpType,
-        'companyName': companyName,
+        'userType': userType,
         'id': id
       };
 
@@ -104,7 +104,7 @@ class _UsersPageState extends State<UsersPage> {
         role: userRole,
         profilePicture: userMap['profilePicture'],
         pfpType: userMap['pfpType'],
-        companyName: userMap['companyName'],
+        userType: userMap['userType'],
         id: user.id,
       );
     }).toList();

@@ -74,8 +74,12 @@ exports.updateUsername = functions
     .region('australia-southeast1')
     .https.onCall(async (data, context) => {
         let username = data.username;
+        let appID = data.appID;
+        let forceUID: string | null = data.uid;
         if (!username) {
             throw new functions.https.HttpsError('invalid-argument', 'A username must be provided!');
+        } else if (!appID) {
+            throw new functions.https.HttpsError('invalid-argument', 'An app ID must be provided!');
         } else if (context.auth?.uid == null) {
             throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
         } else if (username.length > 12) {
@@ -87,22 +91,43 @@ exports.updateUsername = functions
                 throw new functions.https.HttpsError('already-exists', 'The username already exists!');
             }
 
-            functions.logger.info(`Updating username for ${context.auth?.uid}`, {structuredData: true});
+            let uid: string = '';
+            // if a separate uid is provided, use that
+            if (forceUID == null) {
+                uid = context.auth!.uid;
+            // if not, use the uid of the person that called the function
+            } else {
+                // the user must be an administrator to set other people's usernames
+                const userRole = db.collection('roles').doc('admins');
+                const doc = await userRole.get();
+                let admins: string[] = doc.data()['members'];
+
+                // the current list of admins contains the person that called the function
+                if (admins.includes(context.auth!.uid)) {
+                    uid = forceUID;
+                } else {
+                    throw new functions.https.HttpsError('permission-denied', "The user must be an admin to be able to change other users' usernames");
+                }
+            }
+
+            functions.logger.info(`Updating username for ${uid}`, {structuredData: true});
 
             // set displayName username
-            await admin.auth().updateUser(context.auth!.uid, {
+            await admin.auth().updateUser(uid, {
                 displayName: username,
             })
 
             // set userInfo username
-            await db.collection("userInfo").doc(context.auth!.uid).update({
+            await db.collection("userInfo").doc(uid).update({
                 lowerUsername: username.toString().toLowerCase(),
                 username: username,
+                userType: appID,
             });
 
             // set quizPoints username
-            await db.collection("quizPoints").doc(context.auth!.uid).update({
+            await db.collection("quizPoints").doc(uid).update({
                 username: username,
+                userType: appID,
             });
         }
     });

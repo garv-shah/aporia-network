@@ -651,6 +651,40 @@ PODS:
     - Flutter
   - desktop_webview_auth (0.0.1):
     - Flutter
+  - DKImagePickerController/Core (4.3.4):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.3.4)
+  - DKImagePickerController/PhotoGallery (4.3.4):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.3.4)
+  - DKPhotoGallery (0.0.17):
+    - DKPhotoGallery/Core (= 0.0.17)
+    - DKPhotoGallery/Model (= 0.0.17)
+    - DKPhotoGallery/Preview (= 0.0.17)
+    - DKPhotoGallery/Resource (= 0.0.17)
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - file_picker (0.0.1):
+    - DKImagePickerController/PhotoGallery
+    - Flutter
   - file_selector_ios (0.0.1):
     - Flutter
   - Firebase/Analytics (10.10.0):
@@ -764,6 +798,8 @@ PODS:
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
+  - flowy_infra_ui (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_native_splash (0.0.1):
     - Flutter
@@ -895,12 +931,16 @@ PODS:
   - PromisesObjC (2.2.0)
   - rich_clipboard_ios (0.0.1):
     - Flutter
+  - SDWebImage (5.16.0):
+    - SDWebImage/Core (= 5.16.0)
+  - SDWebImage/Core (5.16.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - sqflite (0.0.3):
     - Flutter
     - FMDB (>= 2.7.5)
+  - SwiftyGif (5.4.4)
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -908,12 +948,14 @@ DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
   - desktop_webview_auth (from `.symlinks/plugins/desktop_webview_auth/ios`)
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - file_selector_ios (from `.symlinks/plugins/file_selector_ios/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_dynamic_links (from `.symlinks/plugins/firebase_dynamic_links/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
+  - flowy_infra_ui (from `.symlinks/plugins/flowy_infra_ui/ios`)
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/ios`)
@@ -929,6 +971,8 @@ SPEC REPOS:
     - abseil
     - AppAuth
     - BoringSSL-GRPC
+    - DKImagePickerController
+    - DKPhotoGallery
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -955,6 +999,8 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - PromisesObjC
+    - SDWebImage
+    - SwiftyGif
 
 EXTERNAL SOURCES:
   cloud_firestore:
@@ -963,6 +1009,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cloud_functions/ios"
   desktop_webview_auth:
     :path: ".symlinks/plugins/desktop_webview_auth/ios"
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
   file_selector_ios:
     :path: ".symlinks/plugins/file_selector_ios/ios"
   firebase_analytics:
@@ -975,6 +1023,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_dynamic_links/ios"
   firebase_storage:
     :path: ".symlinks/plugins/firebase_storage/ios"
+  flowy_infra_ui:
+    :path: ".symlinks/plugins/flowy_infra_ui/ios"
   Flutter:
     :path: Flutter
   flutter_native_splash:
@@ -1001,6 +1051,9 @@ SPEC CHECKSUMS:
   cloud_firestore: 818ebb1a8235177a0dcf7005c14aed5408b8342c
   cloud_functions: 24c6c0f2b37a3adde7ce00a8eb82a74ca71ef413
   desktop_webview_auth: d645139460ef203d50bd0cdb33356785dd939cce
+  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
+  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
+  file_picker: ce3938a0df3cc1ef404671531facef740d03f920
   file_selector_ios: 8c25d700d625e1dcdd6599f2d927072f2254647b
   Firebase: facd334e557a979bd03a0b58d90fd56b52b8aba0
   firebase_analytics: 1a5ad75876257318ba5fdc6bf7aae73b6e98d0cf
@@ -1022,6 +1075,7 @@ SPEC CHECKSUMS:
   FirebaseMessagingInterop: c78a2df8002e0b51fc446a687b5ba357b81e9e90
   FirebaseSharedSwift: c590d181c8b80ebf85f2606f4d366cf72f82f184
   FirebaseStorage: a12297f786e81e653864d87723ec30381eb90220
+  flowy_infra_ui: 0455e1fa8c51885aa1437848e361e99419f34ebc
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
@@ -1039,8 +1093,10 @@ SPEC CHECKSUMS:
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   rich_clipboard_ios: 7588abe18f881a6d0e9ec0b12e51cae2761e8942
+  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
   shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
   sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
+  SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
 
 PODFILE CHECKSUM: f035abfe2df7b24709235da3a68a04bd5fb81f44

@@ -68,6 +68,8 @@ dependencies:
   firebase_ui_oauth_google: ^1.2.2
   firebase_ui_oauth_apple: ^1.2.2
   universal_io: ^2.2.2
+  syncfusion_flutter_calendar: ^22.1.37
+  intl: ^0.18.0
   flowy_infra_ui:
     path: packages/flowy_infra_ui
 

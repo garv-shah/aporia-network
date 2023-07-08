@@ -7,6 +7,8 @@ Created: Sat Jun 18 18:29:00 2022
 
 import 'dart:math';
 
+import 'package:aporia_app/screens/scheduling/availability_page.dart';
+import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -125,8 +127,7 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
                   style: OutlinedButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.primary,
                       side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary
-                      ),
+                          color: Theme.of(context).colorScheme.primary),
                       minimumSize: const Size(double.infinity, 40),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -210,7 +211,9 @@ Map<String, dynamic> calculateLevel(experience) {
 
 /// Creates card with a summary of a user's information.
 Widget userInfo(BuildContext context,
-    {required Map<String, dynamic> userData, required Widget profilePicture, required bool isAdmin}) {
+    {required Map<String, dynamic> userData,
+    required Widget profilePicture,
+    required bool isAdmin}) {
   return StreamBuilder<DocumentSnapshot>(
       // Stream for user's quiz points.
       stream: FirebaseFirestore.instance
@@ -348,17 +351,21 @@ Widget fetchProfilePicture(
 
   if (imageUrl.isEmpty) {
     return Padding(
-      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      padding: padding
+          ? EdgeInsets.all(customPadding ?? 15.0)
+          : const EdgeInsets.all(0),
       child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
-            return Center(
-              child: UserAvatar(size: constraints.maxHeight),
-            );
-          }),
+        return Center(
+          child: UserAvatar(size: constraints.maxHeight),
+        );
+      }),
     );
   } else if (pfpType == 'image/svg+xml') {
     return Padding(
-      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      padding: padding
+          ? EdgeInsets.all(customPadding ?? 15.0)
+          : const EdgeInsets.all(0),
       child: ClipOval(
         child: CircleAvatar(
           backgroundColor: const Color.fromRGBO(65, 65, 65, 0.4),
@@ -375,19 +382,21 @@ Widget fetchProfilePicture(
     );
   } else {
     return Padding(
-      padding: padding ? EdgeInsets.all(customPadding ?? 15.0) : const EdgeInsets.all(0),
+      padding: padding
+          ? EdgeInsets.all(customPadding ?? 15.0)
+          : const EdgeInsets.all(0),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
         imageBuilder: (context, imageProvider) => LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              return Center(
-                child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  backgroundImage: imageProvider,
-                  radius: 1000,
-                ),
-              );
-            }),
+          return Center(
+            child: CircleAvatar(
+              backgroundColor: Colors.transparent,
+              backgroundImage: imageProvider,
+              radius: 1000,
+            ),
+          );
+        }),
         progressIndicatorBuilder: (context, url, downloadProgress) => Center(
           child: SizedBox(
             height: 30,
@@ -397,10 +406,10 @@ Widget fetchProfilePicture(
         ),
         errorWidget: (context, url, error) => LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              return Center(
-                child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
-              );
-            }),
+          return Center(
+            child: UserAvatar(size: constraints.maxHeight - (padding ? 10 : 0)),
+          );
+        }),
       ),
     );
   }
@@ -454,8 +463,11 @@ class _HomePageState extends State<HomePage> {
                             "Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
                       ));
                     } else {
-                      List roleList = rolesSnapshot.data!.docs.map((doc) => doc['tag']).toList();
+                      List roleList = rolesSnapshot.data!.docs
+                          .map((doc) => doc['tag'])
+                          .toList();
                       bool isAdmin = roleList.contains("Admin");
+                      bool isCompany = roleList.contains("Company");
                       // If user is in role, return normal ListView
                       return SizedBox(
                         width: isAdmin ? 760 : 600,
@@ -472,8 +484,7 @@ class _HomePageState extends State<HomePage> {
                                         widget.userData['profilePicture'],
                                         widget.userData['pfpType'],
                                         username,
-                                        padding: true
-                                    ))),
+                                        padding: true))),
 
                             /// horizontal carousel for actions
                             SizedBox(
@@ -486,20 +497,32 @@ class _HomePageState extends State<HomePage> {
                                     actionCard(context,
                                         icon: Icons.people,
                                         text: "Leaderboards",
-                                        navigateTo: Leaderboards(isAdmin: isAdmin),
+                                        navigateTo:
+                                            Leaderboards(isAdmin: isAdmin),
                                         position: PositionPadding.start),
+                                    // Only show if appMap says so
+                                    config.appMap[config.appID]['views'].contains('scheduling')
+                                        ? (
+                                        isCompany ?
+                                        actionCard(context,
+                                        icon: Icons.work,
+                                        text: "Create Job",
+                                        navigateTo: CreateJob(userData: widget.userData)) :
+                                        actionCard(context,
+                                            icon: Icons.edit_calendar,
+                                            text: "Availability",
+                                            navigateTo: AvailabilityPage(
+                                                isCompany: isCompany))
+                                    )
+                                        : const SizedBox.shrink(),
                                     // Only show tile if user is admin
-                                    (rolesSnapshot.data?.docs[0]['tag'] ==
-                                            'Admin')
-                                        ? actionCard(context,
+                                    isAdmin ? actionCard(context,
                                             icon: Icons.admin_panel_settings,
                                             text: "Admin View",
                                             navigateTo: UsersPage())
                                         : const SizedBox.shrink(),
                                     // Only show tile if user is admin
-                                    (rolesSnapshot.data?.docs[0]['tag'] ==
-                                            'Admin')
-                                        ? actionCard(context,
+                                    isAdmin ? actionCard(context,
                                             icon: Icons.create,
                                             text: "Create Post",
                                             navigateTo: const CreatePost())
@@ -525,7 +548,11 @@ class _HomePageState extends State<HomePage> {
                                 stream: FirebaseFirestore.instance
                                     .collection('postGroups')
                                     // Since a user can have multiple roles, this gets all the roles a user is in
-                                    .where('roles', arrayContainsAny: rolesSnapshot.data?.docs.map((doc) => doc.id).toList())
+                                    .where('roles',
+                                        arrayContainsAny: rolesSnapshot
+                                            .data?.docs
+                                            .map((doc) => doc.id)
+                                            .toList())
                                     .snapshots(),
                                 builder: (context, postsGroupSnapshot) {
                                   if (postsGroupSnapshot.connectionState ==
@@ -537,18 +564,19 @@ class _HomePageState extends State<HomePage> {
                                             const NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
                                         padding: EdgeInsets.zero,
-                                        itemCount:
-                                            postsGroupSnapshot.data?.docs.length,
+                                        itemCount: postsGroupSnapshot
+                                            .data?.docs.length,
                                         itemBuilder:
                                             (BuildContext context, int index) {
                                           return sectionCard(
                                               context,
                                               widget.userData,
-                                              postsGroupSnapshot.data?.docs[index]
-                                                  ["tag"],
+                                              postsGroupSnapshot
+                                                  .data?.docs[index]["tag"],
                                               postsGroupSnapshot
                                                   .data?.docs[index].id,
-                                              rolesSnapshot.data?.docs[0]['tag']);
+                                              rolesSnapshot.data?.docs[0]
+                                                  ['tag']);
                                         });
                                   } else {
                                     return const Center(

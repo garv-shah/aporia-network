@@ -202,7 +202,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
 
                         await functions
                             .httpsCallable('updateUsername')
-                            .call({'username': newUsername.first, 'uid': widget.userInfo.id});
+                            .call({'username': newUsername.first, 'appID': widget.userInfo.userType, 'uid': widget.userInfo.id});
                       }
                     }
                   },

@@ -1,8 +1,8 @@
 /*
-File: leaderboards.dart
-Description: The leaderboards page for the app
+File: job_selector_page.dart
+Description: The page where users can select what job they would like to do
 Author: Garv Shah
-Created: Wed Jul 20 20:11:15 2022
+Created: Sat Jul 8 18:24:15 2023
  */
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,12 +18,12 @@ import 'package:aporia_app/utils/components.dart';
 /// A leaderboard position entry.
 Widget user(BuildContext context,
     {required String username,
-    required int position,
-    required Widget profilePicture,
-    required int experience,
-    required bool infinity,
-    required bool removeBackground,
-    required bool isAdmin}) {
+      required int position,
+      required Widget profilePicture,
+      required int experience,
+      required bool infinity,
+      required bool removeBackground,
+      required bool isAdmin}) {
   double width = isAdmin ? 760 : 600;
   double maxWidth = (MediaQuery.of(context).size.width > width) ? width : MediaQuery.of(context).size.width;
   return Padding(
@@ -96,8 +96,8 @@ class _LeaderboardsState extends State<Leaderboards> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          // Gets the quizPoints collection ordered by the amount of experience
-          // each user has.
+        // Gets the quizPoints collection ordered by the amount of experience
+        // each user has.
           stream: FirebaseFirestore.instance
               .collection('quizPoints')
               .orderBy('experience', descending: true)
@@ -131,7 +131,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                         } else {
                           // Current doc's data.
                           QueryDocumentSnapshot<Map<String, dynamic>>? data =
-                              quizPointsSnapshot.data?.docs[index - 1];
+                          quizPointsSnapshot.data?.docs[index - 1];
 
                           // User entry.
                           return user(context,
@@ -171,7 +171,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                                     child: Icon(Icons.error,
                                         size: 30,
                                         color:
-                                            Theme.of(context).colorScheme.primary),
+                                        Theme.of(context).colorScheme.primary),
                                   );
                                 }
                               }()));
