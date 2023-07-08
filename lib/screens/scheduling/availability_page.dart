@@ -5,6 +5,7 @@ Author: Garv Shah
 Created: Sat Jul 8 17:04:21 2023
  */
 
+import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -65,8 +66,9 @@ class AvailabilityPage extends StatefulWidget {
   final bool isCompany;
   final List? initialValue;
   final DataCallback? onSave;
+  final List? restrictionZone;
 
-  const AvailabilityPage({Key? key, required this.isCompany, this.onSave, this.initialValue}) : super(key: key);
+  const AvailabilityPage({Key? key, required this.isCompany, this.onSave, this.initialValue, this.restrictionZone}) : super(key: key);
 
   @override
   State<AvailabilityPage> createState() => _AvailabilityPageState();
@@ -75,11 +77,15 @@ class AvailabilityPage extends StatefulWidget {
 class _AvailabilityPageState extends State<AvailabilityPage> {
   @override
   void initState() {
-    getDataFromFireStore().then((results) {
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        setState(() {});
+    if (widget.restrictionZone == null) {
+      getDataFromFireStore().then((results) {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          setState(() {});
+        });
       });
-    });
+    } else {
+      _dataSource = LessonDataSource([]);
+    }
     super.initState();
   }
 
@@ -95,7 +101,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
     for (var slot in slots) {
       list.add(Lesson(
-          eventName: 'Available!',
+          eventName: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
           from: DateTime.parse(slot['from'] is DateTime ? slot['from'] : slot['from'].toDate().toString()),
           to: DateTime.parse(slot['to'] is DateTime ? slot['to'] : slot['to'].toDate().toString()),
           background: Theme.of(context).colorScheme.primary
@@ -113,7 +119,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
       DateTime startTime = calendarTapDetails.date!;
       DateTime endTime = calendarTapDetails.date!.add(const Duration(hours: 1));
       Lesson lesson = Lesson(
-          eventName: 'Available!',
+          eventName: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
           from: startTime,
           to: endTime,
           background: Theme.of(context).colorScheme.primary
@@ -126,8 +132,21 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         _dataSource?.notifyListeners(CalendarDataSourceAction.remove, <Lesson>[lessonsInSlot![0]]);
       } else {
         // add lesson
-        _dataSource?.appointments!.add(lesson);
-        _dataSource?.notifyListeners(CalendarDataSourceAction.add, <Lesson>[lesson]);
+        // if we are simply selecting availability, you should be able to select
+        // multiple times. If we are selecting a specific lesson slot, then you
+        // should only be able to select one time.
+        if (widget.restrictionZone == null) {
+          _dataSource?.appointments!.add(lesson);
+          _dataSource?.notifyListeners(
+              CalendarDataSourceAction.add, <Lesson>[lesson]);
+        } else {
+          _dataSource?.appointments!.clear();
+          _dataSource?.notifyListeners(CalendarDataSourceAction.reset, <Lesson>[lesson]);
+
+          _dataSource?.appointments!.add(lesson);
+          _dataSource?.notifyListeners(
+              CalendarDataSourceAction.add, <Lesson>[lesson]);
+        }
       }
     }
 
@@ -143,7 +162,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
             icon: Icon(Icons.arrow_back,
                 color: Theme.of(context).primaryColorLight),
             onPressed: () {
-              saveAvailability();
+              saveAvailability(true);
               Navigator.of(context).pop();
             }),
       ),
@@ -156,10 +175,11 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         dataSource: _dataSource,
         onTap: calendarTapped,
         initialDisplayDate: DateTime(1990, 1, 1),
+        specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          saveAvailability();
+          saveAvailability(false);
         },
         label: widget.isCompany ? const Text("Save") : const Text("Continue"),
         icon: widget.isCompany ? const Icon(Icons.check) : const Icon(Icons.arrow_forward),
@@ -167,7 +187,31 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     );
   }
 
-  void saveAvailability() {
+  List<TimeRegion> _getTimeRegions(List times) {
+    final List<TimeRegion> regions = <TimeRegion>[];
+
+    if (times.isEmpty) return regions;
+
+    List<int> relativeTimes = [];
+
+    for (var i = 0; i < times.length; i++) {
+      relativeTimes.add(DateTime.parse(times[i]).difference(DateTime(1990, 1, 1)).inHours);
+    }
+
+    for (var i = 0; i < 168; i++) {
+      if (!relativeTimes.contains(i)) {
+        regions.add(TimeRegion(
+          startTime: DateTime(1990, 1, 1).add(Duration(hours: i)),
+          endTime: DateTime(1990, 1, 1).add(Duration(hours: i + 1)),
+          enablePointerInteraction: false,
+        ));
+      }
+    }
+
+    return regions;
+  }
+
+  void saveAvailability(bool backArrow) {
     List slots = [];
     for (var lesson in _dataSource?.appointments as List<Lesson>) {
       slots.add({
@@ -184,6 +228,12 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           .set({
         'slots': slots
       });
+      if (!backArrow) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AvailableJobsPage(availability: slots)),
+        );
+      }
     } else {
       widget.onSave!(slots);
       Navigator.of(context).pop();

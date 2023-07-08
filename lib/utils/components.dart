@@ -43,9 +43,11 @@ Widget header(String title, BuildContext context,
           ),
         ),
         SizedBox(width: paddingWidth),
-        Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+        Flexible(
+          child: Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+          ),
         ),
       ],
     ),

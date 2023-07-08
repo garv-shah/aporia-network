@@ -512,7 +512,9 @@ class _HomePageState extends State<HomePage> {
                                             icon: Icons.edit_calendar,
                                             text: "Availability",
                                             navigateTo: AvailabilityPage(
-                                                isCompany: isCompany))
+                                                isCompany: isCompany,
+                                            )
+                                        )
                                     )
                                         : const SizedBox.shrink(),
                                     // Only show tile if user is admin
