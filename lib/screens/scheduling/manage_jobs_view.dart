@@ -5,7 +5,6 @@ Author: Garv Shah
 Created: Fri Aug 5 22:25:21 2022
  */
 
-import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +27,9 @@ enum PositionPadding {
 /// This is the page which allows all jobs to be searched and managed
 class ManageJobsPage extends StatefulWidget {
   final bool isAdmin;
+  final bool isCompany;
   final Map<String, dynamic> userData;
-  const ManageJobsPage({Key? key, required this.isAdmin, required this.userData})
+  const ManageJobsPage({Key? key, required this.isAdmin, required this.isCompany, required this.userData})
       : super(key: key);
 
   @override
@@ -90,7 +90,7 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
                     in (ordersSnapshot.data?.docs ?? [])) {
                   Map<String, dynamic> json =
                       doc?.data() as Map<String, dynamic>;
-                  json['ID'] = doc?.id;
+                  json['Job ID'] = doc?.id;
                   json['reference'] = doc?.reference;
                   jobs.add(json);
                 }
@@ -117,7 +117,7 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
                                       child: Text("Submitted Jobs",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .headline4
+                                              .headlineMedium
                                               ?.copyWith(
                                                   color: Theme.of(context)
                                                       .primaryColorLight)),
@@ -129,7 +129,7 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
                                       itemCount: jobs.length,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        return jobCard(context, isAdmin: widget.isAdmin, data: jobs[index]);
+                                        return jobCard(context, isAdmin: widget.isAdmin, isCompany: widget.isCompany, data: jobs[index]);
                                       }),
                             ],
                           ),

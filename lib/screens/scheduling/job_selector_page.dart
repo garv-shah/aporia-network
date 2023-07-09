@@ -13,6 +13,7 @@ import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
 
 import 'availability_page.dart';
+import 'job_view.dart';
 
 /**
  * The following section includes functions for the job selector page.
@@ -24,6 +25,7 @@ import 'availability_page.dart';
 Widget jobCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
       required bool isAdmin,
+      required bool isCompany,
       List? times,
       required Map<String, dynamic> data}) {
   Color statusColour = (() {
@@ -104,7 +106,11 @@ Widget jobCard(BuildContext context,
                     ));
               }
             } else {
-              print('something should happen now');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => JobView(jobID: data['Job ID'], isCompany: isCompany)
+                  ));
             }
           },
           child: Container(
@@ -351,8 +357,7 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
 
                           if (common.isNotEmpty) {
                             availableJobsCounter++;
-                            return jobCard(
-                                context, data: data, isAdmin: false, times: common);
+                            return jobCard(context, data: data, isAdmin: false, isCompany: false, times: common);
                           } else {
                             if (availableJobsCounter == 0 && index == (jobSnapshot.data?.docs.length ?? 0)) {
                               return const Padding(

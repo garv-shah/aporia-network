@@ -102,8 +102,8 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     for (var slot in slots) {
       list.add(Lesson(
           eventName: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
-          from: DateTime.parse(slot['from'] is DateTime ? slot['from'] : slot['from'].toDate().toString()),
-          to: DateTime.parse(slot['to'] is DateTime ? slot['to'] : slot['to'].toDate().toString()),
+          from: slot['from'] is DateTime ? slot['from'] : DateTime.parse(slot['from'].toDate().toString()),
+          to: slot['to'] is DateTime ? slot['to'] : DateTime.parse(slot['to'].toDate().toString()),
           background: Theme.of(context).colorScheme.primary
       ));
     }
@@ -162,7 +162,6 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                 color: Theme.of(context).primaryColorLight),
             onPressed: () {
               saveAvailability(true);
-              Navigator.of(context).pop();
             }),
       ),
       body: SfCalendar(

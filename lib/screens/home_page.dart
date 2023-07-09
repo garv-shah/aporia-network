@@ -524,7 +524,12 @@ class _HomePageState extends State<HomePage> {
                                           actionCard(context,
                                               icon: Icons.manage_search_rounded,
                                               text: "Manage Jobs",
-                                              navigateTo: ManageJobsPage(userData: widget.userData, isAdmin: isAdmin)) :
+                                              navigateTo: ManageJobsPage(
+                                                  userData: widget.userData,
+                                                  isAdmin: isAdmin,
+                                                  isCompany: isCompany,
+                                              )
+                                          ) :
                                           const SizedBox.shrink()
                                       ) : const SizedBox.shrink(),
                                       // Only show tile if user is admin
