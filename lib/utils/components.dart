@@ -20,6 +20,7 @@ Widget header(String title, BuildContext context,
     padding: const EdgeInsets.all(26.0),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Visibility(
           visible: backArrow,

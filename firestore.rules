@@ -39,8 +39,8 @@ service cloud.firestore {
     }
 
     match /jobs/{job} {
-      allow create, delete: if (isSignedIn() && isCompany()) || isAdmin();
-      allow read, update: if isSignedIn();
+      allow create, update, delete: if (isSignedIn() && isCompany()) || isAdmin();
+      allow read: if isSignedIn();
     }
 
     match /postGroups/{group} {

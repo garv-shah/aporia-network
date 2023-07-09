@@ -50,9 +50,12 @@ class _PostViewState extends State<PostView> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           }),
-                      Text(
-                        widget.data['Title'],
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 38),
+                      Flexible(
+                        child: Text(
+                          widget.data['Title'],
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 38),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       // Extra sized box to make the title in the center
                       const SizedBox(height: 48, width: 48)

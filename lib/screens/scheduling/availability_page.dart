@@ -140,12 +140,11 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           _dataSource?.notifyListeners(
               CalendarDataSourceAction.add, <Lesson>[lesson]);
         } else {
-          _dataSource?.appointments!.clear();
-          _dataSource?.notifyListeners(CalendarDataSourceAction.reset, <Lesson>[lesson]);
-
-          _dataSource?.appointments!.add(lesson);
-          _dataSource?.notifyListeners(
-              CalendarDataSourceAction.add, <Lesson>[lesson]);
+          Navigator.of(context).pop();
+          widget.onSave!([{
+            'from': lesson.from,
+            'to': lesson.to,
+          }]);
         }
       }
     }
@@ -177,13 +176,13 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         initialDisplayDate: DateTime(1990, 1, 1),
         specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: (widget.restrictionZone == null) ? FloatingActionButton.extended(
         onPressed: () {
           saveAvailability(false);
         },
         label: widget.isCompany ? const Text("Save") : const Text("Continue"),
         icon: widget.isCompany ? const Icon(Icons.check) : const Icon(Icons.arrow_forward),
-      ),
+      ) : null,
     );
   }
 

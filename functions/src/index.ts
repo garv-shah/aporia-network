@@ -132,6 +132,28 @@ exports.updateUsername = functions
         }
     });
 
+exports.claimJob = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let jobID = data.jobID;
+        if (!jobID) {
+            throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Claiming job ${jobID} for ${context.auth?.uid}`, {structuredData: true});
+
+            const userInfo = db.collection('userInfo').doc(context.auth!.uid);
+            const doc = await userInfo.get();
+            let userData = doc.data();
+
+            await db.collection("jobs").doc(jobID).update({
+                assignedTo: userData,
+                status: 'assigned',
+            });
+        }
+    });
+
 exports.updatePfp = functions
     .region('australia-southeast1')
     .https.onCall((data, context) => {

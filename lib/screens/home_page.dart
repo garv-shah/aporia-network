@@ -9,6 +9,7 @@ import 'dart:math';
 
 import 'package:aporia_app/screens/scheduling/availability_page.dart';
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
+import 'package:aporia_app/screens/scheduling/manage_jobs_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -435,166 +436,176 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       /// main body
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          /// top header, with branding
-          Padding(
-            padding: const EdgeInsets.only(top: 50.0),
-            child: header(config.name, context),
-          ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            /// top header, with branding
+            Padding(
+              padding: const EdgeInsets.only(top: 50.0),
+              child: header(config.name, context),
+            ),
 
-          /// bottom scrollable section
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('roles')
-                    .where('members',
-                        arrayContains: FirebaseAuth.instance.currentUser?.uid)
-                    .snapshots(),
-                builder: (context, rolesSnapshot) {
-                  if (rolesSnapshot.connectionState == ConnectionState.active) {
-                    // If the user is not in a role
-                    if (rolesSnapshot.data?.docs.isEmpty ?? true) {
-                      return const Center(
-                          child: Padding(
-                        padding: EdgeInsets.fromLTRB(50.0, 16.0, 50.0, 16.0),
-                        child: Text(
-                            "Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
-                      ));
-                    } else {
-                      List roleList = rolesSnapshot.data!.docs
-                          .map((doc) => doc['tag'])
-                          .toList();
-                      bool isAdmin = roleList.contains("Admin");
-                      bool isCompany = roleList.contains("Company");
-                      // If user is in role, return normal ListView
-                      return SizedBox(
-                        width: isAdmin ? 760 : 600,
-                        child: ListView(
-                          padding: EdgeInsets.zero,
-                          children: [
-                            /// user info display
-                            userInfo(context,
-                                userData: widget.userData,
-                                isAdmin: isAdmin,
-                                profilePicture: Hero(
-                                    tag: '$username Profile Picture',
-                                    child: fetchProfilePicture(
-                                        widget.userData['profilePicture'],
-                                        widget.userData['pfpType'],
-                                        username,
-                                        padding: true))),
+            /// bottom scrollable section
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('roles')
+                      .where('members',
+                          arrayContains: FirebaseAuth.instance.currentUser?.uid)
+                      .snapshots(),
+                  builder: (context, rolesSnapshot) {
+                    if (rolesSnapshot.connectionState == ConnectionState.active) {
+                      // If the user is not in a role
+                      if (rolesSnapshot.data?.docs.isEmpty ?? true) {
+                        return const Center(
+                            child: Padding(
+                          padding: EdgeInsets.fromLTRB(50.0, 16.0, 50.0, 16.0),
+                          child: Text(
+                              "Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
+                        ));
+                      } else {
+                        List roleList = rolesSnapshot.data!.docs
+                            .map((doc) => doc['tag'])
+                            .toList();
+                        bool isAdmin = roleList.contains("Admin");
+                        bool isCompany = roleList.contains("Company");
+                        // If user is in role, return normal ListView
+                        return SizedBox(
+                          width: isAdmin ? 760 : 600,
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                            children: [
+                              /// user info display
+                              userInfo(context,
+                                  userData: widget.userData,
+                                  isAdmin: isAdmin,
+                                  profilePicture: Hero(
+                                      tag: '$username Profile Picture',
+                                      child: fetchProfilePicture(
+                                          widget.userData['profilePicture'],
+                                          widget.userData['pfpType'],
+                                          username,
+                                          padding: true))),
 
-                            /// horizontal carousel for actions
-                            SizedBox(
-                              height: 175,
-                              child: Center(
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  children: [
-                                    actionCard(context,
-                                        icon: Icons.people,
-                                        text: "Leaderboards",
-                                        navigateTo:
-                                            Leaderboards(isAdmin: isAdmin),
-                                        position: PositionPadding.start),
-                                    // Only show if appMap says so
-                                    config.appMap[config.appID]['views'].contains('scheduling')
-                                        ? (
-                                        isCompany ?
-                                        actionCard(context,
-                                        icon: Icons.work,
-                                        text: "Create Job",
-                                        navigateTo: CreateJob(userData: widget.userData)) :
-                                        actionCard(context,
-                                            icon: Icons.edit_calendar,
-                                            text: "Availability",
-                                            navigateTo: AvailabilityPage(
-                                                isCompany: isCompany,
-                                            )
-                                        )
-                                    )
-                                        : const SizedBox.shrink(),
-                                    // Only show tile if user is admin
-                                    isAdmin ? actionCard(context,
-                                            icon: Icons.admin_panel_settings,
-                                            text: "Admin View",
-                                            navigateTo: UsersPage())
-                                        : const SizedBox.shrink(),
-                                    // Only show tile if user is admin
-                                    isAdmin ? actionCard(context,
-                                            icon: Icons.create,
-                                            text: "Create Post",
-                                            navigateTo: const CreatePost())
-                                        : const SizedBox.shrink(),
-                                    actionCard(context,
-                                        icon: Icons.settings,
-                                        text: "Settings",
-                                        navigateTo: SettingsPage(
-                                            userData: widget.userData,
-                                            isAdmin: isAdmin),
-                                        position: PositionPadding.end),
-                                  ],
+                              /// horizontal carousel for actions
+                              SizedBox(
+                                height: 175,
+                                child: Center(
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    children: [
+                                      actionCard(context,
+                                          icon: Icons.people,
+                                          text: "Leaderboards",
+                                          navigateTo:
+                                              Leaderboards(isAdmin: isAdmin),
+                                          position: PositionPadding.start),
+                                      // Only show if appMap says so
+                                      config.appMap[config.appID]['views'].contains('scheduling')
+                                          ? (
+                                          isCompany ?
+                                          actionCard(context,
+                                          icon: Icons.work,
+                                          text: "Create Job",
+                                          navigateTo: CreateJob(userData: widget.userData)) :
+                                          actionCard(context,
+                                              icon: Icons.edit_calendar,
+                                              text: "Availability",
+                                              navigateTo: AvailabilityPage(
+                                                  isCompany: isCompany,
+                                              )
+                                          )
+                                      ) : const SizedBox.shrink(),
+                                      config.appMap[config.appID]['views'].contains('scheduling')
+                                          ? (
+                                          isCompany ?
+                                          actionCard(context,
+                                              icon: Icons.manage_search_rounded,
+                                              text: "Manage Jobs",
+                                              navigateTo: ManageJobsPage(userData: widget.userData, isAdmin: isAdmin)) :
+                                          const SizedBox.shrink()
+                                      ) : const SizedBox.shrink(),
+                                      // Only show tile if user is admin
+                                      isAdmin ? actionCard(context,
+                                              icon: Icons.admin_panel_settings,
+                                              text: "Admin View",
+                                              navigateTo: UsersPage())
+                                          : const SizedBox.shrink(),
+                                      // Only show tile if user is admin
+                                      isAdmin ? actionCard(context,
+                                              icon: Icons.create,
+                                              text: "Create Post",
+                                              navigateTo: const CreatePost())
+                                          : const SizedBox.shrink(),
+                                      actionCard(context,
+                                          icon: Icons.settings,
+                                          text: "Settings",
+                                          navigateTo: SettingsPage(
+                                              userData: widget.userData,
+                                              isAdmin: isAdmin),
+                                          position: PositionPadding.end),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            /// cards leading to individual sections
-                            StreamBuilder<QuerySnapshot>(
-                                // The postGroups collection includes which roles
-                                // can access which groups. This stream gets all
-                                // postGroups where the roles includes the roles
-                                // that the user can access.
-                                stream: FirebaseFirestore.instance
-                                    .collection('postGroups')
-                                    // Since a user can have multiple roles, this gets all the roles a user is in
-                                    .where('roles',
-                                        arrayContainsAny: rolesSnapshot
-                                            .data?.docs
-                                            .map((doc) => doc.id)
-                                            .toList())
-                                    .snapshots(),
-                                builder: (context, postsGroupSnapshot) {
-                                  if (postsGroupSnapshot.connectionState ==
-                                      ConnectionState.active) {
-                                    // Builds section cards based on the
-                                    // postGroups a user is a part of.
-                                    return ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        padding: EdgeInsets.zero,
-                                        itemCount: postsGroupSnapshot
-                                            .data?.docs.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return sectionCard(
-                                              context,
-                                              widget.userData,
-                                              postsGroupSnapshot
-                                                  .data?.docs[index]["tag"],
-                                              postsGroupSnapshot
-                                                  .data?.docs[index].id,
-                                              rolesSnapshot.data?.docs[0]
-                                                  ['tag']);
-                                        });
-                                  } else {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
-                                }),
-                          ],
-                        ),
-                      );
+                              /// cards leading to individual sections
+                              StreamBuilder<QuerySnapshot>(
+                                  // The postGroups collection includes which roles
+                                  // can access which groups. This stream gets all
+                                  // postGroups where the roles includes the roles
+                                  // that the user can access.
+                                  stream: FirebaseFirestore.instance
+                                      .collection('postGroups')
+                                      // Since a user can have multiple roles, this gets all the roles a user is in
+                                      .where('roles',
+                                          arrayContainsAny: rolesSnapshot
+                                              .data?.docs
+                                              .map((doc) => doc.id)
+                                              .toList())
+                                      .snapshots(),
+                                  builder: (context, postsGroupSnapshot) {
+                                    if (postsGroupSnapshot.connectionState ==
+                                        ConnectionState.active) {
+                                      // Builds section cards based on the
+                                      // postGroups a user is a part of.
+                                      return ListView.builder(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          padding: EdgeInsets.zero,
+                                          itemCount: postsGroupSnapshot
+                                              .data?.docs.length,
+                                          itemBuilder:
+                                              (BuildContext context, int index) {
+                                            return sectionCard(
+                                                context,
+                                                widget.userData,
+                                                postsGroupSnapshot
+                                                    .data?.docs[index]["tag"],
+                                                postsGroupSnapshot
+                                                    .data?.docs[index].id,
+                                                rolesSnapshot.data?.docs[0]
+                                                    ['tag']);
+                                          });
+                                    } else {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                  }),
+                            ],
+                          ),
+                        );
+                      }
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
                     }
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                }),
-          )
-        ],
+                  }),
+            )
+          ],
+        ),
       ),
     );
   }
