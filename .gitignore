@@ -48,3 +48,8 @@ app.*.map.json
 
 android/play-store-credentials.json
 AppFlowy/
+!/functions/src/credentials.json
+
+functions/src/credentials.json
+
+functions/lib/credentials.json

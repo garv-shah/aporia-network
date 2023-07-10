@@ -4,12 +4,27 @@ import QueryDocumentSnapshot = firestore.QueryDocumentSnapshot;
 import {UserRecord} from "firebase-admin/lib/auth";
 import DocumentData = firestore.DocumentData;
 import {createTraverser} from '@firecode/admin';
+import {google} from 'googleapis';
+const calendar = google.calendar('v3');
+const googleCredentials = require('./credentials.json');
 
 const MathExpression = require('math-expressions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
 const db = admin.firestore();
+
+function makeid(length: number) {
+    let result = '';
+    const characters = 'abcdefghijklmnopqrstuv0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        counter += 1;
+    }
+    return result;
+}
 
 exports.createUser = functions
     .region('australia-southeast1')
@@ -135,22 +150,183 @@ exports.updateUsername = functions
 exports.claimJob = functions
     .region('australia-southeast1')
     .https.onCall(async (data, context) => {
-        let jobID = data.jobID;
+        let jobID: string | null = data.jobID;
+        let timezone: string | null = data.timezone;
+        let startTime: string | null = data.startTime;
+        let endTime: string | null = data.endTime;
         if (!jobID) {
             throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
+        } else if (!startTime) {
+            throw new functions.https.HttpsError('invalid-argument', 'A start time must be provided!');
+        } else if (!endTime) {
+            throw new functions.https.HttpsError('invalid-argument', 'An end time must be provided!');
+        } else if (!timezone) {
+            throw new functions.https.HttpsError('invalid-argument', 'A timezone must be provided!');
         } else if (context.auth?.uid == null) {
             throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
         } else {
             functions.logger.info(`Claiming job ${jobID} for ${context.auth?.uid}`, {structuredData: true});
 
             const userInfo = db.collection('userInfo').doc(context.auth!.uid);
-            const doc = await userInfo.get();
-            let userData = doc.data();
+            const userDoc = await userInfo.get();
+            let userData = userDoc.data();
+
+            const jobInfo = db.collection('jobs').doc(jobID);
+            const jobDoc = await jobInfo.get();
+            let jobData = jobDoc.data();
+
+            const googleResourceID = makeid(32);
+
+            // You already have the user emails from your NodeJS app
+            const attendeesEmails = [
+                {
+                    'email': jobData['createdBy']['email'],
+                    'displayName': jobData['createdBy']['username']
+                },
+                {
+                    'email': userData['email'],
+                    'displayName': userData['username']
+                },
+            ];
+
+            const event = {
+                id: googleResourceID,
+                summary: jobData['Job Title'],
+                location: '2cousins',
+                description: jobData['Job Description'],
+                creator: {
+                    displayName: "2cousins Admin",
+                    email: "admin@2cousins.org",
+                },
+                organiser: {
+                    displayName: "2cousins Admin",
+                    email: "admin@2cousins.org",
+                },
+                start: {
+                    dateTime: startTime,
+                    timeZone: timezone,
+                },
+                end: {
+                    dateTime: endTime,
+                    timeZone: timezone,
+                },
+                attendees: attendeesEmails,
+                reminders: {
+                    useDefault: true,
+                },
+                "recurrence": [
+                    "RRULE:FREQ=WEEKLY;UNTIL=40110701T170000Z",
+                ],
+                conferenceData: {
+                    createRequest: {
+                        conferenceSolutionKey: {
+                            type: 'hangoutsMeet'
+                        },
+                        requestId: googleResourceID,
+                    },
+                    conferenceSolution: {
+                        name: "2cousins",
+                        iconUri: "https://2cousins.org/logo.png"
+                    },
+                    notes: "This is an official 2cousins meeting. By joining the room, you agree to the 2cousins terms of service and privacy policy.",
+                },
+            };
+
+            const oAuth2Client = new google.auth.OAuth2(
+                googleCredentials.web.client_id,
+                googleCredentials.web.client_secret,
+                googleCredentials.web.redirect_uris[0]
+            );
+
+            oAuth2Client.setCredentials({
+                refresh_token: googleCredentials.refresh_token
+            });
+
+            // @ts-ignore
+            const response = await calendar.events.insert({
+                auth: oAuth2Client,
+                calendarId: 'primary',
+                sendUpdates: "all",
+                resource: event,
+                conferenceDataVersion: 1
+            });
+
+            // @ts-ignore
+            const { config: { data: { summary, location, start, end, attendees } }, data: { conferenceData } } = response;
+
+            const { uri } = conferenceData.entryPoints[0];
+            console.log(`📅 Calendar event created: ${summary} at ${location}, from ${start.dateTime} to ${end.dateTime}, attendees:\n${attendees.map((person: { email: any; }) => `🧍 ${person.email}`).join('\n')} \n 💻 Join conference call link: ${uri}`);
 
             await db.collection("jobs").doc(jobID).update({
                 assignedTo: userData,
                 status: 'assigned',
+                lessonTimes: {
+                    start: startTime,
+                    end: endTime
+                },
+                googleResourceID: googleResourceID,
+                meetUrl: uri
             });
+        }
+    });
+
+exports.unassignJob = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let jobID: string | null = data.jobID;
+        let deleteOperation: boolean | null = data.deleteOperation;
+        if (!jobID) {
+            throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
+        } else if (deleteOperation == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'It must be specified whether this is a delete operation or not!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Deleting job ${jobID}, called by ${context.auth?.uid}`, {structuredData: true});
+
+            const jobInfo = db.collection('jobs').doc(jobID);
+            const jobDoc = await jobInfo.get();
+            let jobData = jobDoc.data();
+
+            const googleResourceID: string = jobData['googleResourceID']
+
+            const oAuth2Client = new google.auth.OAuth2(
+                googleCredentials.web.client_id,
+                googleCredentials.web.client_secret,
+                googleCredentials.web.redirect_uris[0]
+            );
+
+            oAuth2Client.setCredentials({
+                refresh_token: googleCredentials.refresh_token
+            });
+
+            // @ts-ignore
+            const response = await calendar.events.delete({
+                auth: oAuth2Client,
+                calendarId: 'primary',
+                sendUpdates: "all",
+                eventId: googleResourceID,
+            });
+
+            if (response.status == 200) {
+                console.log(`📅 Calendar event ${jobID} deleted by ${context.auth?.uid}`);
+
+                // calendar event has been deleted, now either delete the document or unassign it
+                if (deleteOperation) {
+                    // delete the document
+                    await db.collection("jobs").doc(jobID).delete();
+                } else {
+                    await db.collection("jobs").doc(jobID).update({
+                        assignedTo: null,
+                        status: 'pending_assignment',
+                        lessonTimes: null,
+                        googleResourceID: null,
+                        meetUrl: null
+                    });
+                }
+            } else {
+                console.log(`📅 Error occurred while trying to delete calendar event ${jobID} by ${context.auth?.uid}`);
+            }
         }
     });
 

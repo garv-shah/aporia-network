@@ -1,8 +1,10 @@
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum StatusStates { pendingAssignment, assigned }
 
@@ -58,7 +60,6 @@ class JobView extends StatefulWidget {
 }
 
 class _JobViewState extends State<JobView> {
-
   StatusStates? selectedStatus;
 
   @override
@@ -66,22 +67,23 @@ class _JobViewState extends State<JobView> {
     Map<String, dynamic>? data;
 
     return Scaffold(
-      floatingActionButton:
-          FloatingActionButton(
-                  onPressed: () {
-                    if (widget.isCompany) {
-                      // go to edit the job
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CreateJob(jobData: data, userData: data?['createdBy'])
-                          ));
-                    } else {
-                      print("should now let the user leave the job");
-                    }
-                  },
-                  child: (widget.isCompany) ? const Icon(Icons.edit) : const Icon(Icons.exit_to_app),
-                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (widget.isCompany) {
+            // go to edit the job
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CreateJob(
+                        jobData: data, userData: data?['createdBy'])));
+          } else {
+            print("should now let the user leave the job");
+          }
+        },
+        child: (widget.isCompany)
+            ? const Icon(Icons.edit)
+            : const Icon(Icons.exit_to_app),
+      ),
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('jobs')
@@ -98,13 +100,14 @@ class _JobViewState extends State<JobView> {
                 } else if (data?['status'] == 'assigned') {
                   return StatusStates.assigned;
                 } else {
-                  print("something has gone terribly wrong");
+                  // something has gone terribly wrong
                   return StatusStates.assigned;
                 }
               }());
 
-              Map <String, dynamic> personData;
-              bool showAssignedTo = widget.isCompany && data?['status'] == 'assigned';
+              Map<String, dynamic> personData;
+              bool showAssignedTo =
+                  widget.isCompany && data?['status'] == 'assigned';
               if (showAssignedTo) {
                 personData = data?['assignedTo'];
               } else {
@@ -134,14 +137,13 @@ class _JobViewState extends State<JobView> {
                             children: [
                               SizedBox(
                                   width:
-                                  MediaQuery.of(context).size.width - 325,
+                                      MediaQuery.of(context).size.width - 325,
                                   child: FittedBox(
                                       fit: BoxFit.scaleDown,
                                       alignment: Alignment.centerLeft,
-                                      child: Text(
-                                          personData['username'],
+                                      child: Text(personData['username'],
                                           style:
-                                          const TextStyle(fontSize: 30)))),
+                                              const TextStyle(fontSize: 30)))),
                               Text(showAssignedTo ? "Volunteer" : "Company"),
                             ],
                           ),
@@ -168,7 +170,7 @@ class _JobViewState extends State<JobView> {
                                 enableFeedback: true,
                                 enabled: widget.isCompany,
                                 initialValue: selectedStatus,
-                                onSelected: (StatusStates status) {
+                                onSelected: (StatusStates status) async {
                                   if (status == StatusStates.assigned) {
                                     showDialog(
                                         context: context,
@@ -191,27 +193,29 @@ class _JobViewState extends State<JobView> {
                                                 ),
                                               ]);
                                         });
-                                  } else if (status == StatusStates.pendingAssignment) {
+                                  } else if (status ==
+                                      StatusStates.pendingAssignment) {
                                     setState(() {
                                       selectedStatus = status;
                                     });
 
-                                    FirebaseFirestore.instance
-                                        .collection('jobs')
-                                        .doc(widget.jobID)
-                                        .update({
-                                      'status': 'pending_assignment',
+                                    await FirebaseFunctions.instanceFor(
+                                            region: 'australia-southeast1')
+                                        .httpsCallable('unassignJob')
+                                        .call({
+                                      'jobID': data?['ID'],
+                                      'deleteOperation': false,
                                     });
                                   }
                                 },
                                 itemBuilder: (BuildContext context) =>
                                     <PopupMenuEntry<StatusStates>>[
-                                      if (widget.isCompany)
-                                  const PopupMenuItem<StatusStates>(
-                                    value: StatusStates.pendingAssignment,
-                                    textStyle: TextStyle(color: Colors.blue),
-                                    child: Text('Pending Assignment'),
-                                  ),
+                                  if (widget.isCompany)
+                                    const PopupMenuItem<StatusStates>(
+                                      value: StatusStates.pendingAssignment,
+                                      textStyle: TextStyle(color: Colors.blue),
+                                      child: Text('Pending Assignment'),
+                                    ),
                                   const PopupMenuItem<StatusStates>(
                                     value: StatusStates.assigned,
                                     textStyle: TextStyle(color: Colors.green),
@@ -241,30 +245,33 @@ class _JobViewState extends State<JobView> {
                   ),
                 ),
 
-                (data?['status'] != "pending_assignment") ? Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 12, 40, 4),
-                  child: OutlinedButton(
-                      onPressed: () {
-                        print("go to google meets lesson");
-
-                      },
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor:
-                          Theme.of(context).colorScheme.primary,
-                          side: BorderSide(
-                              color:
-                              Theme.of(context).colorScheme.primary),
-                          minimumSize: const Size(80, 40),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.all(Radius.circular(8)),
-                          )),
-                      child: Text(
-                        'Join Lesson',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
-                      )),
-                ) : const SizedBox.shrink(),
+                (data?['status'] != "pending_assignment")
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(40, 12, 40, 4),
+                        child: OutlinedButton(
+                            onPressed: () async {
+                              final uri = Uri.parse(data?['meetUrl']);
+                              await launchUrl(uri,
+                                  mode: LaunchMode.externalApplication);
+                            },
+                            style: OutlinedButton.styleFrom(
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                side: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.primary),
+                                minimumSize: const Size(80, 40),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8)),
+                                )),
+                            child: Text(
+                              'Join Lesson',
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary),
+                            )),
+                      )
+                    : const SizedBox.shrink(),
 
                 // pickup
                 Padding(
@@ -273,20 +280,19 @@ class _JobViewState extends State<JobView> {
                       style: Theme.of(context).textTheme.displaySmall),
                 ),
                 informationCard(
-                    title: "Job Title",
-                    information: data?["Job Title"]
-                ),
+                    title: "Job Title", information: data?["Job Title"]),
                 informationCard(
                     title: "Job Description",
-                    information: data?["Job Description"]
-                ),
+                    information: data?["Job Description"]),
 
                 // items
-                (data?['requirements'].length != 0) ? Padding(
-                  padding: const EdgeInsets.fromLTRB(40, 16, 24, 4),
-                  child: Text("Requirements",
-                      style: Theme.of(context).textTheme.displaySmall),
-                ) : const SizedBox.shrink(),
+                (data?['requirements'].length != 0)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(40, 16, 24, 4),
+                        child: Text("Requirements",
+                            style: Theme.of(context).textTheme.displaySmall),
+                      )
+                    : const SizedBox.shrink(),
                 ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -311,11 +317,14 @@ class _JobViewState extends State<JobView> {
                                 Text(
                                     "Yr${requirement?["Level"].toString() ?? '0'} ${requirement?["Subject"]}",
                                     style: const TextStyle(fontSize: 18)),
-                                (requirement?["Extra Notes"] == null || requirement?["Extra Notes"].isEmpty)
-                                    ? const SizedBox.shrink() : Padding(
-                                  padding: const EdgeInsets.only(top: 4),
-                                  child: Text(requirement?["Extra Notes"]),
-                                )
+                                (requirement?["Extra Notes"] == null ||
+                                        requirement?["Extra Notes"].isEmpty)
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child:
+                                            Text(requirement?["Extra Notes"]),
+                                      )
                               ],
                             ),
                           ),

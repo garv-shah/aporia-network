@@ -172,7 +172,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         headerHeight: 0,
         dataSource: _dataSource,
         onTap: calendarTapped,
-        initialDisplayDate: DateTime(1990, 1, 1),
+        initialDisplayDate: DateTime(2018, 1, 1),
         specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
       ),
       floatingActionButton: (widget.restrictionZone == null) ? FloatingActionButton.extended(
@@ -193,14 +193,14 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     List<int> relativeTimes = [];
 
     for (var i = 0; i < times.length; i++) {
-      relativeTimes.add(DateTime.parse(times[i]).difference(DateTime(1990, 1, 1)).inHours);
+      relativeTimes.add(DateTime.parse(times[i]).difference(DateTime(2018, 1, 1)).inHours);
     }
 
     for (var i = 0; i < 168; i++) {
       if (!relativeTimes.contains(i)) {
         regions.add(TimeRegion(
-          startTime: DateTime(1990, 1, 1).add(Duration(hours: i)),
-          endTime: DateTime(1990, 1, 1).add(Duration(hours: i + 1)),
+          startTime: DateTime(2018, 1, 1).add(Duration(hours: i)),
+          endTime: DateTime(2018, 1, 1).add(Duration(hours: i + 1)),
           enablePointerInteraction: false,
         ));
       }
@@ -231,6 +231,8 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           context,
           MaterialPageRoute(builder: (context) => AvailableJobsPage(availability: slots)),
         );
+      } else {
+        Navigator.of(context).pop();
       }
     } else {
       widget.onSave!(slots);

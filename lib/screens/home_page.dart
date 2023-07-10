@@ -513,8 +513,8 @@ class _HomePageState extends State<HomePage> {
                                           actionCard(context,
                                               icon: Icons.edit_calendar,
                                               text: "Availability",
-                                              navigateTo: AvailabilityPage(
-                                                  isCompany: isCompany,
+                                              navigateTo: const AvailabilityPage(
+                                                  isCompany: false,
                                               )
                                           )
                                       ) : const SizedBox.shrink(),

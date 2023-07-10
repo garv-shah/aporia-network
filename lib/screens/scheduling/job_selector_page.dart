@@ -5,13 +5,23 @@ Author: Garv Shah
 Created: Sat Jul 8 18:24:15 2023
  */
 
+import 'dart:convert';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:aporia_app/utils/login_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:googleapis/calendar/v3.dart' as cal;
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../utils/calendar_client.dart';
 import 'availability_page.dart';
 import 'job_view.dart';
 
@@ -58,7 +68,7 @@ Widget jobCard(BuildContext context,
             if (times != null) {
               final functions = FirebaseFunctions.instanceFor(
                   region: 'australia-southeast1');
-              void claimJob() {
+              void claimJob(List chosenTime) {
                 showOkCancelAlertDialog(
                     okLabel: 'Confirm',
                     title: 'Claim Job',
@@ -83,28 +93,32 @@ Widget jobCard(BuildContext context,
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
 
+                    DateTime.now().copyWith(year: DateTime.now().year);
+
                     await functions
                         .httpsCallable('claimJob')
-                        .call({'jobID': data['Job ID']});
+                        .call({
+                      'jobID': data['Job ID'],
+                      'startTime': chosenTime[0]['from'].toIso8601String().toString(),
+                      'endTime': chosenTime[0]['to'].toIso8601String().toString(),
+                      'timezone': timezoneNames[DateTime.now().timeZoneOffset.inMilliseconds],
+                    });
                   }
                 });
               }
-              if (times.length == 1) {
-                claimJob();
-              } else {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            AvailabilityPage(
-                              restrictionZone: times,
-                              onSave: (slots) {
-                                claimJob();
-                              },
-                              isCompany: false,
-                            )
-                    ));
-              }
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          AvailabilityPage(
+                            restrictionZone: times,
+                            onSave: (slots) {
+                              claimJob(slots);
+                            },
+                            isCompany: false,
+                          )
+                  ));
             } else {
               Navigator.push(
                   context,
@@ -330,13 +344,19 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                           if (jobSnapshot.data?.docs.isEmpty ?? true) {
                             // there are no pending_assignment jobs at all
                             return Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 50),
-                                  child: header("Available Jobs", context,
-                                      fontSize: 30, backArrow: true),
-                                ),
-                                const Expanded(child: Center(child: Text("There are currently no jobs available. Please check back later to see if we have any jobs for you!")))
+                                header("Available Jobs", context,
+                                    fontSize: 30, backArrow: true),
+                                const Flexible(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(48),
+                                        child: Text(
+                                            "There are currently no jobs available. Please check back later to see if we have any jobs for you!",
+                                          textAlign: TextAlign.center,
+                                        )
+                                    )
+                                )
                               ],
                             );
                           } else {
