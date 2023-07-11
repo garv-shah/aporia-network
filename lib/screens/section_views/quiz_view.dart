@@ -26,6 +26,7 @@ class QuizView extends StatefulWidget {
 class _QuizViewState extends State<QuizView> {
   MathFieldEditingController mathController = MathFieldEditingController();
   late Map<String, dynamic> questionData;
+  List<Document> documents = [];
   // A map for question answers and an int for what question we're on respectively.
   Map<String, dynamic> questionAnswers = {};
   int questionIndex = 0;
@@ -37,11 +38,25 @@ class _QuizViewState extends State<QuizView> {
   @override
   void initState() {
     questionData = widget.data['questionData'];
+
+    for (var i = 1; i < questionData.keys.length + 1; i++) {
+      Document document = Document.blank();
+
+      if (widget.data['appVersion'] == 1) {
+        document = quillDeltaEncoder.convert(Delta.fromJson(questionData['Question $i']['Question']));
+      } else if (widget.data['appVersion'] == 2) {
+        document = Document.fromJson(questionData['Question $i']['Question']);
+      }
+
+      documents.add(document);
+    }
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return MathKeyboardViewInsets(
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -381,35 +396,11 @@ class _QuizViewState extends State<QuizView> {
                             ),
                             // Displays question from Delta
                             child: TextEditor(
-                              editorState: EditorState(document: questionData['Question ${questionIndex + 1}']['Question'] is List ?
-                              DeltaDocumentConvert().convertFromJSON(questionData['Question ${questionIndex + 1}']['Question']) :
-                              Document.fromJson(questionData['Question ${questionIndex + 1}']['Question'])),
+                              editorState: EditorState(document: documents[questionIndex]),
                               readOnly: true,
                               padding: const EdgeInsets.fromLTRB(16.0, 42.0, 16.0, 42.0),
                               desktop: PlatformExtension.isDesktopOrWeb,
                             ),
-                            // bink
-                            // child: VisualEditor(
-                            //   scrollController: ScrollController(),
-                            //   focusNode: FocusNode(),
-                            //   controller: EditorController(
-                            //       document: DocumentM.fromJson(questionData[
-                            //               'Question ${questionIndex + 1}']
-                            //           ['Question'])),
-                            //   config: EditorConfigM(
-                            //     scrollable: true,
-                            //     autoFocus: true,
-                            //     expands: false,
-                            //     padding: const EdgeInsets.fromLTRB(
-                            //         16.0, 42.0, 16.0, 42.0),
-                            //     readOnly: true,
-                            //     keyboardAppearance:
-                            //         Theme.of(context).brightness,
-                            //     customEmbedBuilders: const [
-                            //       FormulaEmbedBuilderM()
-                            //     ],
-                            //   ),
-                            // ),
                           ),
                         ),
                         Padding(

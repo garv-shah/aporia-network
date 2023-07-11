@@ -10,56 +10,41 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:googleapis/admob/v1.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 typedef DataCallback = void Function(List data);
 LessonDataSource? _dataSource;
 
 class LessonDataSource extends CalendarDataSource {
-  LessonDataSource(List<Lesson> source){
+  LessonDataSource(List<Appointment> source){
     appointments = source;
   }
 
   @override
   DateTime getStartTime(int index) {
-    return appointments![index].from;
+    return appointments![index].startTime;
   }
 
   @override
   DateTime getEndTime(int index) {
-    return appointments![index].to;
+    return appointments![index].endTime;
   }
 
   @override
   String getSubject(int index) {
-    return appointments![index].eventName;
+    return appointments![index].subject;
   }
 
   @override
   Color getColor(int index) {
-    return appointments![index].background;
+    return appointments![index].color;
   }
 
   @override
   bool isAllDay(int index) {
     return appointments![index].isAllDay;
   }
-}
-
-class Lesson {
-  Lesson({
-    required this.eventName,
-    required this.from,
-    required this.to,
-    required this.background,
-    this.isAllDay = false}
-  );
-
-  String eventName;
-  DateTime from;
-  DateTime to;
-  Color background;
-  bool isAllDay;
 }
 
 class AvailabilityPage extends StatefulWidget {
@@ -97,14 +82,14 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
     List slots = widget.initialValue ?? ((availabilitySnapshot.data() as Map<String, dynamic>?)?['slots'] ?? []);
 
-    List<Lesson> list = [];
+    List<Appointment> list = [];
 
     for (var slot in slots) {
-      list.add(Lesson(
-          eventName: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
-          from: slot['from'] is DateTime ? slot['from'] : DateTime.parse(slot['from'].toDate().toString()),
-          to: slot['to'] is DateTime ? slot['to'] : DateTime.parse(slot['to'].toDate().toString()),
-          background: Theme.of(context).colorScheme.primary
+      list.add(Appointment(
+          subject: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
+          startTime: slot['from'] is DateTime ? slot['from'] : DateTime.parse(slot['from'].toDate().toString()),
+          endTime: slot['to'] is DateTime ? slot['to'] : DateTime.parse(slot['to'].toDate().toString()),
+          color: Theme.of(context).colorScheme.primary
       ));
     }
 
@@ -118,18 +103,18 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     void calendarTapped(CalendarTapDetails calendarTapDetails) {
       DateTime startTime = calendarTapDetails.date!;
       DateTime endTime = calendarTapDetails.date!.add(const Duration(hours: 1));
-      Lesson lesson = Lesson(
-          eventName: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
-          from: startTime,
-          to: endTime,
-          background: Theme.of(context).colorScheme.primary
+      Appointment lesson = Appointment(
+          subject: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
+          startTime: startTime,
+          endTime: endTime,
+          color: Theme.of(context).colorScheme.primary
       );
-      List? lessonsInSlot = _dataSource?.appointments?.where((element) => element.from == lesson.from).toList();
+      List? lessonsInSlot = _dataSource?.appointments?.where((element) => element.startTime == lesson.startTime).toList();
       bool filled = lessonsInSlot?.isNotEmpty ?? false;
       if (filled) {
         // remove lesson
         _dataSource?.appointments!.remove(lessonsInSlot![0]);
-        _dataSource?.notifyListeners(CalendarDataSourceAction.remove, <Lesson>[lessonsInSlot![0]]);
+        _dataSource?.notifyListeners(CalendarDataSourceAction.remove, <Appointment>[lessonsInSlot![0]]);
       } else {
         // add lesson
         // if we are simply selecting availability, you should be able to select
@@ -138,12 +123,12 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         if (widget.restrictionZone == null) {
           _dataSource?.appointments!.add(lesson);
           _dataSource?.notifyListeners(
-              CalendarDataSourceAction.add, <Lesson>[lesson]);
+              CalendarDataSourceAction.add, <Appointment>[lesson]);
         } else {
           Navigator.of(context).pop();
           widget.onSave!([{
-            'from': lesson.from,
-            'to': lesson.to,
+            'from': lesson.startTime,
+            'to': lesson.endTime,
           }]);
         }
       }
@@ -211,10 +196,10 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
   void saveAvailability(bool backArrow) {
     List slots = [];
-    for (var lesson in _dataSource?.appointments as List<Lesson>) {
+    for (var lesson in _dataSource?.appointments as List<Appointment>) {
       slots.add({
-        'from': lesson.from,
-        'to': lesson.to,
+        'from': lesson.startTime,
+        'to': lesson.endTime,
       });
     }
 

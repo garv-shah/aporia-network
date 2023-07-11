@@ -1,12 +1,13 @@
-import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
-import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme_extension.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flutter/material.dart';
 import 'package:aporia_app/utils/plugins/extensions/flowy_tint_extension.dart';
+import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
+import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:aporia_app/widgets/app_flowy/pop_up_action.dart';
+
+import '../../../widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
+import '../../../widgets/forks/flowy_infra_ui/style_widget/color_picker.dart';
+import '../../../widgets/forks/flowy_infra_ui/widget/image.dart';
+import '../../../widgets/forks/flowy_infra_ui/widget/popup_action.dart';
+import '../../../widgets/forks/flowy_infra_ui/widget/theme_extension.dart';
 
 enum OptionAction {
   delete,

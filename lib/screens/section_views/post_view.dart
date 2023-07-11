@@ -70,12 +70,23 @@ class _PostViewState extends State<PostView> {
               ),
             );
           } else {
-            // Delta data of the question
+            // data of the question
             Map<String, dynamic> questionData = widget.data['questionData']['Question $index'];
-            Document? quillDocument;
-            if (questionData['Question'] is List) {
-              quillDocument = DeltaDocumentConvert().convertFromJSON(questionData['Question']);
+
+            // create the document based on app render version
+            Document document = Document.blank();
+            Document hintsDocument = Document.blank();
+            Document solutionsDocument = Document.blank();
+            if (widget.data['appVersion'] == 1) {
+              document = quillDeltaEncoder.convert(Delta.fromJson(questionData['Question']));
+              if (questionData['Hints'] != null) hintsDocument = quillDeltaEncoder.convert(Delta.fromJson(questionData['Hints']));
+              if (questionData['Solution'] != null) solutionsDocument = quillDeltaEncoder.convert(Delta.fromJson(questionData['Solution']));
+            } else if (widget.data['appVersion'] == 2) {
+              document = Document.fromJson(questionData['Question']);
+              if (questionData['Hints'] != null) hintsDocument = Document.fromJson(questionData['Hints']);
+              if (questionData['Solution'] != null) solutionsDocument = Document.fromJson(questionData['Solution']);
             }
+
             return Padding(
               padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
               child: Column(
@@ -85,7 +96,7 @@ class _PostViewState extends State<PostView> {
                   // Parse the Delta JSON
                   TextEditor(
                       editorState: EditorState(
-                        document: Document.fromJson(questionData['Question'])
+                        document: document,
                       ),
                       readOnly: true,
                       padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
@@ -107,7 +118,7 @@ class _PostViewState extends State<PostView> {
                                         children: <Widget>[
                                           TextEditor(
                                               editorState: EditorState(
-                                                document: Document.fromJson(questionData['Hints'])
+                                                document: hintsDocument
                                               ),
                                               readOnly: true,
                                               padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),
@@ -149,7 +160,7 @@ class _PostViewState extends State<PostView> {
                                           ),
                                           TextEditor(
                                               editorState: EditorState(
-                                                  document: Document.fromJson(questionData['Solution'])
+                                                  document: solutionsDocument
                                               ),
                                               readOnly: true,
                                               padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),

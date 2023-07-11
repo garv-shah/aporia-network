@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -77,7 +78,38 @@ class _JobViewState extends State<JobView> {
                     builder: (context) => CreateJob(
                         jobData: data, userData: data?['createdBy'])));
           } else {
-            print("should now let the user leave the job");
+            // show confirmation dialog
+            showOkCancelAlertDialog(
+                okLabel: 'Confirm',
+                title: 'Leave Job?',
+                message:
+                'Leaving this job will delete it from your calendar and make it once again available for other volunteers to claim. Are you sure you want to leave this job?',
+                context: context)
+                .then((result) async {
+              if (result == OkCancelResult.ok) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Leaving Job! This may take a couple seconds, hold on tight.",
+                      style: TextStyle(color: Theme
+                          .of(context)
+                          .primaryColorLight),
+                    ),
+                    backgroundColor: Theme
+                        .of(context)
+                        .scaffoldBackgroundColor,
+                  ),
+                );
+
+                await FirebaseFunctions.instanceFor(
+                    region: 'australia-southeast1')
+                    .httpsCallable('unassignJob')
+                    .call({
+                  'jobID': data?['ID'],
+                  'deleteOperation': false,
+                });
+              }
+            });
           }
         },
         child: (widget.isCompany)
@@ -195,16 +227,37 @@ class _JobViewState extends State<JobView> {
                                         });
                                   } else if (status ==
                                       StatusStates.pendingAssignment) {
-                                    setState(() {
-                                      selectedStatus = status;
-                                    });
+                                    // show confirmation dialog
+                                    showOkCancelAlertDialog(
+                                        okLabel: 'Confirm',
+                                        title: 'Unassign Job?',
+                                        message:
+                                        'Unassigning this job will delete it from the calendar and make it once again available for other volunteers to claim. Are you sure you want to unassign this job?',
+                                        context: context)
+                                        .then((result) async {
+                                      if (result == OkCancelResult.ok) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "Unassigning Job! This may take a couple seconds, hold on tight.",
+                                              style: TextStyle(color: Theme
+                                                  .of(context)
+                                                  .primaryColorLight),
+                                            ),
+                                            backgroundColor: Theme
+                                                .of(context)
+                                                .scaffoldBackgroundColor,
+                                          ),
+                                        );
 
-                                    await FirebaseFunctions.instanceFor(
+                                        await FirebaseFunctions.instanceFor(
                                             region: 'australia-southeast1')
-                                        .httpsCallable('unassignJob')
-                                        .call({
-                                      'jobID': data?['ID'],
-                                      'deleteOperation': false,
+                                            .httpsCallable('unassignJob')
+                                            .call({
+                                          'jobID': data?['ID'],
+                                          'deleteOperation': false,
+                                        });
+                                      }
                                     });
                                   }
                                 },

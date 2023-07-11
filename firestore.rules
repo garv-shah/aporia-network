@@ -53,7 +53,7 @@ service cloud.firestore {
       allow read: if isSignedIn();
     }
 
-    match /quizPoints/{userID} {
+    match /publicProfile/{userID} {
       allow create, update, delete: if isAdmin();
       allow read: if isSignedIn();
     }

@@ -10,6 +10,7 @@ import 'dart:math';
 import 'package:aporia_app/screens/scheduling/availability_page.dart';
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:aporia_app/screens/scheduling/manage_jobs_view.dart';
+import 'package:aporia_app/screens/scheduling/schedule_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -214,18 +215,19 @@ Map<String, dynamic> calculateLevel(experience) {
 Widget userInfo(BuildContext context,
     {required Map<String, dynamic> userData,
     required Widget profilePicture,
-    required bool isAdmin}) {
+    required bool isAdmin,
+    required bool isCompany}) {
   return StreamBuilder<DocumentSnapshot>(
       // Stream for user's quiz points.
       stream: FirebaseFirestore.instance
-          .collection('quizPoints')
+          .collection('publicProfile')
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .snapshots(),
-      builder: (context, pointsSnapshot) {
+      builder: (context, publicProfileSnapshot) {
         // Turn user points document to dart map.
-        Map<String, dynamic>? experienceMap =
-            pointsSnapshot.data?.data() as Map<String, dynamic>?;
-        double experience = (experienceMap?['experience'] ?? 0).toDouble();
+        Map<String, dynamic>? profileMap =
+            publicProfileSnapshot.data?.data() as Map<String, dynamic>?;
+        double experience = (profileMap?['experience'] ?? 0).toDouble();
         Map<String, dynamic> levelMap = calculateLevel(experience);
 
         return Padding(
@@ -241,15 +243,27 @@ Widget userInfo(BuildContext context,
               highlightColor:
                   Theme.of(context).colorScheme.primary.withAlpha(20),
               onTap: () {
-                // Clicking the userInfo widget goes to the settings page.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SettingsPage(
-                            userData: userData,
-                            isAdmin: isAdmin,
-                          )),
-                );
+                // Clicking the userInfo widget either goes to settings or
+                // schedule view depending on if the scheduling module is
+                // enabled or not.
+                if (config.appMap[config.appID]?['views'].contains('scheduling')) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ScheduleView(jobList: profileMap?['jobList'], isCompany: isCompany)),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            SettingsPage(
+                              userData: userData,
+                              isAdmin: isAdmin,
+                            )),
+                  );
+                }
               },
               child: SizedBox(
                 height: 175,
@@ -480,6 +494,7 @@ class _HomePageState extends State<HomePage> {
                               userInfo(context,
                                   userData: widget.userData,
                                   isAdmin: isAdmin,
+                                  isCompany: isCompany,
                                   profilePicture: Hero(
                                       tag: '$username Profile Picture',
                                       child: fetchProfilePicture(
@@ -503,7 +518,7 @@ class _HomePageState extends State<HomePage> {
                                               Leaderboards(isAdmin: isAdmin),
                                           position: PositionPadding.start),
                                       // Only show if appMap says so
-                                      config.appMap[config.appID]['views'].contains('scheduling')
+                                      config.appMap[config.appID]?['views'].contains('scheduling')
                                           ? (
                                           isCompany ?
                                           actionCard(context,
@@ -518,7 +533,7 @@ class _HomePageState extends State<HomePage> {
                                               )
                                           )
                                       ) : const SizedBox.shrink(),
-                                      config.appMap[config.appID]['views'].contains('scheduling')
+                                      config.appMap[config.appID]?['views'].contains('scheduling')
                                           ? (
                                           isCompany ?
                                           actionCard(context,

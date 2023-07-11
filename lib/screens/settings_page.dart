@@ -149,12 +149,12 @@ class _SettingsPageState extends State<SettingsPage> {
       // Similar to before, gets the amount of points a user has!
       body: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
-              .collection('quizPoints')
+              .collection('publicProfile')
               .doc(FirebaseAuth.instance.currentUser?.uid)
               .snapshots(),
-          builder: (context, pointsSnapshot) {
+          builder: (context, publicProfileSnapshot) {
             Map<String, dynamic>? experienceMap =
-                pointsSnapshot.data?.data() as Map<String, dynamic>?;
+                publicProfileSnapshot.data?.data() as Map<String, dynamic>?;
             double experience = (experienceMap?['experience'] ?? 0).toDouble();
             Map<String, dynamic> levelMap = calculateLevel(experience);
 

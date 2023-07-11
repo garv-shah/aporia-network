@@ -70,11 +70,11 @@ dependencies:
   universal_io: ^2.2.2
   syncfusion_flutter_calendar: ^22.1.37
   intl: ^0.18.0
-  flowy_infra_ui:
-    path: packages/flowy_infra_ui
   firebase_app_check: ^0.1.5
   googleapis: ^11.2.0
   googleapis_auth: ^1.4.1
+  loading_indicator: ^3.1.1
+  styled_widget: ^0.4.1
 
 dependency_overrides:
   intl: ^0.18.0

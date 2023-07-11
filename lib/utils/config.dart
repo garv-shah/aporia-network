@@ -2,7 +2,7 @@ const String name = 'Aporia';
 const String detailedName = 'The Aporia Network';
 const String appID = 'aporia_app';
 
-const Map<String, dynamic> appMap = {
+const Map<String, Map<String, dynamic>> appMap = {
   'aporia_app': {
     'views': ['posts', 'scheduling'],
     'roles': {

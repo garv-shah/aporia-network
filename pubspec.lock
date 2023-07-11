@@ -70,17 +70,10 @@ packages:
     description:
       path: "."
       ref: theme-fix
-      resolved-ref: "85e468f3836d6a6705803379a029f157eba37899"
+      resolved-ref: "0ce9e051673446b1fbc32a33db819c3e7054eb2a"
       url: "https://github.com/garv-shah/appflowy-editor"
     source: git
-    version: "1.0.4"
-  appflowy_popover:
-    dependency: transitive
-    description:
-      path: "packages/appflowy_popover"
-      relative: true
-    source: path
-    version: "0.0.1"
+    version: "1.1.0"
   archive:
     dependency: transitive
     description:
@@ -273,14 +266,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
-  dartz:
-    dependency: transitive
-    description:
-      name: dartz
-      sha256: e6acf34ad2e31b1eb00948692468c30ab48ac8250e0f0df661e29f12dd252168
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   desktop_webview_auth:
     dependency: transitive
     description:
@@ -305,14 +290,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.17"
-  equatable:
-    dependency: transitive
-    description:
-      name: equatable
-      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -601,34 +578,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  flowy_infra:
-    dependency: transitive
-    description:
-      path: "packages/flowy_infra"
-      relative: true
-    source: path
-    version: "0.0.1"
-  flowy_infra_ui:
-    dependency: "direct main"
-    description:
-      path: "packages/flowy_infra_ui"
-      relative: true
-    source: path
-    version: "0.0.1"
-  flowy_infra_ui_platform_interface:
-    dependency: transitive
-    description:
-      path: "packages/flowy_infra_ui/flowy_infra_ui_platform_interface"
-      relative: true
-    source: path
-    version: "0.0.1"
-  flowy_infra_ui_web:
-    dependency: transitive
-    description:
-      path: "packages/flowy_infra_ui/flowy_infra_ui_web"
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -955,7 +904,7 @@ packages:
     source: hosted
     version: "2.1.1"
   loading_indicator:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: loading_indicator
       sha256: a101ffb2aa3e646137d7810bfa90b50525dd3f72c01235b6df7491cf6af6f284
@@ -1401,7 +1350,7 @@ packages:
     source: hosted
     version: "1.2.0"
   styled_widget:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: styled_widget
       sha256: "4d439802919b6ccf10d1488798656da8804633b03012682dd1c8ca70a084aa84"
@@ -1456,14 +1405,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
-  time:
-    dependency: transitive
-    description:
-      name: time
-      sha256: "83427e11d9072e038364a5e4da559e85869b227cf699a541be0da74f14140124"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.3"
   timezone:
     dependency: transitive
     description:
@@ -1666,4 +1607,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.1"
+  flutter: ">=3.10.0"

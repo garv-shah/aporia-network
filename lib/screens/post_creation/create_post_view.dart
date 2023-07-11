@@ -393,6 +393,13 @@ class _CreatePostState extends State<CreatePost> {
               formData['questionData'] = questionData;
               formData['Group'] = selectedGroup;
               formData['creationTime'] = widget.postData?['creationTime'] ?? DateTime.now();
+              formData['appVersion'] = 2;
+
+              // a quick check to see if the document we're working with is on the old version
+              if (formData['questionData']['Question 1']['Question'] is List) {
+                formData['appVersion'] = 1;
+              }
+
               if (createQuiz) {
                 formData['Start Date'] =
                     DateFormat('dd/MM/yyyy').parse(formData['Start Date']);

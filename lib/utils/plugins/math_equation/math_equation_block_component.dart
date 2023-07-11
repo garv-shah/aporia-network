@@ -1,11 +1,12 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
-import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:provider/provider.dart';
+
+import '../../../widgets/forks/flowy_infra_ui/style_widget/text.dart';
+import '../../../widgets/forks/flowy_infra_ui/widget/buttons/primary_button.dart';
+import '../../../widgets/forks/flowy_infra_ui/widget/buttons/secondary_button.dart';
 
 class MathEquationBlockKeys {
   const MathEquationBlockKeys._();

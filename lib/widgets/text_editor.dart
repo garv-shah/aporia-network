@@ -1,17 +1,18 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/theme.dart';
+import 'package:aporia_app/utils/theming/app_flowy/block_component_builder.dart';
+import 'package:aporia_app/utils/theming/app_flowy/character_shortcut_events.dart';
+import 'package:aporia_app/utils/theming/app_flowy/mobile_toolbar_items.dart';
 
 class TextEditor extends StatelessWidget {
-  const TextEditor({
-    super.key,
-    required this.editorState,
-    required this.readOnly,
-    required this.padding,
-    required this.desktop,
-    this.header,
-    this.footer
-  });
+  const TextEditor(
+      {super.key,
+      required this.editorState,
+      required this.readOnly,
+      required this.padding,
+      required this.desktop,
+      this.header,
+      this.footer});
 
   final EditorState editorState;
   final bool readOnly;
@@ -25,7 +26,7 @@ class TextEditor extends StatelessWidget {
     if (readOnly) {
       return SingleChildScrollView(
         child: IntrinsicHeight(
-          child: AppFlowyEditor.custom(
+          child: AppFlowyEditor(
               autoFocus: true,
               editable: false,
               shrinkWrap: true,
@@ -34,31 +35,18 @@ class TextEditor extends StatelessWidget {
               scrollController: ScrollController(),
               focusNode: FocusNode(),
               editorState: editorState,
-              blockComponentBuilders: getCustomBlockComponentBuilderMap(
-                  context, editorState),
-              characterShortcutEvents: getCustomCharacterShortcutEvents(
-                  context),
+              blockComponentBuilders:
+                  getCustomBlockComponentBuilderMap(context, editorState),
+              characterShortcutEvents:
+                  getCustomCharacterShortcutEvents(context),
               commandShortcutEvents: standardCommandShortcutEvents,
               editorStyle: const EditorStyle.desktop().copyWith(
-                padding: padding,
-                  cursorColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .primary,
-                  toolbarActiveColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .primary,
-                  toolbarElevation: 20,
+                  padding: padding,
+                  cursorColor: Theme.of(context).colorScheme.primary,
                   textStyleConfiguration: TextStyleConfiguration(
                       text: TextStyle(
-                        color: Theme
-                            .of(context)
-                            .primaryColorLight,
-                      )
-                  )
-              )
-          ),
+                    color: Theme.of(context).primaryColorLight,
+                  )))),
         ),
       );
     } else {
@@ -72,95 +60,86 @@ class TextEditor extends StatelessWidget {
             bulletedListItem,
             numberedListItem,
             linkItem,
-            textColorItem,
-            highlightColorItem
+            buildTextColorItem(),
+            buildHighlightColorItem()
           ],
           style: FloatingToolbarStyle(
-              backgroundColor: Theme
-                  .of(context)
-                  .brightness == Brightness.light ? Colors.black : Theme
-                  .of(context)
-                  .cardColor
+            backgroundColor: Theme.of(context).brightness == Brightness.light
+                ? Colors.black
+                : Theme.of(context).cardColor,
+            toolbarActiveColor: Theme.of(context).colorScheme.primary,
           ),
           editorState: editorState,
           scrollController: ScrollController(),
           child: Expanded(
-            child: AppFlowyEditor.custom(
-                autoFocus: true,
-                focusNode: FocusNode(),
-                editorState: editorState,
-                blockComponentBuilders: getCustomBlockComponentBuilderMap(
-                    context, editorState),
-                characterShortcutEvents: getCustomCharacterShortcutEvents(
-                    context),
-                commandShortcutEvents: standardCommandShortcutEvents,
-                editorStyle: const EditorStyle.desktop().copyWith(
-                  padding: padding,
-                    cursorColor: Theme
-                        .of(context)
-                        .colorScheme
-                        .primary,
-                    toolbarActiveColor: Theme
-                        .of(context)
-                        .colorScheme
-                        .primary,
-                    toolbarElevation: 20,
-                    textStyleConfiguration: TextStyleConfiguration(
-                        text: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .primaryColorLight,
-                        )
-                    )
-                )
+            child: AppFlowyEditor(
+              autoFocus: true,
+              focusNode: FocusNode(),
+              editorState: editorState,
+              blockComponentBuilders:
+                  getCustomBlockComponentBuilderMap(context, editorState),
+              characterShortcutEvents:
+                  getCustomCharacterShortcutEvents(context),
+              commandShortcutEvents: standardCommandShortcutEvents,
+              editorStyle: const EditorStyle.desktop().copyWith(
+                padding: padding,
+                cursorColor: Theme.of(context).colorScheme.primary,
+                textStyleConfiguration: TextStyleConfiguration(
+                  text: TextStyle(
+                    color: Theme.of(context).primaryColorLight,
+                  ),
+                  href: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
             ),
           ),
         );
       } else {
-        return Column(
-          children: [
-            Expanded(
-              child: AppFlowyEditor.custom(
+        return Expanded(
+          child: Column(
+            children: [
+              Expanded(
+                child: AppFlowyEditor(
                   autoFocus: true,
                   focusNode: FocusNode(),
+                  scrollController: ScrollController(),
                   editorState: editorState,
-                  blockComponentBuilders: getCustomBlockComponentBuilderMap(
-                      context, editorState),
-                  characterShortcutEvents: getCustomCharacterShortcutEvents(
-                      context),
+                  blockComponentBuilders:
+                      getCustomBlockComponentBuilderMap(context, editorState),
+                  characterShortcutEvents:
+                      getCustomCharacterShortcutEvents(context),
                   commandShortcutEvents: standardCommandShortcutEvents,
-                  editorStyle: const EditorStyle.desktop().copyWith(
-                      padding: padding,
-                      cursorColor: Theme
-                          .of(context)
-                          .colorScheme
-                          .primary,
-                      toolbarActiveColor: Theme
-                          .of(context)
-                          .colorScheme
-                          .primary,
-                      toolbarElevation: 20,
-                      textStyleConfiguration: TextStyleConfiguration(
-                          text: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .primaryColorLight,
-                          )
-                      )
-                  )
+                  editorStyle: const EditorStyle.mobile().copyWith(
+                    padding: padding,
+                    cursorColor: Theme.of(context).colorScheme.primary,
+                    textStyleConfiguration: TextStyleConfiguration(
+                      text: TextStyle(
+                        color: Theme.of(context).primaryColorLight,
+                      ),
+                      href: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            MobileToolbar(editorState: editorState, toolbarItems: [
-              textDecorationMobileToolbarItem,
-              textAndBackgroundColorMobileToolbarItem,
-              headingMobileToolbarItem,
-              todoListMobileToolbarItem,
-              listMobileToolbarItem,
-              linkMobileToolbarItem,
-              quoteMobileToolbarItem,
-              codeMobileToolbarItem,
-            ])
-          ],
+              MobileToolbar(
+                editorState: editorState,
+                backgroundColor: Theme.of(context).cardColor,
+                tabbarSelectedForegroundColor: Theme.of(context).primaryColorLight,
+                tabbarSelectedBackgroundColor: Colors.black26.withAlpha(50),
+                foregroundColor: Theme.of(context).primaryColorLight.withAlpha(180),
+                clearDiagonalLineColor: Theme.of(context).colorScheme.primary,
+                itemOutlineColor: Theme.of(context).cardColor,
+                itemHighlightColor: Theme.of(context).colorScheme.primary,
+                toolbarItems: getMobileToolbarItems(Theme.of(context).primaryColorLight),
+              )
+            ],
+          ),
         );
       }
     }

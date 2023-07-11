@@ -767,8 +767,6 @@ PODS:
     - FirebaseCore (~> 10.0)
     - FirebaseCoreExtension (~> 10.0)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
-  - flowy_infra_ui (0.0.1):
-    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
@@ -912,7 +910,6 @@ DEPENDENCIES:
   - firebase_auth (from `Flutter/ephemeral/.symlinks/plugins/firebase_auth/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_storage (from `Flutter/ephemeral/.symlinks/plugins/firebase_storage/macos`)
-  - flowy_infra_ui (from `Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - macos_ui (from `Flutter/ephemeral/.symlinks/plugins/macos_ui/macos`)
   - macos_window_utils (from `Flutter/ephemeral/.symlinks/plugins/macos_window_utils/macos`)
@@ -973,8 +970,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_core/macos
   firebase_storage:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_storage/macos
-  flowy_infra_ui:
-    :path: Flutter/ephemeral/.symlinks/plugins/flowy_infra_ui/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   macos_ui:
@@ -1022,7 +1017,6 @@ SPEC CHECKSUMS:
   FirebaseMessagingInterop: c78a2df8002e0b51fc446a687b5ba357b81e9e90
   FirebaseSharedSwift: c590d181c8b80ebf85f2606f4d366cf72f82f184
   FirebaseStorage: a12297f786e81e653864d87723ec30381eb90220
-  flowy_infra_ui: c34d49d615ed9fe552cd47f90d7850815a74e9e9
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   GoogleAppMeasurement: bbbfd4bcb2b40ae9b772c3b0823a58c1e3d618f9

@@ -96,14 +96,14 @@ class _LeaderboardsState extends State<Leaderboards> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          // Gets the quizPoints collection ordered by the amount of experience
+          // Gets the publicProfile collection ordered by the amount of experience
           // each user has.
           stream: FirebaseFirestore.instance
-              .collection('quizPoints')
+              .collection('publicProfile')
               .orderBy('experience', descending: true)
               .snapshots(),
-          builder: (context, quizPointsSnapshot) {
-            if (quizPointsSnapshot.connectionState == ConnectionState.active) {
+          builder: (context, publicProfileSnapshot) {
+            if (publicProfileSnapshot.connectionState == ConnectionState.active) {
               return SafeArea(
                 child: Center(
                   child: SizedBox(
@@ -113,7 +113,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                       // number of user entries we have on the server. The +1 is there
                       // because of the extra header widget at the start, which
                       // occupies the first index.
-                      itemCount: (quizPointsSnapshot.data?.docs.length ?? 0) + 1,
+                      itemCount: (publicProfileSnapshot.data?.docs.length ?? 0) + 1,
                       itemBuilder: (BuildContext context, int index) {
                         // If index is first, return header, if not, return user entry.
                         if (index == 0) {
@@ -131,7 +131,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                         } else {
                           // Current doc's data.
                           QueryDocumentSnapshot<Map<String, dynamic>>? data =
-                              quizPointsSnapshot.data?.docs[index - 1];
+                              publicProfileSnapshot.data?.docs[index - 1];
 
                           // User entry.
                           return user(context,

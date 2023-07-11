@@ -5,6 +5,7 @@ import {UserRecord} from "firebase-admin/lib/auth";
 import DocumentData = firestore.DocumentData;
 import {createTraverser} from '@firecode/admin';
 import {google} from 'googleapis';
+import { GaxiosError } from "gaxios";
 const calendar = google.calendar('v3');
 const googleCredentials = require('./credentials.json');
 
@@ -29,7 +30,7 @@ function makeid(length: number) {
 exports.createUser = functions
     .region('australia-southeast1')
     .auth.user().onCreate(async (user) => {
-        await db.collection('quizPoints').doc(user.uid).set({
+        await db.collection('publicProfile').doc(user.uid).set({
             'username': '',
             'experience': 0,
             'completedQuizzes': []
@@ -75,7 +76,7 @@ exports.deleteUser = functions
     .region('australia-southeast1')
     .auth.user().onDelete(async (user) => {
         console.log(`Deleting User ${user.uid}`)
-        await db.collection('quizPoints').doc(user.uid).delete()
+        await db.collection('publicProfile').doc(user.uid).delete()
         await db.collection('userInfo').doc(user.uid).delete()
 
         const userRoles = db.collection('roles');
@@ -139,13 +140,47 @@ exports.updateUsername = functions
                 userType: appID,
             });
 
-            // set quizPoints username
-            await db.collection("quizPoints").doc(uid).update({
+            // set publicProfile username
+            await db.collection("publicProfile").doc(uid).update({
                 username: username,
                 userType: appID,
             });
         }
     });
+
+async function updatePublicProfile(id: string, jobID: string, volunteer: boolean, remove: boolean) {
+    const publicProfile = db.collection('publicProfile').doc(id);
+    const profileDoc = await publicProfile.get();
+    let jobList: string[] | null = profileDoc.data()['jobList'];
+    let volunteerRecord: string[] | null = profileDoc.data()['volunteerRecord'];
+    if (jobList == null) {
+        jobList = [];
+    }
+    if (volunteerRecord == null) {
+        volunteerRecord = [];
+    }
+
+    if (remove) {
+        const index = jobList.indexOf(jobID, 0);
+        if (index > -1) {
+            jobList.splice(index, 1);
+        }
+    } else {
+        jobList.push(jobID);
+    }
+
+    let data: DocumentData = {
+        jobList: jobList
+    }
+
+    if (volunteer) {
+        // if we are unassigning and the jobList is now empty then user is no longer a volunteer
+        data['volunteer'] = !(remove && jobList.length == 0);
+        data['volunteerRecord'] = volunteerRecord;
+    }
+
+    await db.collection("publicProfile").doc(id).update(data);
+}
 
 exports.claimJob = functions
     .region('australia-southeast1')
@@ -245,7 +280,7 @@ exports.claimJob = functions
             // @ts-ignore
             const response = await calendar.events.insert({
                 auth: oAuth2Client,
-                calendarId: 'primary',
+                calendarId: '057d48896ad3b71f8302bcd00dcfc74b6986c9ea749610b59fecd60a32699dea@group.calendar.google.com',
                 sendUpdates: "all",
                 resource: event,
                 conferenceDataVersion: 1
@@ -259,6 +294,7 @@ exports.claimJob = functions
 
             await db.collection("jobs").doc(jobID).update({
                 assignedTo: userData,
+                timezone: timezone,
                 status: 'assigned',
                 lessonTimes: {
                     start: startTime,
@@ -267,6 +303,12 @@ exports.claimJob = functions
                 googleResourceID: googleResourceID,
                 meetUrl: uri
             });
+
+            // update profile of both volunteer and company
+            await updatePublicProfile(context.auth!.uid, jobID, true, false);
+            await updatePublicProfile(jobData['createdBy']['id'], jobID, false, false);
+
+            console.log(`Job claim for ${context.auth!.uid} completed!`);
         }
     });
 
@@ -303,30 +345,35 @@ exports.unassignJob = functions
             // @ts-ignore
             const response = await calendar.events.delete({
                 auth: oAuth2Client,
-                calendarId: 'primary',
+                calendarId: '057d48896ad3b71f8302bcd00dcfc74b6986c9ea749610b59fecd60a32699dea@group.calendar.google.com',
                 sendUpdates: "all",
                 eventId: googleResourceID,
-            });
+            })
+                .catch((err: GaxiosError) => {
+                    console.log(`📅 Error occurred while trying to delete calendar event ${jobID} by ${context.auth?.uid}`);
+                    console.log(err);
+                });
 
-            if (response.status == 200) {
-                console.log(`📅 Calendar event ${jobID} deleted by ${context.auth?.uid}`);
-
-                // calendar event has been deleted, now either delete the document or unassign it
-                if (deleteOperation) {
-                    // delete the document
-                    await db.collection("jobs").doc(jobID).delete();
-                } else {
-                    await db.collection("jobs").doc(jobID).update({
-                        assignedTo: null,
-                        status: 'pending_assignment',
-                        lessonTimes: null,
-                        googleResourceID: null,
-                        meetUrl: null
-                    });
-                }
+            // calendar event has been deleted, now either delete the document or unassign it
+            if (deleteOperation) {
+                // delete the document
+                await db.collection("jobs").doc(jobID).delete();
+                console.log(`📅 Job ${jobID} deleted by ${context.auth?.uid}`);
             } else {
-                console.log(`📅 Error occurred while trying to delete calendar event ${jobID} by ${context.auth?.uid}`);
+                // unassign the job
+                await db.collection("jobs").doc(jobID).update({
+                    assignedTo: null,
+                    status: 'pending_assignment',
+                    lessonTimes: null,
+                    googleResourceID: null,
+                    meetUrl: null
+                });
+                console.log(`📅 Job ${jobID} unassigned by ${context.auth?.uid}`);
             }
+
+            // finally, update profile of both volunteer and company
+            await updatePublicProfile(context.auth!.uid, jobID, true, true);
+            await updatePublicProfile(jobData['createdBy']['id'], jobID, false, true);
         }
     });
 
@@ -355,8 +402,8 @@ exports.updatePfp = functions
                 pfpType: pfpType,
             });
 
-            // set quizPoints username
-            db.collection("quizPoints").doc(context.auth!.uid).update({
+            // set publicProfile username
+            db.collection("publicProfile").doc(context.auth!.uid).update({
                 profilePicture: profilePicture,
                 pfpType: pfpType,
             });
@@ -404,7 +451,7 @@ exports.markQuestions = functions
                 }
             }
 
-            await db.collection("quizPoints").doc(context.auth!.uid).get().then((points: any) => {
+            await db.collection("publicProfile").doc(context.auth!.uid).get().then((points: any) => {
                 const currentData: { [key: string]: any; } = Object(points.data() as object)
                 const completedQuizzes: string[] = currentData['completedQuizzes'];
 
@@ -413,7 +460,7 @@ exports.markQuestions = functions
                 } else {
                     completedQuizzes.push(quizID);
 
-                    db.collection("quizPoints").doc(context.auth!.uid).update({
+                    db.collection("publicProfile").doc(context.auth!.uid).update({
                         experience: currentData['experience'] + markedObject['Experience'],
                         completedQuizzes: completedQuizzes
                     });
@@ -429,8 +476,8 @@ exports.fixValidationIssues = functions
     .pubsub.schedule("0 * * * *")
     .timeZone("Australia/Melbourne")
     .onRun(async () => {
-        const quizPointsCollections = await db.collection("quizPoints");
-        const traverser = createTraverser(quizPointsCollections);
+        const publicProfileCollections = await db.collection("publicProfile");
+        const traverser = createTraverser(publicProfileCollections);
 
         const requiredFields = ['pfpType', 'profilePicture', 'username']
         let missingFields: {[key: string]: Array<string>} = {};
@@ -464,7 +511,7 @@ exports.fixValidationIssues = functions
                         updateObject[entry] = userInfo[entry];
                     });
 
-                    await db.collection('quizPoints').doc(uid).update(updateObject);
+                    await db.collection('publicProfile').doc(uid).update(updateObject);
                     console.log(`Fixed validation issues for user ${userInfo['username']} with uid ${uid}`);
                 } else {
                     await admin.auth().deleteUser(uid);

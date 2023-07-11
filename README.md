@@ -57,7 +57,7 @@ The Aporia Network follows the [Material UI](https://material.io/design) design 
 Flutter's built in theming tools, and the [Adaptive Theme](https://pub.dev/packages/adaptive_theme) package to handle
 light and dark mode changes.
 
-#### [Theme Data](lib/utils/theme.dart)
+#### [Theme Data](lib/utils/theming/theme.dart)
 
 To start with, the `theme.dart` defines our global themes. It's a relatively short file, using Flutter's built in
 ThemeData class to define both a light and dark mode colour palette, which can be used throughout the app dynamically.

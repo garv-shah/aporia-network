@@ -1,7 +1,8 @@
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme_extension.dart';
 import 'package:flutter/material.dart';
+
+import '../../../widgets/forks/flowy_infra_ui/widget/theme_extension.dart';
 
 extension FlowyTintExtension on FlowyTint {
   String tintName(

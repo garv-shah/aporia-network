@@ -213,7 +213,7 @@ Widget jobCard(BuildContext context,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
-                          child: isAdmin ? SizedBox(
+                          child: isCompany ? SizedBox(
                             height: 32.0,
                             width: 32.0,
                             child: InkWell(
@@ -221,17 +221,31 @@ Widget jobCard(BuildContext context,
                                 onTap: () {
                                   showOkCancelAlertDialog(
                                       okLabel: 'Confirm',
-                                      title: 'Delete Order',
-                                      message:
-                                      'Are you sure you want to delete this job?',
+                                      title: 'Delete Job',
+                                      message: 'Are you sure you want to delete this job?',
                                       context: context)
                                       .then((result) async {
                                     if (result == OkCancelResult.ok) {
-                                      await FirebaseFirestore.instance
-                                          .runTransaction((Transaction
-                                      myTransaction) async {
-                                        myTransaction
-                                            .delete(data['reference']);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Deleting Job! This may take a couple seconds, hold on tight.",
+                                            style: TextStyle(color: Theme
+                                                .of(context)
+                                                .primaryColorLight),
+                                          ),
+                                          backgroundColor: Theme
+                                              .of(context)
+                                              .scaffoldBackgroundColor,
+                                        ),
+                                      );
+
+                                      await FirebaseFunctions.instanceFor(
+                                          region: 'australia-southeast1')
+                                          .httpsCallable('unassignJob')
+                                          .call({
+                                        'jobID': data['Job ID'],
+                                        'deleteOperation': true,
                                       });
                                     }
                                   });
@@ -264,34 +278,6 @@ Widget jobCard(BuildContext context,
                             child: Text(
                                 "By ${data['createdBy']['username']}",
                                 maxLines: 1)),
-                        !isAdmin
-                            ? const SizedBox.shrink()
-                            : SizedBox(
-                          height: 32.0,
-                          width: 32.0,
-                          child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                showOkCancelAlertDialog(
-                                    okLabel: 'Confirm',
-                                    title: 'Delete Order',
-                                    message:
-                                    'Are you sure you want to delete this order?',
-                                    context: context)
-                                    .then((result) async {
-                                  if (result == OkCancelResult.ok) {
-                                    await FirebaseFirestore.instance
-                                        .runTransaction((Transaction
-                                    myTransaction) async {
-                                      myTransaction
-                                          .delete(data['reference']);
-                                    });
-                                  }
-                                });
-                              },
-                              child: Icon(Icons.delete,
-                                  color: Theme.of(context).errorColor)),
-                        ),
                       ],
                     )
                   ],
@@ -323,7 +309,7 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
 
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        // Gets the quizPoints collection ordered by the amount of experience
+        // Gets the publicProfile collection ordered by the amount of experience
         // each user has.
           stream: FirebaseFirestore.instance
               .collection('jobs')
