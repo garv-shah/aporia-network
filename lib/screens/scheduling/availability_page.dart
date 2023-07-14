@@ -6,11 +6,11 @@ Created: Sat Jul 8 17:04:21 2023
  */
 
 import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:googleapis/admob/v1.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 typedef DataCallback = void Function(List data);
@@ -150,9 +150,11 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
             }),
       ),
       body: SfCalendar(
-        view: CalendarView.week,
+        view: PlatformExtension.isDesktopOrWeb ? CalendarView.week : CalendarView.day,
         firstDayOfWeek: 1,
-        viewNavigationMode: ViewNavigationMode.none,
+        viewNavigationMode: PlatformExtension.isDesktopOrWeb ? ViewNavigationMode.none : ViewNavigationMode.snap,
+        minDate: DateTime(2018, 1, 1),
+        maxDate: DateTime.fromMillisecondsSinceEpoch(DateTime(2018, 1, 8).millisecondsSinceEpoch - 1),
         showCurrentTimeIndicator: false,
         headerHeight: 0,
         dataSource: _dataSource,
@@ -196,31 +198,39 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
   void saveAvailability(bool backArrow) {
     List slots = [];
-    for (var lesson in _dataSource?.appointments as List<Appointment>) {
-      slots.add({
-        'from': lesson.startTime,
-        'to': lesson.endTime,
-      });
-    }
+    if (widget.restrictionZone == null) {
+      for (var lesson in _dataSource?.appointments as List<Appointment>) {
+        slots.add({
+          'from': lesson.startTime,
+          'to': lesson.endTime,
+        });
+      }
 
-    if (widget.onSave == null) {
-      // update Firebase
-      FirebaseFirestore.instance
-          .collection("availability")
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .set({
-        'slots': slots
-      });
-      if (!backArrow) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AvailableJobsPage(availability: slots)),
-        );
+      if (widget.onSave == null) {
+        // update Firebase
+        FirebaseFirestore.instance
+            .collection("availability")
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .set({
+          'slots': slots
+        });
+        if (!backArrow) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AvailableJobsPage(availability: slots)),
+          );
+        } else {
+          Navigator.of(context).pop();
+        }
       } else {
+        widget.onSave!(slots);
         Navigator.of(context).pop();
       }
     } else {
-      widget.onSave!(slots);
+      // go back to home page to avoid an issue where the availability is wiped
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
       Navigator.of(context).pop();
     }
   }

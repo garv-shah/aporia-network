@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:aporia_app/utils/config.dart' as config;
+import 'package:aporia_app/utils/config/config.dart' as config;
 
 /// Creates the header for a login page using an image.
 HeaderBuilder headerImage(String assetName) {

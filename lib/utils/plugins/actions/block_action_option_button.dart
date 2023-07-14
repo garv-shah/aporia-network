@@ -59,7 +59,6 @@ class BlockOptionButton extends StatelessWidget {
       richMessage: const TextSpan(
         children: [
           TextSpan(
-            // todo: customize the color to highlight the text.
             text: "Click",
           ),
           TextSpan(

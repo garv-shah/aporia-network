@@ -13,17 +13,8 @@ import 'package:aporia_app/screens/post_creation/create_post_view.dart';
 import 'package:aporia_app/screens/section_views/post_view.dart';
 import 'package:aporia_app/screens/section_views/quiz_view.dart';
 import 'package:aporia_app/widgets/section_app_bar.dart';
+import 'package:aporia_app/widgets/action_card.dart';
 import 'dart:ui';
-
-/// An enum for the horizontal carousel that returns padding based on position.
-enum PositionPadding {
-  start(EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0)),
-  middle(EdgeInsets.all(8.0)),
-  end(EdgeInsets.fromLTRB(8.0, 8.0, 16.0, 8.0));
-
-  const PositionPadding(this.padding);
-  final EdgeInsetsGeometry padding;
-}
 
 /// An enum for the type of post.
 enum PostType {
@@ -195,6 +186,7 @@ Widget postCard(BuildContext context,
 class SectionPage extends StatefulWidget {
   final Map<String, dynamic> userData;
   final String role;
+  final List<String> userRoles;
   final String title;
   final String? id;
   const SectionPage(
@@ -202,7 +194,8 @@ class SectionPage extends StatefulWidget {
       required this.userData,
       required this.title,
       required this.id,
-      required this.role})
+      required this.role,
+      required this.userRoles})
       : super(key: key);
 
   @override
@@ -314,6 +307,7 @@ class _SectionPageState extends State<SectionPage> {
                         title: widget.title,
                         userData: widget.userData,
                         isAdmin: widget.role == "Admin",
+                        userRoles: widget.userRoles,
                         onSearch: (String search) => updateSearch(search),
                         searchController:
                             TextEditingController(text: searchValue)),

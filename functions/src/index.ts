@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import {firestore} from "firebase-admin";
 import QueryDocumentSnapshot = firestore.QueryDocumentSnapshot;
-import {UserRecord} from "firebase-admin/lib/auth";
+import {getAuth, UserRecord} from "firebase-admin/auth";
 import DocumentData = firestore.DocumentData;
 import {createTraverser} from '@firecode/admin';
 import {google} from 'googleapis';
@@ -14,6 +14,46 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 const db = admin.firestore();
+
+const timezoneToOffset: {[key: string]: number} = {
+    'UTC': 0,
+    'Indian/Mayotte': 10800000,
+    'Europe/London': 3600000,
+    'Europe/Zurich': 7200000,
+    'Pacific/Gambier': -32400000,
+    'US/Alaska': -28800000,
+    'US/Eastern': -14400000,
+    'Canada/Atlantic': -10800000,
+    'US/Central': -18000000,
+    'US/Mountain': -21600000,
+    'US/Pacific': -25200000,
+    'Atlantic/South_Georgia': -7200000,
+    'Canada/Newfoundland': -9000000,
+    'Pacific/Pohnpei': 39600000,
+    'Indian/Christmas': 25200000,
+    'Pacific/Saipan': 36000000,
+    'Indian/Maldives': 18000000,
+    'Pacific/Tongatapu': 46800000,
+    'Indian/Chagos': 21600000,
+    'Pacific/Wallis': 43200000,
+    'Indian/Reunion': 14400000,
+    'Australia/Perth': 28800000,
+    'Pacific/Palau': 32400000,
+    'Asia/Kolkata': 19800000,
+    'Asia/Kabul': 16200000,
+    'Asia/Kathmandu': 20700000,
+    'Indian/Cocos': 23400000,
+    'Asia/Tehran': 12600000,
+    'Atlantic/Cape_Verde': -3600000,
+    'Australia/Broken_Hill': 37800000,
+    'Australia/Darwin': 34200000,
+    'Australia/Eucla': 31500000,
+    'Pacific/Chatham': 49500000,
+    'US/Hawaii': -36000000,
+    'Pacific/Kiritimati': 50400000,
+    'Pacific/Marquesas': -34200000,
+    'Pacific/Pago_Pago': -39600000
+};
 
 function makeid(length: number) {
     let result = '';
@@ -50,6 +90,93 @@ exports.createUser = functions
         }).then(() => {
             console.log(`Creation of ${user.uid} successful`)
         });
+    });
+
+exports.manualCreateUser = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let username = data.username;
+        let password = data.password;
+        let email = data.email;
+        let role = data.role;
+        if (!username) {
+            throw new functions.https.HttpsError('invalid-argument', 'A username must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else if (username.length > 12) {
+            throw new functions.https.HttpsError('permission-denied', 'The username cannot exceed 12 characters');
+        } else if (!password) {
+            throw new functions.https.HttpsError('invalid-argument', 'A password must be provided!');
+        } else if (!email) {
+            throw new functions.https.HttpsError('invalid-argument', 'An email must be provided!');
+        } else if (!role) {
+            throw new functions.https.HttpsError('invalid-argument', 'A role must be provided!');
+        } else {
+            // the user must be an administrator to create new accounts
+            const userRole = db.collection('roles').doc('admins');
+            const doc = await userRole.get();
+            let admins: string[] = doc.data()['members'];
+
+            // the current list of admins contains the person that called the function
+            if (admins.includes(context.auth!.uid)) {
+                getAuth()
+                    .createUser({
+                        email: email,
+                        emailVerified: false,
+                        password: password,
+                        displayName: username,
+                        disabled: false,
+                    })
+                    .then(async (user) => {
+                        console.log(`Creating User For ${user.uid}`)
+
+                        await db.collection('userInfo').doc(user.uid).create({
+                            lowerUsername: username.toString().toLowerCase(),
+                            username: username,
+                            profilePicture: `https://avatars.dicebear.com/api/avataaars/${username}.svg`,
+                            pfpType: 'image/svg+xml',
+                            email: email
+                        });
+
+                        if (role != 'users') {
+                            const userRole = db.collection('roles').doc('users');
+                            const doc = await userRole.get();
+                            let userMembers: string[] = doc.data()['members'];
+                            console.log(`Current Members: ${userMembers}`)
+
+                            // delete from the default users role
+                            const index = userMembers.indexOf(user.uid, 0);
+                            if (index > -1) {
+                                userMembers.splice(index, 1);
+                            }
+
+                            await db.collection('roles').doc(doc.id).update({
+                                'members': userMembers
+                            }).then(() => {
+                                console.log(`Deletion of ${user.uid} from users role successful`)
+                            });
+
+                            // now instead add to the correct role
+
+                            const roleData = db.collection('roles').doc(role);
+                            const roleDoc = await roleData.get();
+                            let roleMembers: string[] = roleDoc.data()['members'];
+                            console.log(`Current Role Members: ${roleMembers}`)
+
+                            roleMembers.push(user.uid)
+
+                            await roleData.update({
+                                'members': roleMembers
+                            }).then(() => {
+                                console.log(`Creation of ${user.uid} successful`)
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('Error creating new user:', error);
+                    });
+            }
+        }
     });
 
 async function deleteFromRole(doc: QueryDocumentSnapshot, user: UserRecord) {
@@ -148,10 +275,10 @@ exports.updateUsername = functions
         }
     });
 
-async function updatePublicProfile(id: string, jobID: string, volunteer: boolean, remove: boolean) {
+async function updatePublicProfile(id: string, jobID: string, jobData: DocumentData | null, volunteer: boolean, remove: boolean) {
     const publicProfile = db.collection('publicProfile').doc(id);
     const profileDoc = await publicProfile.get();
-    let jobList: string[] | null = profileDoc.data()['jobList'];
+    let jobList: DocumentData[] | null = profileDoc.data()['jobList']; // a list of jobIDs
     let volunteerRecord: string[] | null = profileDoc.data()['volunteerRecord'];
     if (jobList == null) {
         jobList = [];
@@ -160,13 +287,19 @@ async function updatePublicProfile(id: string, jobID: string, volunteer: boolean
         volunteerRecord = [];
     }
 
+    let jobDataWithID: DocumentData = {};
+    if (jobData) {
+        jobDataWithID = jobData;
+        jobDataWithID['ID'] = jobID;
+    }
+
     if (remove) {
-        const index = jobList.indexOf(jobID, 0);
+        const index = jobList.findIndex((job) => job['ID'] == jobID);
         if (index > -1) {
             jobList.splice(index, 1);
         }
     } else {
-        jobList.push(jobID);
+        jobList.push(jobDataWithID);
     }
 
     let data: DocumentData = {
@@ -292,21 +425,22 @@ exports.claimJob = functions
             const { uri } = conferenceData.entryPoints[0];
             console.log(`📅 Calendar event created: ${summary} at ${location}, from ${start.dateTime} to ${end.dateTime}, attendees:\n${attendees.map((person: { email: any; }) => `🧍 ${person.email}`).join('\n')} \n 💻 Join conference call link: ${uri}`);
 
-            await db.collection("jobs").doc(jobID).update({
-                assignedTo: userData,
-                timezone: timezone,
-                status: 'assigned',
-                lessonTimes: {
-                    start: startTime,
-                    end: endTime
-                },
-                googleResourceID: googleResourceID,
-                meetUrl: uri
-            });
+            userData['id'] = context.auth!.uid;
+            jobData['assignedTo'] = userData;
+            jobData['timezone'] = timezone;
+            jobData['status'] = 'assigned';
+            jobData['lessonTimes'] = {
+                'start': startTime,
+                'end': endTime
+            };
+            jobData['googleResourceID'] = googleResourceID;
+            jobData['meetUrl'] = uri;
+
+            await db.collection("jobs").doc(jobID).update(jobData);
 
             // update profile of both volunteer and company
-            await updatePublicProfile(context.auth!.uid, jobID, true, false);
-            await updatePublicProfile(jobData['createdBy']['id'], jobID, false, false);
+            await updatePublicProfile(userData['id'], jobID, jobData, true, false);
+            await updatePublicProfile(jobData['createdBy']['id'], jobID, jobData, false, false);
 
             console.log(`Job claim for ${context.auth!.uid} completed!`);
         }
@@ -372,8 +506,118 @@ exports.unassignJob = functions
             }
 
             // finally, update profile of both volunteer and company
-            await updatePublicProfile(context.auth!.uid, jobID, true, true);
-            await updatePublicProfile(jobData['createdBy']['id'], jobID, false, true);
+            await updatePublicProfile(jobData['assignedTo']['id'], jobID, null, true, true);
+            await updatePublicProfile(jobData['createdBy']['id'], jobID, null, false, true);
+        }
+    });
+
+exports.startShift = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let jobID: string | null = data.jobID;
+        let starting: boolean = data.starting;
+        if (!jobID) {
+            throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
+        } else if (starting == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'You must specify whether you are starting or ending a shift!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Starting shift on job ${jobID} for ${context.auth?.uid}`, {structuredData: true});
+
+            const publicProfile = db.collection('publicProfile').doc(context.auth!.uid);
+            const doc = await publicProfile.get();
+            let profileData = doc.data();
+
+            if (profileData['jobList'] == null) {
+                throw new functions.https.HttpsError('unauthenticated', 'User has no active jobs to start!');
+            }
+
+            let jobList: DocumentData[] = profileData['jobList'];
+
+            let lessonRunning: boolean = false;
+            // TODO: add in day of the week check
+
+            jobList.forEach((job) => {
+                let start: Date = new Date(job['lessonTimes']['start']);
+                let end: Date = new Date(job['lessonTimes']['end']);
+                console.log(`Start: ${start}, End: ${end}`);
+                console.log(`job['lessonTimes']['start']: ${job['lessonTimes']['start']}, job['lessonTimes']['end']: ${job['lessonTimes']['end']}`);
+                let now: Date = new Date(new Date().toLocaleString('en', {timeZone: job['timezone']}));
+
+                if (new Date(now.getFullYear(), now.getMonth(), now.getDate(), start.getHours(), start.getMinutes(), 0) <= now
+                    && now <= new Date(now.getFullYear(), now.getMonth(), now.getDate(), end.getHours(), end.getMinutes(), 0)) {
+                    lessonRunning = true;
+                }
+            });
+
+            if (lessonRunning || !starting) {
+                // save lesson started data to firestore volunteerRecord
+                if (starting) {
+                    let volunteerRecord: DocumentData[] = profileData['volunteerRecord'];
+                    volunteerRecord.push({'start': new Date()});
+                    await publicProfile.update({'volunteerRecord': volunteerRecord});
+
+                    console.log(`Volunteer ${context.auth!.uid} started their lesson ${jobID}!`);
+                } else {
+                    // the lesson is ending but make sure to double-check
+                    let volunteerRecord: DocumentData[] = profileData['volunteerRecord'];
+                    let previous = volunteerRecord.pop();
+
+                    if (previous == undefined || previous['end'] != null) {
+                        throw new functions.https.HttpsError('unauthenticated', 'An error seems to have occurred where you ended a lesson that never started.');
+                    } else {
+                        let job: DocumentData | undefined = jobList.find((job) => job['ID'] == jobID);
+
+                        if (job == undefined) {
+                            throw new functions.https.HttpsError('unauthenticated', 'An error seems to have occurred where you ended a lesson that you never claimed.');
+                        }
+
+                        let now: Date = new Date(new Date().toLocaleString('en', {timeZone: job['timezone']}));
+                        console.log(`Starting end is ${job['lessonTimes']['end']}`);
+                        let end: Date = new Date(job['lessonTimes']['end']);
+                        end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), end.getHours(), end.getMinutes(), 0);
+
+                        console.log(`right now is ${now}`);
+                        console.log(`end is ${end}`);
+
+                        if (now > end) {
+                            // recalculate date accounting for timezone difference in storage
+                            previous['end'] = new Date(end.getTime() - timezoneToOffset[job['timezone']]);
+                        } else {
+                            previous['end'] = new Date();
+                        }
+
+                        volunteerRecord.push(previous);
+                    }
+
+                    // finally, update the number of hours the volunteer has volunteered
+                    let volunteerHours: number | null = profileData['volunteerHours'];
+                    if (volunteerHours == null) {
+                        volunteerHours = 0;
+                    }
+
+                    const timestamp: firestore.Timestamp = previous['start'];
+
+                    let start: Date = timestamp.toDate();
+                    let end: Date = previous['end'];
+
+                    console.log(`Type of start: ${typeof start}`);
+                    console.log(`Type of end: ${typeof end}`);
+                    console.log(`Start: ${start}, End: ${end}`);
+                    let hoursVolunteeredNow: number = Math.abs(end.getTime() - start.getTime()) / 3.6e6;
+                    volunteerHours += hoursVolunteeredNow
+
+                    await publicProfile.update({
+                        'volunteerRecord': volunteerRecord,
+                        'volunteerHours': volunteerHours,
+                    });
+
+                    console.log(`Volunteering has finished for ${context.auth?.uid} in lesson ${jobID}. Hours volunteered now is ${hoursVolunteeredNow} with total of ${volunteerHours} volunteer hours globally.`);
+                }
+            } else {
+                throw new functions.https.HttpsError('unauthenticated', 'Volunteer hours cannot be counted if the lesson is not currently running');
+            }
         }
     });
 

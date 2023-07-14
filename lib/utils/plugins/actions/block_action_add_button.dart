@@ -24,7 +24,6 @@ class BlockAddButton extends StatelessWidget {
       richMessage: const TextSpan(
         children: [
           TextSpan(
-            // todo: l10n.
             text: 'Click to add below',
           ),
         ],

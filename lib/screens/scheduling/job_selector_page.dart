@@ -5,23 +5,13 @@ Author: Garv Shah
 Created: Sat Jul 8 18:24:15 2023
  */
 
-import 'dart:convert';
-
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:aporia_app/utils/login_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:googleapis/calendar/v3.dart' as cal;
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-
-import '../../utils/calendar_client.dart';
+import 'package:aporia_app/widgets/action_card.dart';
 import 'availability_page.dart';
 import 'job_view.dart';
 

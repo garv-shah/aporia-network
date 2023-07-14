@@ -61,7 +61,6 @@ class _TextDecorationMenuState extends State<TextDecorationMenu> {
         isSelected: isSelected,
         onPressed: () {
           if (widget.selection.isCollapsed) {
-            // TODO(yijing): handle collapsed selection
           } else {
             setState(() {
               widget.editorState.toggleAttribute(currentDecoration.name);
@@ -473,7 +472,6 @@ class _MobileLinkMenuState extends State<MobileLinkMenu> {
                 child: Text(AppFlowyEditorLocalizations.current.done),
               ),
             )
-            // TODO(yijing): edit link?
           ],
         ),
       ),

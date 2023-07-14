@@ -18,7 +18,7 @@ import 'package:aporia_app/utils/theming/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:aporia_app/utils/config.dart' as config;
+import 'package:aporia_app/utils/config/config.dart' as config;
 
 void main() async {
   // Initialises Firebase.

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:aporia_app/utils/components.dart';
 import 'package:aporia_app/utils/login_functions.dart';
-import 'package:aporia_app/utils/config.dart' as config;
+import 'package:aporia_app/utils/config/config.dart' as config;
 
 /// This is the login page for users.
 ///

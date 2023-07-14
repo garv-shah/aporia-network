@@ -14,22 +14,13 @@ import 'dart:ui';
 
 import '../home_page.dart';
 
-/// An enum for the horizontal carousel that returns padding based on position.
-enum PositionPadding {
-  start(EdgeInsets.fromLTRB(16.0, 8.0, 8.0, 8.0)),
-  middle(EdgeInsets.all(8.0)),
-  end(EdgeInsets.fromLTRB(8.0, 8.0, 16.0, 8.0));
-
-  const PositionPadding(this.padding);
-  final EdgeInsetsGeometry padding;
-}
-
 /// This is the page which allows all jobs to be searched and managed
 class ManageJobsPage extends StatefulWidget {
   final bool isAdmin;
   final bool isCompany;
+  final List<String> userRoles;
   final Map<String, dynamic> userData;
-  const ManageJobsPage({Key? key, required this.isAdmin, required this.isCompany, required this.userData})
+  const ManageJobsPage({Key? key, required this.isAdmin, required this.userRoles, required this.isCompany, required this.userData})
       : super(key: key);
 
   @override
@@ -100,6 +91,7 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
                     SectionAppBar(context,
                         title: "Manage Jobs",
                         userData: widget.userData,
+                        userRoles: widget.userRoles,
                         onSearch: (String search) => updateSearch(search),
                         searchController:
                             TextEditingController(text: searchValue), isAdmin: widget.isAdmin),

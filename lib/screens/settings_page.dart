@@ -18,7 +18,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
-import 'package:aporia_app/utils/config.dart' as config;
+import 'package:aporia_app/utils/config/config.dart' as config;
+import 'package:aporia_app/utils/config/abilities.dart';
 
 /**
  * The following section includes functions for the settings page.
@@ -71,8 +72,9 @@ extension StringExtension on String {
 class SettingsPage extends StatefulWidget {
   final Map<String, dynamic> userData;
   final bool isAdmin;
+  final List<String> userRoles;
 
-  const SettingsPage({Key? key, required this.userData, required this.isAdmin}) : super(key: key);
+  const SettingsPage({Key? key, required this.userData, required this.isAdmin, required this.userRoles}) : super(key: key);
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -168,7 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       padding: const EdgeInsets.all(26.0),
                       child: SizedBox(
                         height: 175,
-                        child: userRings(context,
+                        child: decoratedProfilePicture(context,
                             profilePicture: EditableImage(
                               isEditable: true,
                               onChange: (Uint8List file) => pfpUpdate(file),
@@ -181,12 +183,15 @@ class _SettingsPageState extends State<SettingsPage> {
                                     widget.userData['profilePicture'],
                                     widget.userData['pfpType'],
                                     username,
-                                    padding: true),
+                                    padding: true,
+                                    customPadding: getComputedAbilities(widget.userRoles).contains('points') ? 15 : 0,
+                                ),
                               ),
                               editIconBorder:
                                   Border.all(color: Colors.black87, width: 2.0),
                               size: 175,
                             ),
+                            userRoles: widget.userRoles,
                             experience: experience,
                             levelMap: levelMap),
                       ),

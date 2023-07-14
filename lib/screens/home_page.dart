@@ -7,93 +7,33 @@ Created: Sat Jun 18 18:29:00 2022
 
 import 'dart:math';
 
-import 'package:aporia_app/screens/scheduling/availability_page.dart';
-import 'package:aporia_app/screens/scheduling/create_job_view.dart';
-import 'package:aporia_app/screens/scheduling/manage_jobs_view.dart';
 import 'package:aporia_app/screens/scheduling/schedule_view.dart';
+import 'package:aporia_app/widgets/lesson_countdown.dart';
+import 'package:aporia_app/widgets/volunteer_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:aporia_app/screens/post_creation/create_post_view.dart';
-import 'package:aporia_app/screens/leaderboards.dart';
-import 'package:aporia_app/screens/section_views/admin_view/user_list_view.dart';
 import 'package:aporia_app/screens/section_views/section_page.dart';
 import 'package:aporia_app/screens/settings_page.dart';
 import 'package:aporia_app/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:aporia_app/widgets/forks/sleek_circular_slider/appearance.dart';
 import 'package:aporia_app/widgets/forks/sleek_circular_slider/circular_slider.dart';
-import 'package:aporia_app/utils/config.dart' as config;
+import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:aporia_app/utils/config/config.dart' as config;
+import 'package:aporia_app/utils/config/config_parser.dart' as parse;
+import 'package:aporia_app/utils/config/abilities.dart';
+import 'package:aporia_app/widgets/action_card.dart';
 
 /**
  * The following section includes functions for the home page.
  */
 
-/// An enum for the horizontal carousel that returns padding based on position.
-enum PositionPadding {
-  start(EdgeInsets.fromLTRB(38.0, 8.0, 8.0, 8.0)),
-  middle(EdgeInsets.all(8.0)),
-  end(EdgeInsets.fromLTRB(8.00, 8.0, 38.0, 8.0));
-
-  const PositionPadding(this.padding);
-  final EdgeInsetsGeometry padding;
-}
-
-/// Creates cards within horizontal carousel that complete an action.
-Widget actionCard(BuildContext context,
-    {PositionPadding position = PositionPadding.middle,
-    required IconData icon,
-    required String text,
-    Widget? navigateTo}) {
-  return Padding(
-    padding: position.padding,
-    child: Card(
-      elevation: 5,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-      ),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-        splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
-        highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
-        onTap: () {
-          // try to navigate to page
-          if (navigateTo != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => navigateTo),
-            );
-          } else {
-            debugPrint("navigateTo was null");
-          }
-        },
-        // Builds icon and text inside card
-        child: SizedBox(
-          height: 151,
-          width: 151,
-          child: Center(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon,
-                  color: Theme.of(context).colorScheme.primary, size: 100),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text(text),
-              )
-            ],
-          )),
-        ),
-      ),
-    ),
-  );
-}
-
 /// Creates section based cards that lead to quizzes/posts.
 Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
-    String title, String? sectionID, String role) {
+    String title, String? sectionID, String role, List<String> userRoles) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
     child: Card(
@@ -122,6 +62,7 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
                           builder: (context) => SectionPage(
                               userData: userData,
                               title: title,
+                              userRoles: userRoles,
                               id: sectionID,
                               role: role)),
                     );
@@ -148,34 +89,39 @@ Widget sectionCard(BuildContext context, Map<String, dynamic> userData,
 }
 
 /// progress bar rings around user profile picture
-Widget userRings(BuildContext context,
+Widget decoratedProfilePicture(BuildContext context,
     {required Widget profilePicture,
+    required List<String> userRoles,
     required double experience,
     required Map<String, dynamic> levelMap}) {
-  return SleekCircularSlider(
-    appearance: CircularSliderAppearance(
-        animationEnabled: true,
-        angleRange: 360.0,
-        startAngle: 0.0,
-        customWidths: CustomSliderWidths(
-            trackWidth: 15,
-            progressBarWidth: 15,
-            handlerSize: 0,
-            shadowWidth: 16),
-        customColors: CustomSliderColors(
-            trackColor: Theme.of(context).primaryColorLight.withAlpha(25),
-            progressBarColors: [
-              Theme.of(context).colorScheme.secondary,
-              Theme.of(context).colorScheme.primary
-            ])),
-    innerWidget: (double percentage) {
-      return profilePicture;
-    },
-    min: levelMap['minVal'],
-    max: levelMap['maxVal'],
-    // If the value of experience is infinity, have the experience rendered at 0
-    initialValue: (experience.isInfinite) ? 0 : experience.abs(),
-  );
+  if (getComputedAbilities(userRoles).contains('points')) {
+    return SleekCircularSlider(
+      appearance: CircularSliderAppearance(
+          animationEnabled: true,
+          angleRange: 360.0,
+          startAngle: 0.0,
+          customWidths: CustomSliderWidths(
+              trackWidth: 15,
+              progressBarWidth: 15,
+              handlerSize: 0,
+              shadowWidth: 16),
+          customColors: CustomSliderColors(
+              trackColor: Theme.of(context).primaryColorLight.withAlpha(25),
+              progressBarColors: [
+                Theme.of(context).colorScheme.secondary,
+                Theme.of(context).colorScheme.primary
+              ])),
+      innerWidget: (double percentage) {
+        return profilePicture;
+      },
+      min: levelMap['minVal'],
+      max: levelMap['maxVal'],
+      // If the value of experience is infinity, have the experience rendered at 0
+      initialValue: (experience.isInfinite) ? 0 : experience.abs(),
+    );
+  } else {
+    return profilePicture;
+  }
 }
 
 /// Calculates a user's level and returns a map based on experience points.
@@ -216,146 +162,173 @@ Widget userInfo(BuildContext context,
     {required Map<String, dynamic> userData,
     required Widget profilePicture,
     required bool isAdmin,
-    required bool isCompany}) {
-  return StreamBuilder<DocumentSnapshot>(
-      // Stream for user's quiz points.
-      stream: FirebaseFirestore.instance
-          .collection('publicProfile')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .snapshots(),
-      builder: (context, publicProfileSnapshot) {
-        // Turn user points document to dart map.
-        Map<String, dynamic>? profileMap =
-            publicProfileSnapshot.data?.data() as Map<String, dynamic>?;
-        double experience = (profileMap?['experience'] ?? 0).toDouble();
-        Map<String, dynamic> levelMap = calculateLevel(experience);
+    required bool isCompany,
+    required List<String> userRoles,
+    required List<String> abilities,
+    required Map<String, dynamic>? profileMap,
+    required parse.Config configMap}) {
+  double experience = (profileMap?['experience'] ?? 0).toDouble();
+  Map<String, dynamic> levelMap = calculateLevel(experience);
 
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
-          child: Card(
-            elevation: 5,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-            ),
-            child: InkWell(
-              borderRadius: const BorderRadius.all(Radius.circular(15)),
-              splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
-              highlightColor:
-                  Theme.of(context).colorScheme.primary.withAlpha(20),
-              onTap: () {
-                // Clicking the userInfo widget either goes to settings or
-                // schedule view depending on if the scheduling module is
-                // enabled or not.
-                if (config.appMap[config.appID]?['views'].contains('scheduling')) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            ScheduleView(jobList: profileMap?['jobList'], isCompany: isCompany)),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            SettingsPage(
-                              userData: userData,
-                              isAdmin: isAdmin,
-                            )),
-                  );
-                }
-              },
-              child: SizedBox(
-                height: 175,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding:
-                            const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+  Map<int, Map<String, String>> subText = {};
+
+  // if our user is a volunteer, show different text
+  if (abilities.contains('volunteering')) {
+    int volunteerHours = (profileMap?['volunteerHours'] ?? 0).toInt();
+    subText = {
+      1: {
+        'title': 'Time to Lesson',
+        'text': profileMap?['volunteer'] == true ? 'Loading...' : 'N/A',
+        'util': 'lessonCountdown'
+      },
+      2: {
+        'title': 'Volunteer Hours',
+        'text': '$volunteerHours ${volunteerHours == 1 ? 'Hour' : 'Hours'}',
+      },
+    };
+  } else {
+    subText = {
+      1: {
+        'title': 'Level',
+        'text': levelMap['level'].toString(),
+      },
+      2: {
+        'title': 'Experience',
+        'text': (experience.isInfinite)
+            ? "Infinity"
+            : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}"
+      },
+    };
+  }
+
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(38.0, 16.0, 38.0, 16.0),
+    child: Card(
+      elevation: 5,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+      ),
+      child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
+        splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+        highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
+        onTap: () {
+          // Clicking the userInfo widget either goes to settings or
+          // schedule view depending on if the scheduling module is
+          // enabled or not.
+          if (abilities.contains('scheduling')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ScheduleView(
+                      jobList: profileMap?['jobList'], isCompany: isCompany)),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SettingsPage(
+                        userData: userData,
+                        userRoles: userRoles,
+                        isAdmin: isAdmin,
+                      )),
+            );
+          }
+        },
+        child: SizedBox(
+          height: 175,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12.0, 6.0, 12.0, 6.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // The fitted box allows the text to resize based on how long it is.
+                        FittedBox(
+                          fit: BoxFit.fitWidth,
+                          child: Text(userData['username'],
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                      color:
+                                          Theme.of(context).primaryColorLight)),
+                        ),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // The fitted box allows the text to resize based on how long it is.
-                            FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(userData['username'],
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .primaryColorLight)),
+                            Text(
+                              subText[1]?['title'] ?? 'error',
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 1,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Level',
+                            (profileMap?['volunteer'] == true && subText[1]?['util'] == 'lessonCountdown')
+                                ? lessonCountdown(profileMap)
+                                : Text(
+                                    subText[1]?['text'] ?? 'error',
                                     style: Theme.of(context)
                                         .textTheme
-                                        .titleMedium),
-                                Text(
-                                  levelMap['level'].toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                              ],
+                                        .titleLarge
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              subText[2]?['title'] ?? 'error',
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 1,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Experience',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium),
-                                Text(
-                                  // If the experience is infinity, render the text "infinity", if not, get the positive experience value.
-                                  (experience.isInfinite)
-                                      ? "Infinity"
-                                      : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary),
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                              ],
+                            Text(
+                              // If the experience is infinity, render the text "infinity", if not, get the positive experience value.
+                              subText[2]?['text'] ?? 'error',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                             ),
                           ],
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: SizedBox(
-                            width: 125,
-                            height: 125,
-                            child: userRings(context,
-                                profilePicture: profilePicture,
-                                experience: experience,
-                                levelMap: levelMap)),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                      width: 125,
+                      height: 125,
+                      child: decoratedProfilePicture(context,
+                          profilePicture: profilePicture,
+                          userRoles: userRoles,
+                          experience: experience,
+                          levelMap: levelMap)),
+                ),
+              ],
             ),
           ),
-        );
-      });
+        ),
+      ),
+    ),
+  );
 }
 
 Widget fetchProfilePicture(
@@ -365,21 +338,21 @@ Widget fetchProfilePicture(
       "https://avatars.dicebear.com/api/avataaars/$username.svg";
 
   if (imageUrl.isEmpty) {
-    return Padding(
-      padding: padding
-          ? EdgeInsets.all(customPadding ?? 15.0)
-          : const EdgeInsets.all(0),
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-        return Center(
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      return Padding(
+        padding: padding
+            ? EdgeInsets.all(customPadding ?? 10)
+            : const EdgeInsets.all(0),
+        child: Center(
           child: UserAvatar(size: constraints.maxHeight),
-        );
-      }),
-    );
+        ),
+      );
+    });
   } else if (pfpType == 'image/svg+xml') {
     return Padding(
       padding: padding
-          ? EdgeInsets.all(customPadding ?? 15.0)
+          ? EdgeInsets.all(customPadding ?? 10)
           : const EdgeInsets.all(0),
       child: ClipOval(
         child: CircleAvatar(
@@ -398,7 +371,7 @@ Widget fetchProfilePicture(
   } else {
     return Padding(
       padding: padding
-          ? EdgeInsets.all(customPadding ?? 15.0)
+          ? EdgeInsets.all(customPadding ?? 10)
           : const EdgeInsets.all(0),
       child: CachedNetworkImage(
         imageUrl: imageUrl,
@@ -469,7 +442,8 @@ class _HomePageState extends State<HomePage> {
                           arrayContains: FirebaseAuth.instance.currentUser?.uid)
                       .snapshots(),
                   builder: (context, rolesSnapshot) {
-                    if (rolesSnapshot.connectionState == ConnectionState.active) {
+                    if (rolesSnapshot.connectionState ==
+                        ConnectionState.active) {
                       // If the user is not in a role
                       if (rolesSnapshot.data?.docs.isEmpty ?? true) {
                         return const Center(
@@ -479,145 +453,143 @@ class _HomePageState extends State<HomePage> {
                               "Error: you are not assigned to a role yet. Please wait a second, and if it's still not working please contact an Admin"),
                         ));
                       } else {
+                        // TODO: depreciate roleList and isUser, isAdmin etc
                         List roleList = rolesSnapshot.data!.docs
                             .map((doc) => doc['tag'])
                             .toList();
+                        bool isUser = roleList.contains("User");
                         bool isAdmin = roleList.contains("Admin");
                         bool isCompany = roleList.contains("Company");
-                        // If user is in role, return normal ListView
-                        return SizedBox(
-                          width: isAdmin ? 760 : 600,
-                          child: ListView(
-                            padding: EdgeInsets.zero,
-                            children: [
-                              /// user info display
-                              userInfo(context,
-                                  userData: widget.userData,
-                                  isAdmin: isAdmin,
-                                  isCompany: isCompany,
-                                  profilePicture: Hero(
-                                      tag: '$username Profile Picture',
-                                      child: fetchProfilePicture(
+
+                        List<String> userRoles = rolesSnapshot.data!.docs
+                            .map((doc) => doc.id)
+                            .toList();
+                        List<String> abilities =
+                            getComputedAbilities(userRoles);
+
+                        return StreamBuilder<DocumentSnapshot>(
+                            // Stream for user's quiz points.
+                            stream: FirebaseFirestore.instance
+                                .collection('publicProfile')
+                                .doc(FirebaseAuth.instance.currentUser?.uid)
+                                .snapshots(),
+                            builder: (context, publicProfileSnapshot) {
+                              // Turn user points document to dart map.
+                              Map<String, dynamic>? profileMap =
+                                  publicProfileSnapshot.data?.data()
+                                      as Map<String, dynamic>?;
+
+                              // If user is in role, return normal ListView
+                              return SizedBox(
+                                width: isAdmin ? 760 : 600,
+                                child: ListView(
+                                  padding: EdgeInsets.zero,
+                                  children: [
+                                    /// user info display
+                                    userInfo(
+                                      context,
+                                      userData: widget.userData,
+                                      isAdmin: isAdmin,
+                                      isCompany: isCompany,
+                                      userRoles: userRoles,
+                                      configMap: config.configMap,
+                                      profileMap: profileMap,
+                                      abilities: abilities,
+                                      profilePicture: Hero(
+                                        tag: '$username Profile Picture',
+                                        child: fetchProfilePicture(
                                           widget.userData['profilePicture'],
                                           widget.userData['pfpType'],
                                           username,
-                                          padding: true))),
+                                          padding: true,
+                                          customPadding:
+                                              abilities.contains('points')
+                                                  ? 15
+                                                  : 0,
+                                        ),
+                                      ),
+                                    ),
 
-                              /// horizontal carousel for actions
-                              SizedBox(
-                                height: 175,
-                                child: Center(
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    shrinkWrap: true,
-                                    children: [
-                                      actionCard(context,
-                                          icon: Icons.people,
-                                          text: "Leaderboards",
-                                          navigateTo:
-                                              Leaderboards(isAdmin: isAdmin),
-                                          position: PositionPadding.start),
-                                      // Only show if appMap says so
-                                      config.appMap[config.appID]?['views'].contains('scheduling')
-                                          ? (
-                                          isCompany ?
-                                          actionCard(context,
-                                          icon: Icons.work,
-                                          text: "Create Job",
-                                          navigateTo: CreateJob(userData: widget.userData)) :
-                                          actionCard(context,
-                                              icon: Icons.edit_calendar,
-                                              text: "Availability",
-                                              navigateTo: const AvailabilityPage(
-                                                  isCompany: false,
-                                              )
-                                          )
-                                      ) : const SizedBox.shrink(),
-                                      config.appMap[config.appID]?['views'].contains('scheduling')
-                                          ? (
-                                          isCompany ?
-                                          actionCard(context,
-                                              icon: Icons.manage_search_rounded,
-                                              text: "Manage Jobs",
-                                              navigateTo: ManageJobsPage(
-                                                  userData: widget.userData,
-                                                  isAdmin: isAdmin,
-                                                  isCompany: isCompany,
-                                              )
-                                          ) :
-                                          const SizedBox.shrink()
-                                      ) : const SizedBox.shrink(),
-                                      // Only show tile if user is admin
-                                      isAdmin ? actionCard(context,
-                                              icon: Icons.admin_panel_settings,
-                                              text: "Admin View",
-                                              navigateTo: UsersPage())
-                                          : const SizedBox.shrink(),
-                                      // Only show tile if user is admin
-                                      isAdmin ? actionCard(context,
-                                              icon: Icons.create,
-                                              text: "Create Post",
-                                              navigateTo: const CreatePost())
-                                          : const SizedBox.shrink(),
-                                      actionCard(context,
-                                          icon: Icons.settings,
-                                          text: "Settings",
-                                          navigateTo: SettingsPage(
-                                              userData: widget.userData,
-                                              isAdmin: isAdmin),
-                                          position: PositionPadding.end),
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              /// cards leading to individual sections
-                              StreamBuilder<QuerySnapshot>(
-                                  // The postGroups collection includes which roles
-                                  // can access which groups. This stream gets all
-                                  // postGroups where the roles includes the roles
-                                  // that the user can access.
-                                  stream: FirebaseFirestore.instance
-                                      .collection('postGroups')
-                                      // Since a user can have multiple roles, this gets all the roles a user is in
-                                      .where('roles',
-                                          arrayContainsAny: rolesSnapshot
-                                              .data?.docs
-                                              .map((doc) => doc.id)
-                                              .toList())
-                                      .snapshots(),
-                                  builder: (context, postsGroupSnapshot) {
-                                    if (postsGroupSnapshot.connectionState ==
-                                        ConnectionState.active) {
-                                      // Builds section cards based on the
-                                      // postGroups a user is a part of.
-                                      return ListView.builder(
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
+                                    /// horizontal carousel for actions
+                                    SizedBox(
+                                      height: 175,
+                                      child: Center(
+                                        child: ListView(
+                                          scrollDirection: Axis.horizontal,
                                           shrinkWrap: true,
-                                          padding: EdgeInsets.zero,
-                                          itemCount: postsGroupSnapshot
-                                              .data?.docs.length,
-                                          itemBuilder:
-                                              (BuildContext context, int index) {
-                                            return sectionCard(
-                                                context,
-                                                widget.userData,
-                                                postsGroupSnapshot
-                                                    .data?.docs[index]["tag"],
-                                                postsGroupSnapshot
-                                                    .data?.docs[index].id,
-                                                rolesSnapshot.data?.docs[0]
-                                                    ['tag']);
-                                          });
-                                    } else {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    }
-                                  }),
-                            ],
-                          ),
-                        );
+                                          children: actionCardCarousel(context,
+                                              isUser: isUser,
+                                              isAdmin: isAdmin,
+                                              isCompany: isCompany,
+                                              userRoles: userRoles,
+                                              configMap: config.configMap,
+                                              userData: widget.userData,
+                                              customButtons: abilities
+                                                      .contains('volunteering')
+                                                  ? [
+                                                      VolunteerButton(
+                                                          jobList: profileMap?[
+                                                                  'jobList'] ??
+                                                              [])
+                                                    ]
+                                                  : []),
+                                        ),
+                                      ),
+                                    ),
+
+                                    /// cards leading to individual sections
+                                    StreamBuilder<QuerySnapshot>(
+                                        // The postGroups collection includes which roles
+                                        // can access which groups. This stream gets all
+                                        // postGroups where the roles includes the roles
+                                        // that the user can access.
+                                        stream: FirebaseFirestore.instance
+                                            .collection('postGroups')
+                                            // Since a user can have multiple roles, this gets all the roles a user is in
+                                            .where('roles',
+                                                arrayContainsAny: rolesSnapshot
+                                                    .data?.docs
+                                                    .map((doc) => doc.id)
+                                                    .toList())
+                                            .snapshots(),
+                                        builder: (context, postsGroupSnapshot) {
+                                          if (postsGroupSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.active) {
+                                            // Builds section cards based on the
+                                            // postGroups a user is a part of.
+                                            return ListView.builder(
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                shrinkWrap: true,
+                                                padding: EdgeInsets.zero,
+                                                itemCount: postsGroupSnapshot
+                                                    .data?.docs.length,
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
+                                                  return sectionCard(
+                                                    context,
+                                                    widget.userData,
+                                                    postsGroupSnapshot.data
+                                                        ?.docs[index]["tag"],
+                                                    postsGroupSnapshot
+                                                        .data?.docs[index].id,
+                                                    rolesSnapshot.data?.docs[0]
+                                                        ['tag'],
+                                                    userRoles,
+                                                  );
+                                                });
+                                          } else {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                        }),
+                                  ],
+                                ),
+                              );
+                            });
                       }
                     } else {
                       return const Center(child: CircularProgressIndicator());

@@ -41,8 +41,8 @@ dependencies:
   flutter_extensions: ^5.0.0
   appflowy_editor:
     git:
-      url: https://github.com/garv-shah/appflowy-editor
-      ref: theme-fix
+      url: https://github.com/AppFLowy-IO/appflowy-editor
+      ref: d87d353
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^4.4.4
@@ -75,6 +75,8 @@ dependencies:
   googleapis_auth: ^1.4.1
   loading_indicator: ^3.1.1
   styled_widget: ^0.4.1
+  firebase_database: ^10.2.3
+  stop_watch_timer: ^3.0.0
 
 dependency_overrides:
   intl: ^0.18.0

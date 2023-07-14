@@ -1,6 +1,6 @@
 /*
-File: create_order_view.dart
-Description: Where orders can be created and modified
+File: create_user_view.dart
+Description: Where users can be created
 Author: Garv Shah
 Created: Sat Jul 23 18:21:21 2022
  */
@@ -25,7 +25,7 @@ String? validateEmail(String? value) {
       : null;
 }
 
-/// This is the view where new orders can be created.
+/// This is the view where new users can be created.
 class CreateUser extends StatefulWidget {
 
   const CreateUser({Key? key})
@@ -64,7 +64,7 @@ class _CreateUserState extends State<CreateUser> {
 
             // create user
             functions
-                .httpsCallable('createUser')
+                .httpsCallable('manualCreateUser')
                 .call(userData);
 
             Navigator.pop(context);
@@ -143,23 +143,42 @@ class _CreateUserState extends State<CreateUser> {
                     ),
                   ),
                   // user type input
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
-                    child: DropdownButtonFormField(
-                      items: const [
-                        DropdownMenuItem(value: 'admins', child: Text('Admin')),
-                        DropdownMenuItem(value: 'users', child: Text('User')),
-                      ],
-                      onChanged: (String? value) {
-                        setState(() {
-                          userData['role'] = value;
-                        });
-                      },
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? "Must provide a role!"
-                          : null,
-                      hint: const Text("User's Role"),
-                    ),
+                  FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    future: FirebaseFirestore.instance.collection('roles').get(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> roleSnapshot) {
+                      if (roleSnapshot.connectionState == ConnectionState.done) {
+                        if (roleSnapshot.hasData) {
+                          List<DropdownMenuItem<String>> possibleRoles = [];
+
+                          List<QueryDocumentSnapshot<Map<String, dynamic>>>? roleDocs = roleSnapshot.data?.docs;
+                          for (QueryDocumentSnapshot<Map<String, dynamic>> role in roleDocs!) {
+                            possibleRoles
+                                .add(DropdownMenuItem(value: role.id, child: Text(role.data()['tag'])));
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(36.0, 8.0, 36.0, 8.0),
+                            child: DropdownButtonFormField(
+                              items: possibleRoles,
+                              onChanged: (String? value) {
+                                userData['role'] = value;
+                              },
+                              validator: (value) => (value == null || value.isEmpty)
+                                  ? "Must provide a role!"
+                                  : null,
+                              hint: const Text("User's Role"),
+                            ),
+                          );
+                        } else {
+                          return const Center(
+                            child: Text("Error: The role snapshot has no data"),
+                          );
+                        }
+                      } else {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                    }
                   ),
                 ],
               )),

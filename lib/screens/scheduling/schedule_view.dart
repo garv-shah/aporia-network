@@ -27,57 +27,50 @@ class ScheduleView extends StatefulWidget {
 
 class _ScheduleViewState extends State<ScheduleView> {
   @override
-  void initState() {
+  void didChangeDependencies() {
     getDataFromFireStore().then((results) {
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
         setState(() {});
       });
     });
-    super.initState();
+    super.didChangeDependencies();
   }
 
   Future<void> getDataFromFireStore() async {
-    QuerySnapshot<Map<String, dynamic>> jobCollection = await FirebaseFirestore.instance
-        .collection("jobs")
-        .get();
-
     List<Appointment> list = [];
 
-    for (QueryDocumentSnapshot<Map<String, dynamic>> jobData in jobCollection.docs) {
-      if (widget.jobList.contains(jobData.id)) {
-        Map<String, dynamic> data = jobData.data();
-        int dayOfWeek = DateTime.parse(data['lessonTimes']['start']).weekday;
-        String recurrenceDay = 'MO';
+    for (Map<String, dynamic> job in widget.jobList) {
+      int dayOfWeek = DateTime.parse(job['lessonTimes']['start']).weekday;
+      String recurrenceDay = 'MO';
 
-        if (dayOfWeek == 1) {
-          recurrenceDay = 'MO';
-        } else if (dayOfWeek == 2) {
-          recurrenceDay = 'TU';
-        } else if (dayOfWeek == 3) {
-          recurrenceDay = 'WE';
-        } else if (dayOfWeek == 4) {
-          recurrenceDay = 'TH';
-        } else if (dayOfWeek == 5) {
-          recurrenceDay = 'FR';
-        } else if (dayOfWeek == 6) {
-          recurrenceDay = 'SA';
-        } else if (dayOfWeek == 7) {
-          recurrenceDay = 'SU';
-        }
-
-        list.add(Appointment(
-            subject: data['Job Title'],
-            notes: data['Job Description'],
-            location: "2cousins Meeting",
-            id: jobData.id,
-            startTimeZone: data['timezone'],
-            endTimeZone: data['timezone'],
-            startTime: DateTime.parse(data['lessonTimes']['start']),
-            endTime: DateTime.parse(data['lessonTimes']['end']),
-            color: Theme.of(context).colorScheme.primary,
-            recurrenceRule: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=$recurrenceDay'
-        ));
+      if (dayOfWeek == 1) {
+        recurrenceDay = 'MO';
+      } else if (dayOfWeek == 2) {
+        recurrenceDay = 'TU';
+      } else if (dayOfWeek == 3) {
+        recurrenceDay = 'WE';
+      } else if (dayOfWeek == 4) {
+        recurrenceDay = 'TH';
+      } else if (dayOfWeek == 5) {
+        recurrenceDay = 'FR';
+      } else if (dayOfWeek == 6) {
+        recurrenceDay = 'SA';
+      } else if (dayOfWeek == 7) {
+        recurrenceDay = 'SU';
       }
+
+      list.add(Appointment(
+          subject: job['Job Title'],
+          notes: job['Job Description'],
+          location: "2cousins Meeting",
+          id: job['ID'],
+          startTimeZone: job['timezone'],
+          endTimeZone: job['timezone'],
+          startTime: DateTime.parse(job['lessonTimes']['start']),
+          endTime: DateTime.parse(job['lessonTimes']['end']),
+          color: Theme.of(context).colorScheme.primary,
+          recurrenceRule: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=$recurrenceDay'
+      ));
     }
 
     setState(() {
@@ -86,14 +79,18 @@ class _ScheduleViewState extends State<ScheduleView> {
   }
 
   void calendarTapped(CalendarTapDetails calendarTapDetails) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => JobView(
-                jobID: calendarTapDetails.appointments?.first.id,
-                isCompany: widget.isCompany
-            )
-        ));
+    if (calendarTapDetails.appointments != null) {
+      print(calendarTapDetails.appointments!.first.id);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  JobView(
+                      jobID: calendarTapDetails.appointments!.first.id,
+                      isCompany: widget.isCompany
+                  )
+          ));
+    }
   }
 
   @override

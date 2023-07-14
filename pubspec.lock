@@ -69,11 +69,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: theme-fix
-      resolved-ref: "0ce9e051673446b1fbc32a33db819c3e7054eb2a"
-      url: "https://github.com/garv-shah/appflowy-editor"
+      ref: d87d353
+      resolved-ref: d87d353535dcbb1332ebb92beb5c61591c300f3f
+      url: "https://github.com/AppFLowy-IO/appflowy-editor"
     source: git
-    version: "1.1.0"
+    version: "1.2.0"
   archive:
     dependency: transitive
     description:
@@ -474,6 +474,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.0"
+  firebase_database:
+    dependency: "direct main"
+    description:
+      name: firebase_database
+      sha256: "36699bda00feb31433606f034078c690f148c15a4721b351a83c796ba4bba4e7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.2.3"
   firebase_database_platform_interface:
     dependency: transitive
     description:
@@ -1333,6 +1341,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  stop_watch_timer:
+    dependency: "direct main"
+    description:
+      name: stop_watch_timer
+      sha256: "7d06b0cc6608987c4b627a957325261d83181ebd81a3036519590dd51b94ad68"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   stream_channel:
     dependency: transitive
     description:
