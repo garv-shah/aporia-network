@@ -98,7 +98,7 @@ class _ScheduleViewState extends State<ScheduleView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Schedule",
+          "My Schedule",
           style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: Colors.transparent,
