@@ -9,6 +9,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/screens/section_views/admin_view/user_list_view.dart';
@@ -16,6 +17,7 @@ import 'package:aporia_app/widgets/forks/editable_image.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /**
  * The following section includes functions for the settings page.
@@ -209,52 +211,156 @@ class _ManageUserPageState extends State<ManageUserPage> {
                   icon: const Icon(Icons.edit))
             ],
           ),
-          // Role + Company? Card
+          // Other info: role, email, id, etc
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('roles')
-                // Roles that contain the user's UID
-                    .where('members',
-                    arrayContains: widget.userInfo.id)
                     .snapshots(),
                 builder: (context, rolesSnapshot) {
                   if (rolesSnapshot.connectionState ==
                       ConnectionState.active) {
+                    List<Widget> roleDialogueList = [];
+                    List<String> roleList = [];
+                    for (var role in rolesSnapshot.data!.docs) {
+                      bool containsUser = role.data()['members'].contains(widget.userInfo.id);
+                      roleDialogueList.add(
+                        RoleOption(
+                          displayName: role.data()['tag'],
+                          role: role.id,
+                          initialValue: containsUser,
+                          members: role.data()['members'],
+                          userID: widget.userInfo.id,
+                        )
+                      );
+
+                      if (containsUser) {
+                        roleList.add(role.data()['tag']);
+                      }
+                    }
                     return Column(
                       children: [
-                        Card(
-                          elevation: 5,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                        // role
+                        SizedBox(
+                          width: 600,
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SimpleDialog(
+                                          title: const Text("Change User Roles"),
+                                          children: roleDialogueList
+                                      );
+                                    });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Center(
+                                    child: (() {
+                                      try {
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const SizedBox(
+                                              width: 32,
+                                            ),
+                                            Text(
+                                                roleList.join(', '),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(horizontal: 4),
+                                              child: Icon(Icons.edit),
+                                            ),
+                                          ],
+                                        );
+                                      } on StateError {
+                                        return Text(
+                                            'Error: Firestore key not found!',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium);
+                                      }
+                                    } ())
+                                ),
+                              ),
+                            ),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Center(
-                                child: (() {
-                                  try {
-                                    return Text(
-                                      // Similar to before, this gets each of
-                                      // the roles the user is in, gets its
-                                      // tag, puts that into a list and
-                                      // returns a string of that
-                                        rolesSnapshot.data?.docs
-                                            .map((doc) => doc['tag'])
-                                            .toList()
-                                            .join(', ') ??
-                                            "Error: couldn't map roles",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium);
-                                  } on StateError {
-                                    return Text(
-                                        'Error: Firestore key not found!',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium);
-                                  }
-                                } ())
+                        ),
+                        // email
+                        SizedBox(
+                          width: 600,
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Center(
+                                  child: RichText(
+                                    text: TextSpan(
+                                    text: widget.userInfo.email,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () { launchUrl(Uri(
+                                        scheme: 'mailto',
+                                        path: widget.userInfo.email,
+                                      ));
+                                      },
+                                  ),
+                                  )
+                              ),
+                            ),
+                          ),
+                        ),
+                        // user type
+                        (widget.userInfo.userType != null) ? SizedBox(
+                          width: 600,
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Center(
+                                  child: Text(
+                                      'User Type: ${widget.userInfo.userType ?? ' '}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium)
+                              ),
+                            ),
+                          ),
+                        ) : const SizedBox.shrink(),
+                        // id
+                        SizedBox(
+                          width: 600,
+                          child: Card(
+                            elevation: 5,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(15)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Center(
+                                  child: Text(
+                                      'ID: ${widget.userInfo.id}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium)
+                              ),
                             ),
                           ),
                         ),
@@ -266,6 +372,65 @@ class _ManageUserPageState extends State<ManageUserPage> {
                 }),
           ),
           const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class RoleOption extends StatefulWidget {
+  const RoleOption({
+    super.key,
+    required this.displayName,
+    required this.role,
+    required this.initialValue,
+    required this.members,
+    required this.userID,
+  });
+
+  final String displayName;
+  final String role;
+  final bool initialValue;
+  final List members;
+  final String userID;
+
+  @override
+  State<RoleOption> createState() => _RoleOptionState();
+}
+
+class _RoleOptionState extends State<RoleOption> {
+  bool containsUser = false;
+  CollectionReference roleRef = FirebaseFirestore.instance.collection('roles');
+
+  @override
+  void initState() {
+    super.initState();
+    containsUser = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialogOption(
+      onPressed: () async {
+        setState(() {
+          containsUser = !containsUser;
+        });
+
+        List newMembers = widget.members;
+        if (!containsUser) {
+          // delete user from role
+          newMembers.remove(widget.userID);
+        } else {
+          // add user to role
+          newMembers.add(widget.userID);
+        }
+        await roleRef.doc(widget.role).update({'members': newMembers});
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(widget.displayName),
+          containsUser ? const Icon(Icons.check) : const SizedBox.shrink()
         ],
       ),
     );

@@ -21,7 +21,6 @@ import 'package:aporia_app/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:aporia_app/widgets/forks/sleek_circular_slider/appearance.dart';
 import 'package:aporia_app/widgets/forks/sleek_circular_slider/circular_slider.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:aporia_app/utils/config/config.dart' as config;
 import 'package:aporia_app/utils/config/config_parser.dart' as parse;
 import 'package:aporia_app/utils/config/abilities.dart';

@@ -10,6 +10,7 @@ import 'package:aporia_app/screens/home_page.dart';
 class UserModel extends ISuspensionBean {
   String username;
   String role;
+  String email;
   String? profilePicture;
   String? pfpType;
   String? userType;
@@ -18,6 +19,7 @@ class UserModel extends ISuspensionBean {
   UserModel({
     required this.username,
     required this.role,
+    required this.email,
     required this.profilePicture,
     required this.pfpType,
     required this.userType,
@@ -27,6 +29,7 @@ class UserModel extends ISuspensionBean {
   UserModel.fromJson(Map<String, dynamic> json)
       : username = json['username'],
         role = json['role'],
+        email = json['email'],
         profilePicture = json['profilePicture'],
         pfpType = json['pfpType'],
         userType = json['userType'],
@@ -102,6 +105,7 @@ class _UsersPageState extends State<UsersPage> {
       return UserModel(
         username: userMap['username'],
         role: userRole,
+        email: userMap['email'],
         profilePicture: userMap['profilePicture'],
         pfpType: userMap['pfpType'],
         userType: userMap['userType'],
