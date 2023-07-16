@@ -475,28 +475,37 @@ class _SettingsPageState extends State<SettingsPage> {
                               padding: const EdgeInsets.all(16.0),
                               child: OutlinedButton(
                                 onPressed: () async {
-                                  if (FirebaseAuth.instance.currentUser != null) {
-                                    try {
-                                      await FirebaseAuth.instance.currentUser
-                                          ?.delete();
-
-                                      Navigator.pop(context);
-                                    } catch (error) {
-                                      final snackBar = SnackBar(
-                                        content: Text(
-                                          error.toString(),
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColorLight),
-                                        ),
-                                        backgroundColor: Theme.of(context)
-                                            .scaffoldBackgroundColor,
-                                      );
-                                      // Find the Scaffold in the widget tree and use it to show a SnackBar.
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
+                                  showOkCancelAlertDialog(
+                                      okLabel: 'Confirm',
+                                      title: 'Delete Account?',
+                                      message:
+                                      'Are you sure you want to delete your account? This is a permanent action and cannot be undone.',
+                                      context: context)
+                                      .then((result) {
+                                    if (result == OkCancelResult.ok) {
+                                      if (FirebaseAuth.instance.currentUser != null) {
+                                        try {
+                                          FirebaseAuth.instance.currentUser?.delete().then((_) {
+                                            Navigator.pop(context);
+                                          });
+                                        } catch (error) {
+                                          final snackBar = SnackBar(
+                                            content: Text(
+                                              error.toString(),
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColorLight),
+                                            ),
+                                            backgroundColor: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                          );
+                                          // Find the Scaffold in the widget tree and use it to show a SnackBar.
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+                                        }
+                                      }
                                     }
-                                  }
+                                  });
                                 },
                                 style: ButtonStyle(
                                   foregroundColor: MaterialStateProperty.all<Color>(
