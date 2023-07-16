@@ -6,7 +6,7 @@ Created: Sat Jul 23 18:21:21 2022
  */
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:aporia_app/utils/config/config.dart' as config;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -508,7 +508,12 @@ class _CreatePostState extends State<CreatePost> {
 
                                 // Iterates through the documents in he collection and creates a list of dropdown menu options.
                                 for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in (postGroupsSnapshot.data?.docs ?? [])) {
-                                  groups.add(DropdownMenuItem(value: doc?.id ?? "error",child: Text(doc?['tag'] ?? "Invalid Group Name")));
+                                  if (doc?['apps'].contains(config.appID)) {
+                                    groups.add(DropdownMenuItem(
+                                        value: doc?.id ?? "error",
+                                        child: Text(doc?['tag'] ??
+                                            "Invalid Group Name")));
+                                  }
                                 }
 
                                 // If there is no selected group, set it to something
