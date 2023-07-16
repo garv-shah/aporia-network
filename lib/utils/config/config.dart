@@ -43,6 +43,15 @@ const Map configString = {
         }
       },
       {
+        "name": "schedule",
+        "displayName": "My Schedule",
+        "show": {
+          "ability": [
+            "scheduling"
+          ]
+        }
+      },
+      {
         "name": "manageJobs",
         "displayName": "Manage Jobs",
         "show": {

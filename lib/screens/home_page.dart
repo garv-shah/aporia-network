@@ -212,27 +212,15 @@ Widget userInfo(BuildContext context,
         splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
         highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
         onTap: () {
-          // Clicking the userInfo widget either goes to settings or
-          // schedule view depending on if the scheduling module is
-          // enabled or not.
-          if (abilities.contains('scheduling')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ScheduleView(
-                      jobList: profileMap?['jobList'], isCompany: isCompany)),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => SettingsPage(
-                        userData: userData,
-                        userRoles: userRoles,
-                        isAdmin: isAdmin,
-                      )),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SettingsPage(
+                  userData: userData,
+                  userRoles: userRoles,
+                  isAdmin: isAdmin,
+                )),
+          );
         },
         child: SizedBox(
           height: 175,
@@ -523,6 +511,7 @@ class _HomePageState extends State<HomePage> {
                                               userRoles: userRoles,
                                               configMap: config.configMap,
                                               userData: widget.userData,
+                                              profileMap: profileMap,
                                               customButtons: abilities
                                                       .contains('volunteering')
                                                   ? [

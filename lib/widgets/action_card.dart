@@ -14,6 +14,7 @@ import '../screens/post_creation/create_post_view.dart';
 import '../screens/scheduling/availability_page.dart';
 import '../screens/scheduling/create_job_view.dart';
 import '../screens/scheduling/manage_jobs_view.dart';
+import '../screens/scheduling/schedule_view.dart';
 import '../screens/section_views/admin_view/user_list_view.dart';
 import '../screens/settings_page.dart';
 
@@ -26,6 +27,7 @@ List<Widget> actionCardCarousel(
   required List<String> userRoles,
   required parse.Config configMap,
   required Map<String, dynamic> userData,
+  required Map<String, dynamic>? profileMap,
   List<Widget> customButtons = const [],
 }) {
   // initialise widgetList with any possible custom buttons
@@ -63,6 +65,11 @@ List<Widget> actionCardCarousel(
           isAdmin: isAdmin,
           userRoles: userRoles,
         );
+      case 'schedule':
+        return ScheduleView(
+          jobList: profileMap?['jobList'] ?? [],
+          isCompany: isCompany
+        );
       default:
         return const SizedBox.shrink();
     }
@@ -84,6 +91,8 @@ List<Widget> actionCardCarousel(
         return Icons.create;
       case 'settings':
         return Icons.settings;
+      case 'schedule':
+        return Icons.schedule;
       default:
         return Icons.bug_report;
     }
