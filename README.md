@@ -1,11 +1,6 @@
-# Aporia
+# CGS Maths Club
 
-The Aporia Network: a framework for building fast, educational apps.
-
-Current apps made with Aporia include:
-- 2cousins
-- CGS Maths Club
-- NOVA
+The CGS Maths Club app!
 
 # Cloning
 
