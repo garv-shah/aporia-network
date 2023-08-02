@@ -5,7 +5,7 @@ Author: Garv Shah
 Created: Sat Jul 8 17:04:21 2023
  */
 
-import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
+import 'package:maths_club/screens/scheduling/job_selector_page.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

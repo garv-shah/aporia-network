@@ -9,9 +9,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:math_keyboard/math_keyboard.dart';
-import 'package:aporia_app/utils/config/config.dart' as config;
+import 'package:maths_club/utils/config/config.dart' as config;
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:aporia_app/widgets/text_editor.dart';
+import 'package:maths_club/widgets/text_editor.dart';
 
 /// Where quizzes can be answered and viewed.
 class QuizView extends StatefulWidget {

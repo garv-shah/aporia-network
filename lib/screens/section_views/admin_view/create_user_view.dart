@@ -8,7 +8,7 @@ Created: Sat Jul 23 18:21:21 2022
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/utils/components.dart';
 
 String? validateEmail(String? value) {
   const pattern = r"(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'"

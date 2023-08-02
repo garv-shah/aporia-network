@@ -6,13 +6,13 @@ Created: Sat Jul 8 17:04:21 2023
  */
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:aporia_app/screens/scheduling/availability_page.dart';
+import 'package:maths_club/screens/scheduling/availability_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:intl/intl.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/utils/components.dart';
 import 'package:uuid/uuid.dart';
 
 /**

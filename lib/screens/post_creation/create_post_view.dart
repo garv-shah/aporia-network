@@ -6,12 +6,12 @@ Created: Sat Jul 23 18:21:21 2022
  */
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:aporia_app/utils/config/config.dart' as config;
+import 'package:maths_club/utils/config/config.dart' as config;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:aporia_app/screens/post_creation/edit_question.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/screens/post_creation/edit_question.dart';
+import 'package:maths_club/utils/components.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/src/iterable_extensions.dart';
 

@@ -7,7 +7,7 @@ Doc Link: https://github.com/garv-shah/aporia-network#theme-data
  */
 
 import 'package:flutter/material.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/theme_extension.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/theme_extension.dart';
 
 TextStyle _getFontStyle({
   String? fontFamily,

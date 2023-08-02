@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:async/async.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/mouse_hover_builder.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';
 

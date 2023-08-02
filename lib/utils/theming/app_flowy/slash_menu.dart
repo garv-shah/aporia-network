@@ -2,11 +2,11 @@
 import 'package:path/path.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/plugins/math_equation/math_equation_block_component.dart';
+import 'package:maths_club/utils/plugins/math_equation/math_equation_block_component.dart';
 import 'package:http/http.dart' as http;
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 import 'package:universal_io/io.dart';
-import 'package:aporia_app/utils/upload_file.dart';
+import 'package:maths_club/utils/upload_file.dart';
 
 CharacterShortcutEvent slashMenu(BuildContext parentContext) {
   return customSlashCommand([

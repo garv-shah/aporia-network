@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/theming/app_flowy/block_component_builder.dart';
-import 'package:aporia_app/utils/theming/app_flowy/character_shortcut_events.dart';
-import 'package:aporia_app/utils/theming/app_flowy/mobile_toolbar_items.dart';
+import 'package:maths_club/utils/theming/app_flowy/block_component_builder.dart';
+import 'package:maths_club/utils/theming/app_flowy/character_shortcut_events.dart';
+import 'package:maths_club/utils/theming/app_flowy/mobile_toolbar_items.dart';
 
 class TextEditor extends StatelessWidget {
   const TextEditor(

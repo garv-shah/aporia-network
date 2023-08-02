@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/ignore_parent_gesture.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/image.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/ignore_parent_gesture.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/image.dart';
 
 class BlockActionButton extends StatelessWidget {
   const BlockActionButton({

@@ -1,4 +1,4 @@
-import 'package:aporia_app/utils/theming/app_flowy/slash_menu.dart';
+import 'package:maths_club/utils/theming/app_flowy/slash_menu.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 

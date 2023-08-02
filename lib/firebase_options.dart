@@ -49,37 +49,41 @@ class DefaultFirebaseOptions {
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
     authDomain: 'aporia-network.firebaseapp.com',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     measurementId: 'G-11Q1ZD43GX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB_vO8pFvLn2fy-50DMnxsuElZigDbMev0',
-    appId: '1:358601933529:android:2364b061551b873b6ef4c8',
+    appId: '1:358601933529:android:4d05f10eab482f016ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBcxSoJeqdgzLyBBJAYc_halNbWEAuBzjo',
-    appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
+    appId: '1:358601933529:ios:454b6ccde33173de6ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
-    iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
-    iosBundleId: 'com.aporia.ios',
+    iosClientId: '358601933529-o8hcc0pgel4doov5881624dll1pdsnnc.apps.googleusercontent.com',
+    iosBundleId: 'com.garv.mathsClub',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBcxSoJeqdgzLyBBJAYc_halNbWEAuBzjo',
-    appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
+    appId: '1:358601933529:ios:454b6ccde33173de6ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
-    iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
-    iosBundleId: 'com.aporia.ios',
+    iosClientId: '358601933529-o8hcc0pgel4doov5881624dll1pdsnnc.apps.googleusercontent.com',
+    iosBundleId: 'com.garv.mathsClub',
   );
 }

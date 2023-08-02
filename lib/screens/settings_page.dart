@@ -12,14 +12,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/screens/home_page.dart';
-import 'package:aporia_app/widgets/forks/editable_image.dart';
+import 'package:maths_club/screens/home_page.dart';
+import 'package:maths_club/widgets/forks/editable_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
-import 'package:aporia_app/utils/config/config.dart' as config;
-import 'package:aporia_app/utils/config/abilities.dart';
+import 'package:maths_club/utils/config/config.dart' as config;
+import 'package:maths_club/utils/config/abilities.dart';
 
 /**
  * The following section includes functions for the settings page.

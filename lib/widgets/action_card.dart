@@ -6,8 +6,8 @@ Created: Wed Jul 12 10:15:00 2023
  */
 
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/config/config_parser.dart' as parse;
-import 'package:aporia_app/utils/config/abilities.dart';
+import 'package:maths_club/utils/config/config_parser.dart' as parse;
+import 'package:maths_club/utils/config/abilities.dart';
 
 import '../screens/leaderboards.dart';
 import '../screens/post_creation/create_post_view.dart';

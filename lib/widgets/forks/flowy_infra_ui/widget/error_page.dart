@@ -1,4 +1,4 @@
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';

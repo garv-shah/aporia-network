@@ -1,9 +1,9 @@
-import 'package:aporia_app/utils/theming/app_flowy/slash_menu.dart';
+import 'package:maths_club/utils/theming/app_flowy/slash_menu.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/plugins/actions/block_action_list.dart';
-import 'package:aporia_app/utils/plugins/actions/option_action.dart';
-import 'package:aporia_app/utils/plugins/math_equation/math_equation_block_component.dart';
+import 'package:maths_club/utils/plugins/actions/block_action_list.dart';
+import 'package:maths_club/utils/plugins/actions/option_action.dart';
+import 'package:maths_club/utils/plugins/math_equation/math_equation_block_component.dart';
 
 Map<String, BlockComponentBuilder> getCustomBlockComponentBuilderMap(BuildContext buildContext, EditorState editorState) {
   final standardActions = [

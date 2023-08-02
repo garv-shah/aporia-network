@@ -5,11 +5,11 @@ Author: Garv Shah
 Created: Fri Aug 5 22:25:21 2022
  */
 
-import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
+import 'package:maths_club/screens/scheduling/job_selector_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:aporia_app/widgets/section_app_bar.dart';
+import 'package:maths_club/widgets/section_app_bar.dart';
 import 'dart:ui';
 
 import '../home_page.dart';

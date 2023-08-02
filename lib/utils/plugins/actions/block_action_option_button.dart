@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
 import '../../../widgets/forks/flowy_infra_ui/widget/popup_action.dart';
 import 'block_action_button.dart';
 import 'option_action.dart';

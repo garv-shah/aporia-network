@@ -8,8 +8,8 @@ Created: Sat Jul 23 18:21:21 2022
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:math_keyboard/math_keyboard.dart';
-import 'package:aporia_app/utils/components.dart';
-import 'package:aporia_app/widgets/text_editor.dart';
+import 'package:maths_club/utils/components.dart';
+import 'package:maths_club/widgets/text_editor.dart';
 
 typedef DataCallback = void Function(Map<String, dynamic> data);
 typedef TexCallback = void Function(String solution);

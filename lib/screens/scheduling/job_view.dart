@@ -1,10 +1,10 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:aporia_app/screens/scheduling/create_job_view.dart';
+import 'package:maths_club/screens/scheduling/create_job_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/screens/home_page.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/screens/home_page.dart';
+import 'package:maths_club/utils/components.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum StatusStates { pendingAssignment, assigned }

@@ -1,4 +1,4 @@
-import 'package:aporia_app/utils/plugins/extensions/flowy_tint_extension.dart';
+import 'package:maths_club/utils/plugins/extensions/flowy_tint_extension.dart';
 import 'package:appflowy_editor/appflowy_editor.dart' hide FlowySvg;
 import 'package:flutter/material.dart';
 import 'package:styled_widget/styled_widget.dart';

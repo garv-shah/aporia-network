@@ -9,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:aporia_app/screens/scheduling/availability_page.dart';
+import 'package:maths_club/screens/scheduling/availability_page.dart';
 
 import 'job_view.dart';
 

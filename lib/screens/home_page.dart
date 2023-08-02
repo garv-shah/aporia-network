@@ -7,24 +7,24 @@ Created: Sat Jun 18 18:29:00 2022
 
 import 'dart:math';
 
-import 'package:aporia_app/screens/scheduling/schedule_view.dart';
-import 'package:aporia_app/widgets/lesson_countdown.dart';
-import 'package:aporia_app/widgets/volunteer_button.dart';
+import 'package:maths_club/screens/scheduling/schedule_view.dart';
+import 'package:maths_club/widgets/lesson_countdown.dart';
+import 'package:maths_club/widgets/volunteer_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:aporia_app/screens/section_views/section_page.dart';
-import 'package:aporia_app/screens/settings_page.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/screens/section_views/section_page.dart';
+import 'package:maths_club/screens/settings_page.dart';
+import 'package:maths_club/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:aporia_app/widgets/forks/sleek_circular_slider/appearance.dart';
-import 'package:aporia_app/widgets/forks/sleek_circular_slider/circular_slider.dart';
-import 'package:aporia_app/utils/config/config.dart' as config;
-import 'package:aporia_app/utils/config/config_parser.dart' as parse;
-import 'package:aporia_app/utils/config/abilities.dart';
-import 'package:aporia_app/widgets/action_card.dart';
+import 'package:maths_club/widgets/forks/sleek_circular_slider/appearance.dart';
+import 'package:maths_club/widgets/forks/sleek_circular_slider/circular_slider.dart';
+import 'package:maths_club/utils/config/config.dart' as config;
+import 'package:maths_club/utils/config/config_parser.dart' as parse;
+import 'package:maths_club/utils/config/abilities.dart';
+import 'package:maths_club/widgets/action_card.dart';
 
 /**
  * The following section includes functions for the home page.

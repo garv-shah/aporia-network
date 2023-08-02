@@ -12,13 +12,13 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_apple/firebase_ui_oauth_apple.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/screens/auth/landing_page.dart';
-import 'package:aporia_app/utils/login_functions.dart';
-import 'package:aporia_app/utils/theming/theme.dart';
+import 'package:maths_club/screens/auth/landing_page.dart';
+import 'package:maths_club/utils/login_functions.dart';
+import 'package:maths_club/utils/theming/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:aporia_app/utils/config/config.dart' as config;
+import 'package:maths_club/utils/config/config.dart' as config;
 
 void main() async {
   // Initialises Firebase.

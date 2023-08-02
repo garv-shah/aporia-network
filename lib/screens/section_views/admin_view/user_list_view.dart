@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:azlistview/azlistview.dart';
 import 'package:flutter/services.dart';
-import 'package:aporia_app/screens/section_views/admin_view/create_user_view.dart';
-import 'package:aporia_app/screens/section_views/admin_view/manage_user_page.dart';
+import 'package:maths_club/screens/section_views/admin_view/create_user_view.dart';
+import 'package:maths_club/screens/section_views/admin_view/manage_user_page.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:aporia_app/screens/home_page.dart';
+import 'package:maths_club/screens/home_page.dart';
 
 class UserModel extends ISuspensionBean {
   String username;

@@ -12,7 +12,7 @@ To get started with Aporia, begin with the following setup:
 3. Rename the app name and id globally
    - `flutter pub global run rename --bundleId com.example.app`
    - `flutter pub global run rename --appname "Example App"`
-4. Replace all instances of `aporia_app` and `Aporia Network Display Name` with your Flutter app name with your chosen IDE and run `flutter pub get`
+4. Replace all instances of `maths_club` and `Aporia Network Display Name` with your Flutter app name with your chosen IDE and run `flutter pub get`
 5. Replace the config values in `lib/utils/config.dart`
 6. Replace the app assets in `assets`
 7. Replace the `adaptive_background_color`, `color` and `description` in `pubspec.yaml`

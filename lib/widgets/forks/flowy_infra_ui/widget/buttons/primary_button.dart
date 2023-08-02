@@ -1,4 +1,4 @@
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/text.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import '../size.dart';
 import 'base_styled_button.dart';

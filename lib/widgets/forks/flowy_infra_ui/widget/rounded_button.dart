@@ -1,5 +1,5 @@
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/button.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/size.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/button.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/size.dart';
 import 'package:flutter/material.dart';
 
 class RoundedTextButton extends StatelessWidget {

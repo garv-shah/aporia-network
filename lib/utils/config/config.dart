@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'config_parser.dart';
 
-const String name = 'Aporia';
-const String detailedName = 'The Aporia Network';
-const String appID = 'aporia_app';
+const String name = 'Maths Club';
+const String detailedName = 'CGS Maths Club';
+const String appID = 'maths_club';
 Map<String, Config> globalConfig = {
-  'aporia_app': configFromJson(jsonEncode(configString['aporia_app'])),
+  'aporia_app': configFromJson(jsonEncode(configString['maths_club'])),
   'maths_club': configFromJson(jsonEncode(configString['maths_club'])),
   'two_cousins': configFromJson(jsonEncode(configString['two_cousins'])),
 };

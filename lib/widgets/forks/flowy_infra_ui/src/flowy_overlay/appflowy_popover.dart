@@ -1,5 +1,5 @@
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/decoration.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/decoration.dart';
 import 'package:flutter/material.dart';
 
 import 'mutex.dart';

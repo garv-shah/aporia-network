@@ -1,7 +1,7 @@
 // ignore_for_file: unused_element
 
 import 'dart:ui';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/src/flowy_overlay/layout.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

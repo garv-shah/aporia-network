@@ -1,7 +1,7 @@
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/utils/theming/app_flowy/mobile_toolbar.dart';
+import 'package:maths_club/utils/theming/app_flowy/mobile_toolbar.dart';
 
 List<MobileToolbarItem> getMobileToolbarItems(Color color) {
   return [

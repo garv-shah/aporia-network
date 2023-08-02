@@ -8,8 +8,8 @@ Created: Wed Jul 20 20:11:15 2022
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:aporia_app/screens/home_page.dart';
-import 'package:aporia_app/utils/components.dart';
+import 'package:maths_club/screens/home_page.dart';
+import 'package:maths_club/utils/components.dart';
 
 /**
  * The following section includes functions for the leaderboards page.
