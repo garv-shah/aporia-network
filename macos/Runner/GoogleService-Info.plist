@@ -32,5 +32,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:358601933529:ios:1acd8adbb74887386ef4c8</string>
+	<key>DATABASE_URL</key>
+	<string>https://aporia-network-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

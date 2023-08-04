@@ -8,17 +8,6 @@ import '../../../widgets/forks/flowy_infra_ui/style_widget/text.dart';
 import '../../../widgets/forks/flowy_infra_ui/widget/buttons/primary_button.dart';
 import '../../../widgets/forks/flowy_infra_ui/widget/buttons/secondary_button.dart';
 
-class MathEquationBlockKeys {
-  const MathEquationBlockKeys._();
-
-  static const String type = 'math_equation';
-
-  /// The content of a math equation block.
-  ///
-  /// The value is a String.
-  static const String formula = 'formula';
-}
-
 Node mathEquationNode({
   String formula = '',
 }) {
@@ -30,26 +19,6 @@ Node mathEquationNode({
     attributes: attributes,
   );
 }
-
-// defining the callout block menu item for selection
-SelectionMenuItem mathEquationItem = SelectionMenuItem.node(
-  name: 'MathEquation',
-  iconData: Icons.text_fields_rounded,
-  keywords: ['tex, latex, katex', 'math equation', 'formula'],
-  nodeBuilder: (editorState) => mathEquationNode(),
-  replace: (_, node) => node.delta?.isEmpty ?? false,
-  updateSelection: (editorState, path, __, ___) {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      final mathEquationState =
-          editorState.getNodeAtPath(path)?.key.currentState;
-      if (mathEquationState != null &&
-          mathEquationState is _MathEquationBlockComponentWidgetState) {
-        mathEquationState.showEditingDialog();
-      }
-    });
-    return null;
-  },
-);
 
 class MathEquationBlockComponentBuilder extends BlockComponentBuilder {
   MathEquationBlockComponentBuilder({
@@ -91,10 +60,10 @@ class MathEquationBlockComponentWidget extends BlockComponentStatefulWidget {
 
   @override
   State<MathEquationBlockComponentWidget> createState() =>
-      _MathEquationBlockComponentWidgetState();
+      MathEquationBlockComponentWidgetState();
 }
 
-class _MathEquationBlockComponentWidgetState
+class MathEquationBlockComponentWidgetState
     extends State<MathEquationBlockComponentWidget>
     with BlockComponentConfigurable {
   @override
@@ -224,4 +193,15 @@ class _MathEquationBlockComponentWidgetState
   void dismiss(BuildContext context) {
     Navigator.of(context).pop();
   }
+}
+
+class MathEquationBlockKeys {
+  const MathEquationBlockKeys._();
+
+  static const String type = 'math_equation';
+
+  /// The content of a math equation block.
+  ///
+  /// The value is a String.
+  static const String formula = 'formula';
 }

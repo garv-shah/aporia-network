@@ -42,7 +42,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFLowy-IO/appflowy-editor
-      ref: d87d353
+      ref: 67062922954643ed953540a7736fa92241646fd4
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^4.4.4

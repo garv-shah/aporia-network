@@ -3,6 +3,8 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/utils/theming/app_flowy/mobile_toolbar.dart';
 
+import '../../plugins/inline_math_equation/inline_math_equation_toolbar_item.dart';
+
 List<MobileToolbarItem> getMobileToolbarItems(Color color) {
   return [
     //textDecorationMobileToolbarItem,

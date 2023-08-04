@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
     authDomain: 'aporia-network.firebaseapp.com',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     measurementId: 'G-11Q1ZD43GX',
   );
@@ -58,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:358601933529:android:2364b061551b873b6ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
   );
 
@@ -66,6 +68,7 @@ class DefaultFirebaseOptions {
     appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
     iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
@@ -77,6 +80,7 @@ class DefaultFirebaseOptions {
     appId: '1:358601933529:ios:1acd8adbb74887386ef4c8',
     messagingSenderId: '358601933529',
     projectId: 'aporia-network',
+    databaseURL: 'https://aporia-network-default-rtdb.firebaseio.com',
     storageBucket: 'aporia-network.appspot.com',
     androidClientId: '358601933529-bsf3ecuhildi5ldasebt0c0clkdigrmu.apps.googleusercontent.com',
     iosClientId: '358601933529-b61441s1fpp2b63t6so2esjl5k4ff0d1.apps.googleusercontent.com',
