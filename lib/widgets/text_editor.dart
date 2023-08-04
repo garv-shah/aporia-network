@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:maths_club/utils/theming/app_flowy/block_component_builder.dart';
 import 'package:maths_club/utils/theming/app_flowy/character_shortcut_events.dart';
 import 'package:maths_club/utils/theming/app_flowy/mobile_toolbar_items.dart';
+import 'package:maths_club/utils/plugins/inline_math_equation/inline_math_equation_toolbar_item.dart';
+
+import '../utils/plugins/inline_math_equation/inline_math_equation.dart';
 
 class TextEditor extends StatelessWidget {
   const TextEditor(
@@ -59,6 +62,7 @@ class TextEditor extends StatelessWidget {
             quoteItem,
             bulletedListItem,
             numberedListItem,
+            inlineMathEquationItem,
             linkItem,
             buildTextColorItem(),
             buildHighlightColorItem()
@@ -82,6 +86,7 @@ class TextEditor extends StatelessWidget {
                   getCustomCharacterShortcutEvents(context),
               commandShortcutEvents: standardCommandShortcutEvents,
               editorStyle: const EditorStyle.desktop().copyWith(
+                textSpanDecorator: customiseAttributeDecorator,
                 padding: padding,
                 cursorColor: Theme.of(context).colorScheme.primary,
                 textStyleConfiguration: TextStyleConfiguration(
@@ -144,4 +149,35 @@ class TextEditor extends StatelessWidget {
       }
     }
   }
+}
+
+InlineSpan customiseAttributeDecorator(
+    BuildContext context,
+    Node node,
+    int index,
+    TextInsert text,
+    TextSpan textSpan,
+    ) {
+  final attributes = text.attributes;
+  if (attributes == null) {
+    return textSpan;
+  }
+
+  // customize the inline math equation block
+  final formula = attributes[InlineMathEquationKeys.formula] as String?;
+  if (formula != null) {
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: InlineMathEquation(
+        node: node,
+        index: index,
+        formula: formula,
+        textStyle: TextStyle(
+          color: Theme.of(context).primaryColorLight,
+        ),
+      ),
+    );
+  }
+
+  return textSpan;
 }

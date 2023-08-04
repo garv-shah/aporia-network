@@ -135,7 +135,24 @@ CharacterShortcutEvent slashMenu(BuildContext parentContext) {
       },
     ),
     dividerMenuItem,
-    mathEquationItem
+    SelectionMenuItem.node(
+      name: 'MathEquation',
+      iconData: Icons.text_fields_rounded,
+      keywords: ['tex, latex, katex', 'math equation', 'formula'],
+      nodeBuilder: (editorState, context) => mathEquationNode(),
+      replace: (_, node) => node.delta?.isEmpty ?? false,
+      updateSelection: (editorState, path, __, ___) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          final mathEquationState =
+              editorState.getNodeAtPath(path)?.key.currentState;
+          if (mathEquationState != null &&
+              mathEquationState is MathEquationBlockComponentWidgetState) {
+            mathEquationState.showEditingDialog();
+          }
+        });
+        return null;
+      },
+    ),
   ],
       style: SelectionMenuStyle(
           selectionMenuBackgroundColor: Theme.of(parentContext).cardColor,
