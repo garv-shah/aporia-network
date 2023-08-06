@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/image.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/image.dart';
 import 'inline_math_equation.dart';
 
 final ToolbarItem inlineMathEquationItem = ToolbarItem(

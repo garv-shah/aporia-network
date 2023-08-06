@@ -2,12 +2,12 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:provider/provider.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/src/flowy_overlay/appflowy_popover.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/button.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/text.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/style_widget/text_input.dart';
-import 'package:aporia_app/widgets/forks/flowy_infra_ui/widget/spacing.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/src/flowy_overlay/appflowy_popover.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/src/flowy_overlay/popover.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/button.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/text.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/style_widget/text_input.dart';
+import 'package:maths_club/widgets/forks/flowy_infra_ui/widget/spacing.dart';
 
 class InlineMathEquationKeys {
   const InlineMathEquationKeys._();
