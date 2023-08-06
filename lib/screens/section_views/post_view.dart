@@ -121,8 +121,7 @@ class _PostViewState extends State<PostView> {
                                                 document: hintsDocument
                                               ),
                                               readOnly: true,
-                                              padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),
-                                              // padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
                                               desktop: PlatformExtension.isDesktopOrWeb
                                           ),
                                         ]);
@@ -163,8 +162,7 @@ class _PostViewState extends State<PostView> {
                                                   document: solutionsDocument
                                               ),
                                               readOnly: true,
-                                              padding: const EdgeInsets.fromLTRB(0.0, 16.0, 50.0, 12.0),
-                                              // padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
+                                              padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
                                               desktop: PlatformExtension.isDesktopOrWeb
                                           ),
                                         ]);
