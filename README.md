@@ -4,7 +4,7 @@ The CGS Maths Club app!
 
 # Cloning
 
-To get started with Aporia, begin with the following setup:
+To get started with Aporia, begin with the following setups:
 
 1. Fork the repository
 2. Install the Flutter rename package
