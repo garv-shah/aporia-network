@@ -10,7 +10,7 @@ extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
     FocusNode dialogFocusNode = FocusNode();
     await Dialogs.show(
-      RawKeyboardListener(
+      child: RawKeyboardListener(
         focusNode: dialogFocusNode,
         onKey: (value) {
           if (value.isKeyPressed(LogicalKeyboardKey.escape)) {
@@ -31,7 +31,7 @@ class StyledDialog extends StatelessWidget {
   final double? maxHeight;
   final EdgeInsets? padding;
   final EdgeInsets? margin;
-  final BorderRadius? borderRadius;
+  final BorderRadiusGeometry? borderRadius;
   final Color? bgColor;
   final bool shrinkWrap;
 
@@ -72,7 +72,7 @@ class StyledDialog extends StatelessWidget {
             maxWidth: maxWidth ?? double.infinity,
           ),
           child: ClipRRect(
-            borderRadius: borderRadius,
+            borderRadius: borderRadius ?? BorderRadius.circular(5.0),
             child: SingleChildScrollView(
               physics: StyledScrollPhysics(),
               //https://medium.com/saugo360/https-medium-com-saugo360-flutter-using-overlay-to-display-floating-widgets-2e6d0e8decb9
@@ -89,7 +89,8 @@ class StyledDialog extends StatelessWidget {
 }
 
 class Dialogs {
-  static Future<dynamic> show(Widget child, BuildContext context) async {
+  static Future<dynamic> show(BuildContext context,
+      {required Widget child}) async {
     return await Navigator.of(context).push(
       StyledDialogRoute(
         barrier: DialogBarrier(color: Colors.black.withOpacity(0.4)),
@@ -106,13 +107,14 @@ class DialogBarrier {
   String label;
   Color color;
   bool dismissible;
-  ImageFilter filter;
+  ImageFilter? filter;
 
   DialogBarrier({
     this.dismissible = true,
     this.color = Colors.transparent,
     this.label = '',
-  }) : filter = ImageFilter.blur(sigmaX: 4, sigmaY: 4);
+    this.filter,
+  });
 }
 
 class StyledDialogRoute<T> extends PopupRoute<T> {
