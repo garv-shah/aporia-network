@@ -20,7 +20,9 @@ Map<String, BlockComponentBuilder> getCustomBlockComponentBuilderMap(BuildContex
   final Map<String, BlockComponentBuilder> customBlockComponentBuilderMap = {
     PageBlockKeys.type: PageBlockComponentBuilder(),
     ParagraphBlockKeys.type: TextBlockComponentBuilder(
-      configuration: standardBlockComponentConfiguration,
+      configuration: standardBlockComponentConfiguration.copyWith(
+        placeholderText: (_) => 'Enter a / to insert a block, or start typing',
+      ),
     ),
     TodoListBlockKeys.type: TodoListBlockComponentBuilder(
       configuration: standardBlockComponentConfiguration.copyWith(

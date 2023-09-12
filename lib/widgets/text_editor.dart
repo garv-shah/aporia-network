@@ -35,7 +35,6 @@ class TextEditor extends StatelessWidget {
               shrinkWrap: true,
               header: header,
               footer: footer,
-              scrollController: ScrollController(),
               focusNode: FocusNode(),
               editorState: editorState,
               blockComponentBuilders:
@@ -74,7 +73,7 @@ class TextEditor extends StatelessWidget {
             toolbarActiveColor: Theme.of(context).colorScheme.primary,
           ),
           editorState: editorState,
-          scrollController: ScrollController(),
+          editorScrollController: EditorScrollController(editorState: editorState),
           child: Expanded(
             child: AppFlowyEditor(
               autoFocus: true,
@@ -110,7 +109,6 @@ class TextEditor extends StatelessWidget {
                 child: AppFlowyEditor(
                   autoFocus: true,
                   focusNode: FocusNode(),
-                  scrollController: ScrollController(),
                   editorState: editorState,
                   blockComponentBuilders:
                       getCustomBlockComponentBuilderMap(context, editorState),

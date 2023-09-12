@@ -84,8 +84,6 @@ class _CreatePostState extends State<CreatePost> {
   late bool createQuiz;
   String? selectedGroup;
 
-  Map<String,dynamic> blankJson = {"document":{"type":"page","children":[{"type":"paragraph","data":{"delta":[]}}]}};
-
   // Controllers for the date input range.
   TextEditingController dateInputStart = TextEditingController();
   TextEditingController dateInputEnd = TextEditingController();
@@ -246,8 +244,7 @@ class _CreatePostState extends State<CreatePost> {
                                                   'Question ${questionNumber.toString()}',
                                               document: questionData[
                                                           'Question $questionNumber']
-                                                      ['Question'] ??
-                                                  blankJson,
+                                                      ['Question'],
                                               onSave: (Map<String,dynamic> data) =>
                                                   updateJSON(
                                                       data,
@@ -282,8 +279,7 @@ class _CreatePostState extends State<CreatePost> {
                                                 'Q${questionNumber.toString()} Solution',
                                             document: questionData[
                                                         'Question $questionNumber']
-                                                    ['Solution'] ??
-                                                blankJson,
+                                                    ['Solution'],
                                             solutionType: true,
                                             onSave: (Map<String,dynamic> data) =>
                                                 updateJSON(
@@ -333,8 +329,7 @@ class _CreatePostState extends State<CreatePost> {
                                                 'Q${questionNumber.toString()} Hints',
                                             document: questionData[
                                                         'Question $questionNumber']
-                                                    ['Hints'] ??
-                                                blankJson,
+                                                    ['Hints'],
                                             onSave: (Map<String,dynamic> data) =>
                                                 updateJSON(
                                                     data,
@@ -505,9 +500,11 @@ class _CreatePostState extends State<CreatePost> {
                                 return Text(postGroupsSnapshot.error.toString());
                               } else {
                                 List<DropdownMenuItem<String>> groups = [];
+                                List docs = postGroupsSnapshot.data?.docs ?? [];
+                                docs.sort((a, b) => a.data()['order'].compareTo(b.data()['order']));
 
                                 // Iterates through the documents in he collection and creates a list of dropdown menu options.
-                                for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in (postGroupsSnapshot.data?.docs ?? [])) {
+                                for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in docs) {
                                   if (doc?['apps'].contains(config.appID)) {
                                     groups.add(DropdownMenuItem(
                                         value: doc?.id ?? "error",

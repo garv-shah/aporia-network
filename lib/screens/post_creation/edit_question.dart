@@ -22,7 +22,7 @@ class EditQuestion extends StatefulWidget {
   final DataCallback onSave;
   final TexCallback? onSolution;
   final String? solution;
-  final Map<String, dynamic> document;
+  final Map<String, dynamic>? document;
   EditQuestion(
       {Key? key,
       required this.title,
@@ -45,7 +45,7 @@ class _EditQuestionState extends State<EditQuestion> {
 
   @override
   void initState() {
-    editorState = EditorState(document: Document.fromJson(widget.document));
+    editorState = widget.document != null ? EditorState(document: Document.fromJson(widget.document!)) : EditorState.blank(withInitialText: true);
 
     if ((widget.solution?.isNotEmpty ?? false) &&
         widget.solution != r"\textcolor{#000000}{\cursor}") {

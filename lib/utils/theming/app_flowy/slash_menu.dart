@@ -1,4 +1,7 @@
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:path/path.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +10,9 @@ import 'package:http/http.dart' as http;
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 import 'package:universal_io/io.dart';
 import 'package:aporia_app/utils/upload_file.dart';
+import 'package:string_validator/string_validator.dart';
+import 'package:mime/mime.dart';
+import 'package:uuid/uuid.dart';
 
 CharacterShortcutEvent slashMenu(BuildContext parentContext) {
   return customSlashCommand([
@@ -70,16 +76,31 @@ CharacterShortcutEvent slashMenu(BuildContext parentContext) {
         final container = Overlay.of(context);
         showImageMenu(container, editorState, menuService,
             onInsertImage: (imageUrl) async {
+              final regex = RegExp('^(http|https)://');
               http.Response res;
-              try {
+              if (regex.hasMatch(imageUrl)) {
+                // is a url
                 res = await http.get(Uri.parse(imageUrl));
                 // if status code of remote image is 200, then insert it!
                 if (res.statusCode == 200) editorState.insertImageNode(imageUrl);
-              } catch (e) {
-                // image is most likely a local file
-                print(imageUrl);
-                File file = File(imageUrl);
-                String? remoteUrl = await uploadFile(file.readAsBytesSync(), basename(imageUrl), extension(imageUrl), parentContext);
+              } else {
+                // file is either local or raw bytes
+                Uint8List bytes;
+                String ext;
+                if (isBase64(imageUrl)) {
+                  // is raw base64 data
+                  bytes = base64Decode(imageUrl);
+                  var mime = lookupMimeType('', headerBytes: bytes);
+                  ext = extensionFromMime(mime!);
+                } else {
+                  File file = File(imageUrl);
+                  bytes = file.readAsBytesSync();
+                  ext = extension(imageUrl);
+                }
+
+                // upload to firebase
+                String uuid = const Uuid().v4();
+                String? remoteUrl = await uploadFile(bytes, uuid, ext, parentContext);
                 if (remoteUrl != null) editorState.insertImageNode(remoteUrl);
               }
             }

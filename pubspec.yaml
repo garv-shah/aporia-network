@@ -40,9 +40,10 @@ dependencies:
   url_launcher: ^6.1.12
   flutter_extensions: ^5.0.0
   appflowy_editor:
-    git:
-      url: https://github.com/AppFLowy-IO/appflowy-editor
-      ref: 67062922954643ed953540a7736fa92241646fd4
+    path: ../appflowy-editor
+#    git:
+#      url: https://github.com/AppFLowy-IO/appflowy-editor
+#      ref: 6d68f90
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^4.4.4
@@ -52,7 +53,7 @@ dependencies:
   adaptive_dialog: ^1.7.0
   firebase_storage: ^11.0.15
   firebase_storage_web: ^3.3.24
-  mime: ^1.0.2
+  mime: ^1.0.4
   crop_your_image: ^0.7.2
   uuid: ^3.0.6
   algolia: ^1.1.1
@@ -77,6 +78,7 @@ dependencies:
   styled_widget: ^0.4.1
   firebase_database: ^10.2.3
   stop_watch_timer: ^3.0.0
+  string_validator: ^1.0.0
 
 dependency_overrides:
   intl: ^0.18.0

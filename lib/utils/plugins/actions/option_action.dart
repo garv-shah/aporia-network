@@ -9,59 +9,6 @@ import '../../../widgets/forks/flowy_infra_ui/widget/image.dart';
 import '../../../widgets/forks/flowy_infra_ui/widget/popup_action.dart';
 import '../../../widgets/forks/flowy_infra_ui/widget/theme_extension.dart';
 
-enum OptionAction {
-  delete,
-  duplicate,
-  turnInto,
-  moveUp,
-  moveDown,
-  color,
-  divider,
-  align;
-
-  String get assetName {
-    switch (this) {
-      case OptionAction.delete:
-        return 'editor/delete';
-      case OptionAction.duplicate:
-        return 'editor/duplicate';
-      case OptionAction.turnInto:
-        return 'editor/turn_into';
-      case OptionAction.moveUp:
-        return 'editor/move_up';
-      case OptionAction.moveDown:
-        return 'editor/move_down';
-      case OptionAction.color:
-        return 'editor/color';
-      case OptionAction.divider:
-        return 'editor/divider';
-      case OptionAction.align:
-        return 'editor/align/center';
-    }
-  }
-
-  String get description {
-    switch (this) {
-      case OptionAction.delete:
-        return "Delete";
-      case OptionAction.duplicate:
-        return "Duplicate";
-      case OptionAction.turnInto:
-        return "Turn into";
-      case OptionAction.moveUp:
-        return "Move up";
-      case OptionAction.moveDown:
-        return "Move down";
-      case OptionAction.color:
-        return "Color";
-      case OptionAction.align:
-        return "Align";
-      case OptionAction.divider:
-        throw UnsupportedError('Divider does not have description');
-    }
-  }
-}
-
 enum OptionAlignType {
   left,
   center,
@@ -239,7 +186,7 @@ class ColorOptionAction extends PopoverActionCell {
         }
         final bgColor =
             node.attributes[blockComponentBackgroundColor] as String?;
-        final selectedColor = bgColor?.toColor();
+        final selectedColor = bgColor?.tryToColor();
 
         final colors = [
           // clear background color.
@@ -300,4 +247,57 @@ class OptionAlignWrapper extends ActionCell {
 
   @override
   String get name => inner.description;
+}
+
+enum OptionAction {
+  delete,
+  duplicate,
+  turnInto,
+  moveUp,
+  moveDown,
+  color,
+  divider,
+  align;
+
+  String get assetName {
+    switch (this) {
+      case OptionAction.delete:
+        return 'editor/delete';
+      case OptionAction.duplicate:
+        return 'editor/duplicate';
+      case OptionAction.turnInto:
+        return 'editor/turn_into';
+      case OptionAction.moveUp:
+        return 'editor/move_up';
+      case OptionAction.moveDown:
+        return 'editor/move_down';
+      case OptionAction.color:
+        return 'editor/color';
+      case OptionAction.divider:
+        return 'editor/divider';
+      case OptionAction.align:
+        return 'editor/align/center';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case OptionAction.delete:
+        return "Delete";
+      case OptionAction.duplicate:
+        return "Duplicate";
+      case OptionAction.turnInto:
+        return "Turn into";
+      case OptionAction.moveUp:
+        return "Move up";
+      case OptionAction.moveDown:
+        return "Move down";
+      case OptionAction.color:
+        return "Color";
+      case OptionAction.align:
+        return "Align";
+      case OptionAction.divider:
+        throw UnsupportedError('Divider does not have description');
+    }
+  }
 }
