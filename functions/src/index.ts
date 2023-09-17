@@ -6,11 +6,15 @@ import DocumentData = firestore.DocumentData;
 import {createTraverser} from '@firecode/admin';
 import {google} from 'googleapis';
 import { GaxiosError } from "gaxios";
+const {getStorage} = require("firebase-admin/storage");
 const calendar = google.calendar('v3');
 const googleCredentials = require('./credentials.json');
 
 const MathExpression = require('math-expressions');
 const admin = require('firebase-admin');
+
+const PdfPrinter = require('pdfmake');
+
 admin.initializeApp();
 
 const db = admin.firestore();
@@ -280,8 +284,12 @@ async function updatePublicProfile(id: string, jobID: string, jobData: DocumentD
     const profileDoc = await publicProfile.get();
     let jobList: DocumentData[] | null = profileDoc.data()['jobList']; // a list of jobIDs
     let volunteerRecord: string[] | null = profileDoc.data()['volunteerRecord'];
+    let hoursPerSubject: DocumentData | null = profileDoc.data()['hoursPerSubject'];
     if (jobList == null) {
         jobList = [];
+    }
+    if (hoursPerSubject == null) {
+        hoursPerSubject = {};
     }
     if (volunteerRecord == null) {
         volunteerRecord = [];
@@ -300,10 +308,15 @@ async function updatePublicProfile(id: string, jobID: string, jobData: DocumentD
         }
     } else {
         jobList.push(jobDataWithID);
+        hoursPerSubject[jobID] = {
+            hours: 0,
+            data: jobDataWithID
+        };
     }
 
     let data: DocumentData = {
-        jobList: jobList
+        jobList: jobList,
+        hoursPerSubject: hoursPerSubject,
     }
 
     if (volunteer) {
@@ -534,6 +547,11 @@ exports.startShift = functions
             }
 
             let jobList: DocumentData[] = profileData['jobList'];
+            let hoursPerSubject: DocumentData | null = profileData['hoursPerSubject']; // volunteer record but collated to hours per subject
+
+            if (hoursPerSubject == null) {
+                hoursPerSubject = {};
+            }
 
             let lessonRunning: boolean = false;
             // TODO: add in day of the week check
@@ -608,9 +626,15 @@ exports.startShift = functions
                     let hoursVolunteeredNow: number = Math.abs(end.getTime() - start.getTime()) / 3.6e6;
                     volunteerHours += hoursVolunteeredNow
 
+                    // add hours volunteered now to hoursPerSubject
+                    if (hoursPerSubject[jobID] != undefined) {
+                        hoursPerSubject[jobID]['hours'] = hoursPerSubject[jobID]['hours'] + hoursVolunteeredNow
+                    }
+
                     await publicProfile.update({
                         'volunteerRecord': volunteerRecord,
                         'volunteerHours': volunteerHours,
+                        'hoursPerSubject': hoursPerSubject,
                     });
 
                     console.log(`Volunteering has finished for ${context.auth?.uid} in lesson ${jobID}. Hours volunteered now is ${hoursVolunteeredNow} with total of ${volunteerHours} volunteer hours globally.`);
@@ -762,5 +786,219 @@ exports.fixValidationIssues = functions
                     console.log(`Deleted user ${userInfo['username']} with uid ${uid} for likely being a bot account`)
                 }
             });
+        }
+    });
+
+exports.generateCertificate = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Generating Certificate of Completion for ${context.auth?.uid}`, {structuredData: true});
+
+            const publicProfile = db.collection('publicProfile').doc(context.auth!.uid);
+            const doc = await publicProfile.get();
+            let profileData = doc.data();
+
+            if (profileData['hoursPerSubject'] == null || profileData['volunteer'] != true) {
+                throw new functions.https.HttpsError('unauthenticated', 'User has no subjects they have volunteered for!');
+            }
+
+            let hoursPerSubject: DocumentData = profileData['hoursPerSubject'];
+            let name: string = profileData['username'];
+            let hours: number = Math.round((profileData['volunteerHours'] + Number.EPSILON) * 100) / 100;
+            const firstTime: firestore.Timestamp = profileData['volunteerRecord'][0]['start'];
+            const lastTime: firestore.Timestamp = profileData['volunteerRecord'][profileData['volunteerRecord'].length - 1]['end'];
+            let startDate = firstTime.toDate();
+            let endDate = lastTime.toDate();
+            const formatOptions: Intl.DateTimeFormatOptions = {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+            let subjectData: DocumentData[] = [
+                [
+                    {
+                        text: 'Subject Name',
+                        fillColor: '#eaf2f5',
+                        border: [false, true, false, true],
+                        margin: [0, 5, 0, 5],
+                        textTransform: 'uppercase',
+                    },
+                    {
+                        text: 'Volunteer Hours',
+                        border: [false, true, false, true],
+                        alignment: 'right',
+                        fillColor: '#eaf2f5',
+                        margin: [0, 5, 0, 5],
+                        textTransform: 'uppercase',
+                    },
+                ]
+            ];
+
+            for (let key in hoursPerSubject) {
+                const subjectName: string = hoursPerSubject[key]['data']['Job Title'];
+                const hours: number = Math.round((hoursPerSubject[key]['hours'] + Number.EPSILON) * 100) / 100;
+                subjectData.push(
+                    [
+                        {
+                            text: subjectName,
+                            border: [false, false, false, true],
+                            margin: [0, 5, 0, 5],
+                            alignment: 'left',
+                        },
+                        {
+                            border: [false, false, false, true],
+                            text: `${hours} Hours`,
+                            fillColor: '#f5f5f5',
+                            alignment: 'right',
+                            margin: [0, 5, 0, 5],
+                        },
+                    ]
+                );
+            }
+
+            let docDefinition = {
+                content: [
+                    { text: 'Certificate of Completion', style: 'header' },
+                    {
+                        text: [
+                            'This is to certify that ',
+                            { text: name, style: 'information'},
+                            ' has completed ',
+                            { text: hours, style: 'hours'},
+                            ' hours of volunteer work at ',
+                            { text: 'Two Cousins', style: 'information'},
+                            ' from ',
+                            { text: startDate.toLocaleDateString('en-US', formatOptions), style: 'information'},
+                            ' to ',
+                            { text: endDate.toLocaleDateString('en-US', formatOptions), style: 'information'},
+                            '. The following is a list of subjects ',
+                            { text: name, style: 'information'},
+                            ' has tutored'
+                        ]
+                    },
+                    {
+                        width: '100%',
+                        alignment: 'center',
+                        text: name + "'s Subjects",
+                        bold: true,
+                        margin: [0, 10, 0, 10],
+                        fontSize: 15,
+                    },
+                    {
+                        layout: {
+                            defaultBorder: false,
+                            hLineWidth: function(_: any, __: any) {
+                                return 1;
+                            },
+                            vLineWidth: function(_: any, __: any) {
+                                return 1;
+                            },
+                            hLineColor: function(i: number, _: any) {
+                                if (i === 1 || i === 0) {
+                                    return '#bfdde8';
+                                }
+                                return '#eaeaea';
+                            },
+                            vLineColor: function(_: any, __: any) {
+                                return '#eaeaea';
+                            },
+                            hLineStyle: function(_: any, __: any) {
+                                // if (i === 0 || i === node.table.body.length) {
+                                return null;
+                                //}
+                            },
+                            // vLineStyle: function (i, node) { return {dash: { length: 10, space: 4 }}; },
+                            paddingLeft: function(_: any, __: any) {
+                                return 10;
+                            },
+                            paddingRight: function(_: any, __: any) {
+                                return 10;
+                            },
+                            paddingTop: function(_: any, __: any) {
+                                return 2;
+                            },
+                            paddingBottom: function(_: any, __: any) {
+                                return 2;
+                            },
+                            fillColor: function(_: any, __: any, ___: any) {
+                                return '#fff';
+                            },
+                        },
+                        table: {
+                            headerRows: 1,
+                            widths: ['*', 100],
+                            body: subjectData,
+                        },
+                    },
+                    '\n',
+                    'Signature:',
+                    { text: '_______________________', style: 'signature'},
+                    { text: 'Garv Shah - Two Cousins', style: 'subheader'},
+                    {
+                        text: 'NOTES',
+                        style: 'notesTitle',
+                    },
+                    {
+                        text: 'This document has been auto-generated by Two Cousins. Any tampering of the contents of this file is strictly prohibited and violates the Terms and Conditions agreed upon by the user. This document is intended solely for verification purposes and may not be used to impersonate, imitate or harm any Two Cousins employee or volunteer.',
+                        style: 'notesText',
+                    },
+                ],
+                styles: {
+                    header: {
+                        fontSize: 18,
+                        bold: true,
+                        alignment: 'center',
+                        margin: [0, 0, 0, 20]
+                    },
+                    information: {
+                        fontSize: 12,
+                        bold: true
+                    },
+                    subheader: {
+                        fontSize: 14,
+                        bold: true
+                    },
+                    hours: {
+                        fontSize: 12,
+                        bold: true,
+                        italics: true
+                    },
+                    signature: {
+                        margin: [0, 40, 0, 10]
+                    },
+                    notesTitle: {
+                        fontSize: 10,
+                        bold: true,
+                        margin: [0, 50, 0, 3],
+                    },
+                    notesText: {
+                        fontSize: 10,
+                    },
+                }
+            };
+
+            const fontDescriptors = {
+                Roboto: {
+                    normal: './fonts/Roboto-Regular.ttf',
+                    bold: './fonts/Roboto-Medium.ttf',
+                    italics: './fonts/Roboto-Italic.ttf',
+                    bolditalics: './fonts/Roboto-MediumItalic.ttf',
+                }
+            };
+
+            const printer = new PdfPrinter(fontDescriptors);
+            const pdfDoc = printer.createPdfKitDocument(docDefinition);
+            const bucket = getStorage().bucket();
+            const pdfFile = bucket.file(`certificates/${context.auth!.uid}/certificate.pdf`);
+            pdfDoc
+                .pipe(pdfFile.createWriteStream())
+                .on('finish', function (){
+                    console.log('PDF successfully created!');
+                })
+                .on('error', function(err: any){
+                    console.log('Error during the writestream operation in the new file');
+                    console.log(err);
+                });
+            pdfDoc.end();
         }
     });

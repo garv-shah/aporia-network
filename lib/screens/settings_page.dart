@@ -27,7 +27,7 @@ import 'package:aporia_app/utils/config/abilities.dart';
 
 /// Creates card buttons within settings, that lead to a url.
 Widget settingsCard(BuildContext context,
-    {required String text, required Uri url}) {
+    {required String text, Uri? url, Function? onTap}) {
   return Padding(
     padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
     child: Card(
@@ -40,7 +40,13 @@ Widget settingsCard(BuildContext context,
         splashColor: Theme.of(context).colorScheme.primary.withAlpha(40),
         highlightColor: Theme.of(context).colorScheme.primary.withAlpha(20),
         onTap: () {
-          launchUrl(url);
+          if (onTap == null) {
+            if (url != null) {
+              launchUrl(url);
+            }
+          } else {
+            onTap.call();
+          }
         },
         child: SizedBox(
           height: 60,
@@ -458,6 +464,47 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                     ),
+                    getComputedAbilities(widget.userRoles).contains('volunteering') ? settingsCard(context,
+                        text: "Generate Certificate",
+                        onTap: () {
+                          final snackBar = SnackBar(
+                            content: Text(
+                              "Generating a certificate, hold tight!",
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .primaryColorLight),
+                            ),
+                            backgroundColor: Theme.of(context)
+                                .scaffoldBackgroundColor,
+                          );
+                          // Find the Scaffold in the widget tree and use it to show a SnackBar.
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackBar);
+
+                          functions
+                              .httpsCallable('generateCertificate')
+                              .call().then((_) {
+                            final storageRef = FirebaseStorage.instance.ref();
+                            final certificateRef = storageRef.child('certificates/${FirebaseAuth.instance.currentUser?.uid}/certificate.pdf');
+                            certificateRef.getDownloadURL().then((url) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                  content: Text(
+                                    "Certificate Generated!",
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryColorLight),
+                                  ),
+                                  backgroundColor: Theme.of(context)
+                                      .scaffoldBackgroundColor,
+                                )
+                              );
+
+                              // go to download url
+                              launchUrl(Uri.parse(url));
+                            });
+                          });
+                        }) : const SizedBox.shrink(),
                     settingsCard(context,
                         text: "About",
                         url: Uri.parse("https://garv-shah.github.io")),
