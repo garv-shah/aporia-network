@@ -78,6 +78,7 @@ dependencies:
   firebase_database: ^10.2.3
   stop_watch_timer: ^3.0.0
   string_validator: ^1.0.0
+  package_info_plus: ^4.1.0
 
 dependency_overrides:
   intl: ^0.18.0
@@ -118,6 +119,7 @@ flutter:
   assets:
     - assets/
     - assets/app_icon.svg
+    - assets/aporia_icon.svg
     - assets/party-popper.svg
     - assets/images/editor/
     - assets/images/editor/align/

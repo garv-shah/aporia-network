@@ -11,18 +11,23 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/widgets/forks/editable_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mime/mime.dart';
 import 'package:aporia_app/utils/config/config.dart' as config;
 import 'package:aporia_app/utils/config/abilities.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import 'dart:io' show Platform;
 
-import '../utils/config/config.dart';
-import '../widgets/lesson_countdown.dart';
+import '../../utils/config/config.dart';
+import '../../widgets/lesson_countdown.dart';
 
 /**
  * The following section includes functions for the settings page.
@@ -139,6 +144,132 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget about = Scaffold(
+      appBar: AppBar(
+          leading: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Icon(Icons.arrow_back,
+                  color:
+                  Theme.of(context).primaryColorLight)),
+          backgroundColor: Colors.transparent),
+      body: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
+          child: Center(
+            child: ListView(
+              children: [
+                const SizedBox(height: 60,),
+                Center(
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(36),
+                        child: SizedBox(
+                          height: 300,
+                          width: 300,
+                          child: SvgPicture.asset('assets/app_icon.svg',
+                              semanticsLabel: 'app logo'),
+                        ),
+                      ),
+                      (config.appID != 'aporia_app') ? Positioned(
+                        bottom: 36,
+                        right: 36,
+                        child: SizedBox(
+                          height: 85,
+                          width: 85,
+                          child: SvgPicture.asset('assets/aporia_icon.svg',
+                              semanticsLabel: 'aporia logo'),
+                        ),
+                      ) : const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, packageInfo) {
+                        if (packageInfo.connectionState == ConnectionState.done) {
+                          try {
+                            return Text(
+                                "Platform: ${Platform.operatingSystem} | App Version: ${packageInfo.data!.version} (${packageInfo.data!.buildNumber})");
+                          } catch (err) {
+                            try {
+                              if (packageInfo.data!.buildNumber == "") {
+                                return Text(
+                                    "Platform: N/A | App Version: ${packageInfo.data!.version}");
+                              }
+                              return Text(
+                                  "Platform: N/A | App Version: ${packageInfo.data!.version} (${packageInfo.data!.buildNumber})");
+                            } catch (err) {
+                              return const Text(
+                                  "Platform: N/A | App Version: N/A)");
+                            }
+                          }
+                        }
+                        return const Text("");
+                      }),
+                ),
+                const SizedBox(
+                  height: 10.0,
+                ),
+                const Padding(
+                  padding:  EdgeInsets.fromLTRB(22, 10, 22, 10),
+                  child:  Text(
+                    config.detailedName,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Padding(
+                  padding:  const EdgeInsets.fromLTRB(22, 10, 22, 10),
+                  child:  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Powered by ',
+                          style: TextStyle(
+                              color:
+                              Theme.of(context).primaryColorLight),
+                        ),
+                        TextSpan(
+                          text: 'Aporia',
+                          style: const TextStyle(color: Colors.blue),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrlString('https://github.com/garv-shah/aporia-network');
+                            },
+                        ),
+                        TextSpan(
+                          text: ', an open-source education platform created by ',
+                          style: TextStyle(
+                              color:
+                              Theme.of(context).primaryColorLight),
+                        ),
+                        TextSpan(
+                          text: 'Garv Shah',
+                          style: const TextStyle(color: Colors.blue),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrlString('https://garv-shah.github.io/');
+                            },
+                        ),
+                        TextSpan(
+                          text: '.',
+                          style: TextStyle(
+                              color:
+                              Theme.of(context).primaryColorLight),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )),
+    );
+
     String username = widget.userData['username'] ?? "...";
     late List<DocumentSnapshot> userInfoList;
 
@@ -541,10 +672,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         }) : const SizedBox.shrink(),
                     settingsCard(context,
                         text: "About",
-                        url: Uri.parse("https://garv-shah.github.io")),
-                    settingsCard(context,
-                        text: "GitHub",
-                        url: Uri.parse("https://github.com/garv-shah/aporia-network")),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => about));
+                        }),
                     // Delete Account and Logout Buttons
                     Padding(
                       padding: const EdgeInsets.all(16.0),

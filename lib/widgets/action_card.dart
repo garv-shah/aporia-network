@@ -16,7 +16,7 @@ import '../screens/scheduling/create_job_view.dart';
 import '../screens/scheduling/manage_jobs_view.dart';
 import '../screens/scheduling/schedule_view.dart';
 import '../screens/section_views/admin_view/user_list_view.dart';
-import '../screens/settings_page.dart';
+import '../screens/settings/settings_page.dart';
 
 // A function to generate the action card carousel
 List<Widget> actionCardCarousel(

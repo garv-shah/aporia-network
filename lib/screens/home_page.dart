@@ -16,7 +16,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:aporia_app/screens/section_views/section_page.dart';
-import 'package:aporia_app/screens/settings_page.dart';
+import 'package:aporia_app/screens/settings/settings_page.dart';
 import 'package:aporia_app/utils/components.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:aporia_app/widgets/forks/sleek_circular_slider/appearance.dart';
