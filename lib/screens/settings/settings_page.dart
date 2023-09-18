@@ -161,28 +161,14 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 const SizedBox(height: 60,),
                 Center(
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(36),
-                        child: SizedBox(
-                          height: 300,
-                          width: 300,
-                          child: SvgPicture.asset('assets/app_icon.svg',
-                              semanticsLabel: 'app logo'),
-                        ),
-                      ),
-                      (config.appID != 'aporia_app') ? Positioned(
-                        bottom: 36,
-                        right: 36,
-                        child: SizedBox(
-                          height: 85,
-                          width: 85,
-                          child: SvgPicture.asset('assets/aporia_icon.svg',
-                              semanticsLabel: 'aporia logo'),
-                        ),
-                      ) : const SizedBox.shrink(),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(36),
+                    child: SizedBox(
+                      height: 300,
+                      width: 300,
+                      child: SvgPicture.asset('assets/app_icon.svg',
+                          semanticsLabel: 'app logo'),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -222,7 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 Padding(
-                  padding:  const EdgeInsets.fromLTRB(22, 10, 22, 10),
+                  padding:  const EdgeInsets.fromLTRB(22, 10, 22, 20),
                   child:  RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
@@ -264,6 +250,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 85,
+                  width: 85,
+                  child: SvgPicture.asset('assets/aporia_icon.svg',
+                      semanticsLabel: 'aporia logo'),
                 ),
               ],
             ),
