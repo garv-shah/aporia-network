@@ -24,6 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormFieldState> formFieldKey = GlobalKey();
   final TextEditingController _usernameController = TextEditingController();
   bool emailingList = false;
+  bool submitted = false;
   late List<DocumentSnapshot> userInfoList;
 
   CollectionReference userInfo =
@@ -78,7 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   }),
             ),
             const SizedBox(height: 20),
-            OutlinedButton(
+            !submitted ? OutlinedButton(
                 onPressed: () async {
                   String username = _usernameController.text;
                   userInfoList = (await userInfo
@@ -90,6 +91,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       formFieldKey.currentState?.validate() ?? false;
 
                   if (formIsValid) {
+                    setState(() {
+                      submitted = true;
+                    });
+
+                    final snackBar = SnackBar(
+                      content: Text(
+                        "Creating Account, hang tight!",
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .primaryColorLight),
+                      ),
+                      backgroundColor: Theme.of(context)
+                          .scaffoldBackgroundColor,
+                    );
+                    // Find the Scaffold in the widget tree and use it to show a SnackBar.
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(snackBar);
+
                     try {
                       await functions
                           .httpsCallable('updateUsername')
@@ -116,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     });
                   }
                 },
-                child: const Text("Submit"))
+                child: const Text("Submit")) : const CircularProgressIndicator()
           ],
         ),
       ),

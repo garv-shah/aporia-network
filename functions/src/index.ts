@@ -857,6 +857,10 @@ exports.generateCertificate = functions
             }
 
             let docDefinition = {
+                ownerPassword: 'TCOwnerPass19!',
+                permissions: {
+                    modifying: false,
+                },
                 content: [
                     { text: 'Certificate of Completion', style: 'header' },
                     {
