@@ -555,6 +555,9 @@ class _CreatePostState extends State<CreatePost> {
                               // Overrides the theme of the picker to work with dark mode.
                               builder: (context, Widget? child) => Theme(
                                 data: Theme.of(context).copyWith(
+                                  datePickerTheme: DatePickerThemeData(
+                                    rangePickerBackgroundColor: Theme.of(context).scaffoldBackgroundColor
+                                  ),
                                     dialogBackgroundColor: Theme.of(context)
                                         .scaffoldBackgroundColor,
                                     appBarTheme: Theme.of(context)
