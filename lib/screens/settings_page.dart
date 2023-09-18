@@ -21,6 +21,9 @@ import 'package:mime/mime.dart';
 import 'package:aporia_app/utils/config/config.dart' as config;
 import 'package:aporia_app/utils/config/abilities.dart';
 
+import '../utils/config/config.dart';
+import '../widgets/lesson_countdown.dart';
+
 /**
  * The following section includes functions for the settings page.
  */
@@ -161,10 +164,41 @@ class _SettingsPageState extends State<SettingsPage> {
               .doc(FirebaseAuth.instance.currentUser?.uid)
               .snapshots(),
           builder: (context, publicProfileSnapshot) {
-            Map<String, dynamic>? experienceMap =
+            Map<String, dynamic>? profileMap =
                 publicProfileSnapshot.data?.data() as Map<String, dynamic>?;
-            double experience = (experienceMap?['experience'] ?? 0).toDouble();
+            double experience = (profileMap?['experience'] ?? 0).toDouble();
             Map<String, dynamic> levelMap = calculateLevel(experience);
+
+            Map<int, Map<String, String>> subText = {};
+
+            // if our user is a volunteer, show different text
+            if (getComputedAbilities(widget.userRoles).contains('volunteering')) {
+              int volunteerHours = (profileMap?['volunteerHours'] ?? 0).toInt();
+              subText = {
+                1: {
+                  'title': 'Time to Lesson',
+                  'text': profileMap?['volunteer'] == true ? 'Loading...' : 'N/A',
+                  'util': 'lessonCountdown'
+                },
+                2: {
+                  'title': 'Volunteer Hours',
+                  'text': '$volunteerHours ${volunteerHours == 1 ? 'Hour' : 'Hours'}',
+                },
+              };
+            } else {
+              subText = {
+                1: {
+                  'title': 'Level',
+                  'text': levelMap['level'].toString(),
+                },
+                2: {
+                  'title': 'Experience',
+                  'text': (experience.isInfinite)
+                      ? "Infinity"
+                      : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}"
+                },
+              };
+            }
 
             return Center(
               child: SizedBox(
@@ -296,15 +330,17 @@ class _SettingsPageState extends State<SettingsPage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          Text('Level',
+                                          Text(subText[1]?['title'] ?? 'error',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium),
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(
                                                 16, 0, 16, 0),
-                                            child: Text(
-                                              levelMap['level'].toString(),
+                                            child: (profileMap?['volunteer'] == true && subText[1]?['util'] == 'lessonCountdown')
+                                                ? lessonCountdown(profileMap)
+                                                : Text(
+                                              subText[1]?['text'] ?? 'error',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleLarge
@@ -329,7 +365,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
-                                          Text('Experience',
+                                          Text(subText[2]?['title'] ?? 'error',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleMedium),
@@ -340,9 +376,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                               // If level if infinity, render text
                                               // to say so, if not get the positive
                                               // value and show how far to next level
-                                              (experience.isInfinite)
-                                                  ? "Infinity"
-                                                  : "${experience.abs().toInt()}/${levelMap['maxVal'].toInt()}",
+                                              subText[2]?['text'] ?? 'error',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .titleLarge
@@ -377,7 +411,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             // tag, puts that into a list and
                                             // returns a string of that
                                               rolesSnapshot.data?.docs
-                                                      .map((doc) => doc['tag'])
+                                                      .map((doc) => configString[appID]['roles'][doc.id]['name'] ?? doc['tag'])
                                                       .toList()
                                                       .join(', ') ??
                                                   "Error: couldn't map roles",

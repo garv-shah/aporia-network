@@ -7,6 +7,8 @@ import 'package:aporia_app/screens/section_views/admin_view/manage_user_page.dar
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:aporia_app/screens/home_page.dart';
 
+import '../../../utils/config/config.dart';
+
 class UserModel extends ISuspensionBean {
   String username;
   String role;
