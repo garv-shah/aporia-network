@@ -56,7 +56,8 @@ const Map configString = {
         "displayName": "Manage Jobs",
         "show": {
           "role": [
-            "companies"
+            "companies",
+            "users"
           ]
         }
       },

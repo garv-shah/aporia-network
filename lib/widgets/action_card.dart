@@ -68,7 +68,8 @@ List<Widget> actionCardCarousel(
       case 'schedule':
         return ScheduleView(
           jobList: profileMap?['jobList'] ?? [],
-          isCompany: isCompany
+          isCompany: isCompany,
+          isAdmin: isAdmin,
         );
       default:
         return const SizedBox.shrink();

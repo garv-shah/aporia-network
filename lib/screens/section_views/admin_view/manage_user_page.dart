@@ -37,8 +37,9 @@ extension StringExtension on String {
 /// This is the page to manage an individual user.
 class ManageUserPage extends StatefulWidget {
   final UserModel userInfo;
+  final bool canEdit;
 
-  const ManageUserPage({Key? key, required this.userInfo}) : super(key: key);
+  const ManageUserPage({Key? key, required this.userInfo, required this.canEdit}) : super(key: key);
 
   @override
   State<ManageUserPage> createState() => _ManageUserPageState();
@@ -99,7 +100,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Manage ${widget.userInfo.username}",
+          widget.userInfo.username,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: Colors.transparent,
@@ -120,7 +121,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
             child: SizedBox(
               height: 175,
               child: EditableImage(
-                isEditable: true,
+                isEditable: widget.canEdit,
                 onChange: (Uint8List file) => pfpUpdate(file),
                 // If the pfp file exists, show it, if not, s
                 // tay on the default image.
@@ -149,7 +150,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                       ?.copyWith(
                       color: Theme.of(context)
                           .primaryColorLight)),
-              IconButton(
+              widget.canEdit ? IconButton(
                   onPressed: () async {
                     // Dialog to get new username.
                     final newUsername = await showTextInputDialog(
@@ -208,7 +209,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                       }
                     }
                   },
-                  icon: const Icon(Icons.edit))
+                  icon: const Icon(Icons.edit)) : const SizedBox.shrink()
             ],
           ),
           // Other info: role, email, id, etc
@@ -239,6 +240,42 @@ class _ManageUserPageState extends State<ManageUserPage> {
                         roleList.add(role.data()['tag']);
                       }
                     }
+
+                    Widget usernameWidget = Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Center(
+                          child: (() {
+                            try {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const SizedBox(
+                                    width: 32,
+                                  ),
+                                  Text(
+                                      roleList.join(', '),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                  widget.canEdit ? const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 4),
+                                    child: Icon(Icons.edit),
+                                  ) : const SizedBox(
+                                    width: 32,
+                                  ),
+                                ],
+                              );
+                            } on StateError {
+                              return Text(
+                                  'Error: Firestore key not found!',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium);
+                            }
+                          } ())
+                      ),
+                    );
+
                     return Column(
                       children: [
                         // role
@@ -249,7 +286,7 @@ class _ManageUserPageState extends State<ManageUserPage> {
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(Radius.circular(15)),
                             ),
-                            child: InkWell(
+                            child: widget.canEdit ? InkWell(
                               onTap: () {
                                 showDialog(
                                     context: context,
@@ -260,39 +297,8 @@ class _ManageUserPageState extends State<ManageUserPage> {
                                       );
                                     });
                               },
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Center(
-                                    child: (() {
-                                      try {
-                                        return Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const SizedBox(
-                                              width: 32,
-                                            ),
-                                            Text(
-                                                roleList.join(', '),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleMedium),
-                                            const Padding(
-                                              padding: EdgeInsets.symmetric(horizontal: 4),
-                                              child: Icon(Icons.edit),
-                                            ),
-                                          ],
-                                        );
-                                      } on StateError {
-                                        return Text(
-                                            'Error: Firestore key not found!',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium);
-                                      }
-                                    } ())
-                                ),
-                              ),
-                            ),
+                              child: usernameWidget,
+                            ) : usernameWidget,
                           ),
                         ),
                         // email

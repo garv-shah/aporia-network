@@ -11,6 +11,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:aporia_app/screens/scheduling/availability_page.dart';
 
+import '../../utils/components.dart';
 import 'job_view.dart';
 
 LessonDataSource? _dataSource;
@@ -18,8 +19,9 @@ LessonDataSource? _dataSource;
 class ScheduleView extends StatefulWidget {
   final List jobList;
   final bool isCompany;
+  final bool isAdmin;
 
-  const ScheduleView({Key? key, required this.jobList, required this.isCompany}) : super(key: key);
+  const ScheduleView({Key? key, required this.jobList, required this.isCompany, required this.isAdmin}) : super(key: key);
 
   @override
   State<ScheduleView> createState() => _ScheduleViewState();
@@ -64,10 +66,8 @@ class _ScheduleViewState extends State<ScheduleView> {
           notes: job['Job Description'],
           location: "2cousins Meeting",
           id: job['ID'],
-          startTimeZone: job['timezone'],
-          endTimeZone: job['timezone'],
-          startTime: DateTime.parse(job['lessonTimes']['start']),
-          endTime: DateTime.parse(job['lessonTimes']['end']),
+          startTime: toLocalTime(DateTime.parse(job['lessonTimes']['start']), job['timezone']),
+          endTime: toLocalTime(DateTime.parse(job['lessonTimes']['end']), job['timezone']),
           color: Theme.of(context).colorScheme.primary,
           recurrenceRule: 'FREQ=WEEKLY;INTERVAL=1;BYDAY=$recurrenceDay'
       ));
@@ -87,7 +87,8 @@ class _ScheduleViewState extends State<ScheduleView> {
               builder: (context) =>
                   JobView(
                       jobID: calendarTapDetails.appointments!.first.id,
-                      isCompany: widget.isCompany
+                      isCompany: widget.isCompany,
+                      isAdmin: widget.isAdmin
                   )
           ));
     }

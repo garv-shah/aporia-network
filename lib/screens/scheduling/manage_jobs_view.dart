@@ -7,6 +7,7 @@ Created: Fri Aug 5 22:25:21 2022
 
 import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
 import 'package:aporia_app/widgets/section_app_bar.dart';
@@ -31,6 +32,11 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
   String searchValue = '';
   List<String> searchResults = ['nothing'];
 
+  Map<String, String> filter = {
+    'property': '',
+    'value': '',
+  };
+
   Algolia algolia = const Algolia.init(
     applicationId: '3AX0WXX57C',
     apiKey: '7d3fc81ef87a6ade4dcf5b845e3f8984',
@@ -38,7 +44,8 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
 
   updateSearch(String value) async {
     searchResults = ['nothing'];
-    AlgoliaQuery query = algolia.instance.index('jobs').query(value);
+    AlgoliaQuery query = algolia.instance.index('jobs').query(value)
+        .facetFilter("${filter['property']}:${filter['value']}");
     List<AlgoliaObjectSnapshot> results = (await query.getObjects()).hits;
 
     setState(() {
@@ -52,9 +59,31 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isCompany) {
+      filter['property'] = 'createdBy.id';
+      filter['value'] = FirebaseAuth.instance.currentUser!.uid;
+    } else if (widget.isAdmin) {
+      filter['property'] = '';
+      filter['value'] = '';
+    } else {
+      filter['property'] = 'assignedTo.id';
+      filter['value'] = FirebaseAuth.instance.currentUser!.uid;
+    }
+
     var pixelRatio = window.devicePixelRatio;
     var logicalScreenSize = window.physicalSize / pixelRatio;
     var logicalHeight = logicalScreenSize.height;
+
+    Query baseQuery = FirebaseFirestore.instance.collection('jobs');
+
+    if (!widget.isAdmin) {
+      baseQuery = baseQuery.where(
+          Filter.or(
+              Filter("createdBy.id", isEqualTo: FirebaseAuth.instance.currentUser!.uid),
+              Filter("assignedTo.id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          )
+      );
+    }
 
     return Scaffold(
       /// main body
@@ -68,7 +97,7 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
             // If there has been no search done, don't filter by search results,
             // but if a search has been done, only return documents within that
             stream: (searchValue == '')
-                ? FirebaseFirestore.instance.collection('jobs').snapshots()
+                ? baseQuery.snapshots()
                 : FirebaseFirestore.instance
                     .collection('jobs')
                     .where(FieldPath.documentId, whereIn: searchResults)
@@ -121,7 +150,13 @@ class _ManageJobsPageState extends State<ManageJobsPage> {
                                       itemCount: jobs.length,
                                       itemBuilder:
                                           (BuildContext context, int index) {
-                                        return jobCard(context, isAdmin: widget.isAdmin, isCompany: widget.isCompany, data: jobs[index]);
+                                        return jobCard(
+                                            context,
+                                            isAdmin: widget.isAdmin,
+                                            isCompany: widget.isCompany,
+                                            showAssigned: widget.isCompany,
+                                            data: jobs[index],
+                                        );
                                       }),
                             ],
                           ),

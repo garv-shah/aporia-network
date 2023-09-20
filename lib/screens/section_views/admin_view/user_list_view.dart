@@ -193,7 +193,7 @@ class _UsersPageState extends State<UsersPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => ManageUserPage(userInfo: model)),
+              builder: (context) => ManageUserPage(userInfo: model, canEdit: true,)),
         );
       },
     );

@@ -26,6 +26,7 @@ Widget jobCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
       required bool isAdmin,
       required bool isCompany,
+      bool showAssigned = false,
       List? times,
       required Map<String, dynamic> data}) {
   Color statusColour = (() {
@@ -40,6 +41,7 @@ Widget jobCard(BuildContext context,
   }());
 
   double screenWidth = MediaQuery.of(context).size.width;
+  String subtitleUser = (showAssigned && data.containsKey('assignedTo')) ? 'assignedTo' : 'createdBy';
 
   return Padding(
     padding: const EdgeInsets.fromLTRB(24.0, 6.0, 24.0, 6.0),
@@ -113,7 +115,7 @@ Widget jobCard(BuildContext context,
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => JobView(jobID: data['Job ID'], isCompany: isCompany)
+                      builder: (context) => JobView(jobID: data['Job ID'], isCompany: isCompany, isAdmin: isAdmin)
                   ));
             }
           },
@@ -260,13 +262,13 @@ Widget jobCard(BuildContext context,
                             height: 25,
                             width: 25,
                             child: fetchProfilePicture(
-                                data['createdBy']['profilePicture'],
-                                data['createdBy']['pfpType'],
-                                data['createdBy']['username'])),
+                                data[subtitleUser]['profilePicture'],
+                                data[subtitleUser]['pfpType'],
+                                data[subtitleUser]['username'])),
                         const SizedBox(width: 10),
                         Expanded(
                             child: Text(
-                                "By ${data['createdBy']['username']}",
+                                "${(showAssigned && data.containsKey('assignedTo')) ? 'Assigned to' : 'By'} ${data[subtitleUser]['username']}",
                                 maxLines: 1)),
                       ],
                     )

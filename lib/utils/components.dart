@@ -94,3 +94,47 @@ Map timezoneNames = {
   -34200000: 'Pacific/Marquesas',
   -39600000: 'Pacific/Pago_Pago'
 };
+
+Map timezoneToOffset = {
+  'UTC': 0,
+  'Indian/Mayotte': 10800000,
+  'Europe/London': 3600000,
+  'Europe/Zurich': 7200000,
+  'Pacific/Gambier': -32400000,
+  'US/Alaska': -28800000,
+  'US/Eastern': -14400000,
+  'Canada/Atlantic': -10800000,
+  'US/Central': -18000000,
+  'US/Mountain': -21600000,
+  'US/Pacific': -25200000,
+  'Atlantic/South_Georgia': -7200000,
+  'Canada/Newfoundland': -9000000,
+  'Pacific/Pohnpei': 39600000,
+  'Indian/Christmas': 25200000,
+  'Pacific/Saipan': 36000000,
+  'Indian/Maldives': 18000000,
+  'Pacific/Tongatapu': 46800000,
+  'Indian/Chagos': 21600000,
+  'Pacific/Wallis': 43200000,
+  'Indian/Reunion': 14400000,
+  'Australia/Perth': 28800000,
+  'Pacific/Palau': 32400000,
+  'Asia/Kolkata': 19800000,
+  'Asia/Kabul': 16200000,
+  'Asia/Kathmandu': 20700000,
+  'Indian/Cocos': 23400000,
+  'Asia/Tehran': 12600000,
+  'Atlantic/Cape_Verde': -3600000,
+  'Australia/Broken_Hill': 37800000,
+  'Australia/Darwin': 34200000,
+  'Australia/Eucla': 31500000,
+  'Pacific/Chatham': 49500000,
+  'US/Hawaii': -36000000,
+  'Pacific/Kiritimati': 50400000,
+  'Pacific/Marquesas': -34200000,
+  'Pacific/Pago_Pago': -39600000
+};
+
+DateTime toLocalTime(DateTime time, String originalTimezone) {
+  return time.subtract(Duration(milliseconds: timezoneToOffset[originalTimezone] - DateTime.now().timeZoneOffset.inMilliseconds));
+}
