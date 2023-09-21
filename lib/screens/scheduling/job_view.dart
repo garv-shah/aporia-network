@@ -74,6 +74,7 @@ class _JobViewState extends State<JobView> {
   Widget build(BuildContext context) {
     Map<String, dynamic>? data;
     bool assignedToMe = false;
+    bool createdByMe = false;
 
     return StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
@@ -87,6 +88,11 @@ class _JobViewState extends State<JobView> {
 
               if (data?['assignedTo'] != null) {
                 assignedToMe = data?['assignedTo']['id'] ==
+                    FirebaseAuth.instance.currentUser!.uid;
+              }
+
+              if (data?['createdBy'] != null) {
+                createdByMe = data?['createdBy']['id'] ==
                     FirebaseAuth.instance.currentUser!.uid;
               }
 
@@ -111,9 +117,9 @@ class _JobViewState extends State<JobView> {
               }
 
               return Scaffold(
-                floatingActionButton: assignedToMe ? FloatingActionButton(
+                floatingActionButton: assignedToMe || createdByMe ? FloatingActionButton(
                   onPressed: () {
-                    if (widget.isCompany) {
+                    if (createdByMe) {
                       // go to edit the job
                       Navigator.push(
                           context,
@@ -152,7 +158,7 @@ class _JobViewState extends State<JobView> {
                       });
                     }
                   },
-                  child: (widget.isCompany)
+                  child: createdByMe
                       ? const Icon(Icons.edit)
                       : const Icon(Icons.exit_to_app),
                 ) : null,

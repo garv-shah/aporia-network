@@ -296,7 +296,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
             // if our user is a volunteer, show different text
             if (getComputedAbilities(widget.userRoles).contains('volunteering')) {
-              int volunteerHours = (profileMap?['volunteerHours'] ?? 0).toInt();
+              int volunteerHours = ((profileMap?['processedVolunteerHours'] ?? profileMap?['volunteerHours']) ?? 0).toInt();
               subText = {
                 1: {
                   'title': 'Time to Lesson',

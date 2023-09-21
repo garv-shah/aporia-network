@@ -41,7 +41,8 @@ Widget jobCard(BuildContext context,
   }());
 
   double screenWidth = MediaQuery.of(context).size.width;
-  String subtitleUser = (showAssigned && data.containsKey('assignedTo')) ? 'assignedTo' : 'createdBy';
+  showAssigned = showAssigned && data['assignedTo'] != null;
+  String? subtitleUser = showAssigned ? 'assignedTo' : 'createdBy';
 
   return Padding(
     padding: const EdgeInsets.fromLTRB(24.0, 6.0, 24.0, 6.0),
@@ -182,7 +183,7 @@ Widget jobCard(BuildContext context,
                                           }
                                           Map<String, dynamic>? requirement = data["requirements"]["Subject ${itemNum + 1}"];
                                           return Card(
-                                            color: Theme.of(context).highlightColor,
+                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.15),
                                             shape: const RoundedRectangleBorder(
                                               borderRadius: BorderRadius.all(Radius.circular(8)),
                                             ),
@@ -259,8 +260,8 @@ Widget jobCard(BuildContext context,
                     Row(
                       children: [
                         SizedBox(
-                            height: 25,
-                            width: 25,
+                            height: (times?.isNotEmpty ?? false) ? 30 : 25,
+                            width: (times?.isNotEmpty ?? false) ? 30 : 25,
                             child: fetchProfilePicture(
                                 data[subtitleUser]['profilePicture'],
                                 data[subtitleUser]['pfpType'],
@@ -268,10 +269,29 @@ Widget jobCard(BuildContext context,
                         const SizedBox(width: 10),
                         Expanded(
                             child: Text(
-                                "${(showAssigned && data.containsKey('assignedTo')) ? 'Assigned to' : 'By'} ${data[subtitleUser]['username']}",
+                                "${showAssigned ? 'Assigned to' : 'By'} ${data[subtitleUser]['username']}",
                                 maxLines: 1)),
+                        // how many times available counter
+                        (times?.isNotEmpty ?? false) ? SizedBox(
+                          height: 35,
+                          child: Card(
+                            color: Theme.of(context).indicatorColor,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+                              child: Text(
+                                "${times?.length ?? 0} availabilities",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ) : const SizedBox.shrink(),
                       ],
-                    )
+                    ),
                   ],
                 ),
               )),

@@ -55,16 +55,6 @@ class CreateJob extends StatefulWidget {
 }
 
 class _CreateJobState extends State<CreateJob> {
-  TextEditingController pickupDateController = TextEditingController();
-  TextEditingController pickupTimeController = TextEditingController();
-  TextEditingController dropoffDateController = TextEditingController();
-  TextEditingController dropoffTimeController = TextEditingController();
-  TextEditingController pickupAddressController = TextEditingController();
-  TextEditingController dropoffAddressController = TextEditingController();
-
-  // Date range for the input field.
-  DateTimeRange? currentDateRange;
-
   List<DropdownMenuItem<String>> possibleSubjects = [];
 
   // Keys for the animated list of items and the overall form.
@@ -85,36 +75,9 @@ class _CreateJobState extends State<CreateJob> {
   Future<void> didChangeDependencies() async {
     // Sets the form to the existing values if they are specified in jobData,
     // allowing for loading documents
-    if (pickupDateController.text.isEmpty &&
-        pickupTimeController.text.isEmpty &&
-        dropoffDateController.text.isEmpty &&
-        dropoffTimeController.text.isEmpty &&
-        pickupAddressController.text.isEmpty &&
-        dropoffAddressController.text.isEmpty) {
-      requirements = widget.jobData?['requirements'] ?? {};
-      jobData = widget.jobData ?? {};
-      id = widget.jobData?['ID'];
-
-      if (widget.jobData?['Pickup DateTime'] != null &&
-          widget.jobData?['Dropoff DateTime'] != null &&
-          widget.jobData?['Pickup Address'] != null &&
-          widget.jobData?['Dropoff Address'] != null) {
-        DateTime pickupDateTime = widget.jobData?['Pickup DateTime'].toDate();
-        pickupDateController.text =
-            DateFormat('dd/MM/yyyy').format(pickupDateTime);
-        pickupTimeController.text =
-            formatTimeOfDay(pickupDateTime.toTimeOfDay());
-
-        DateTime dropoffDateTime =
-        widget.jobData?['Dropoff DateTime'].toDate();
-        dropoffDateController.text =
-            DateFormat('dd/MM/yyyy').format(dropoffDateTime);
-        dropoffTimeController.text =
-            formatTimeOfDay(dropoffDateTime.toTimeOfDay());
-        pickupAddressController.text = widget.jobData?['Pickup Address'];
-        dropoffAddressController.text = widget.jobData?['Dropoff Address'];
-      }
-    }
+    requirements = widget.jobData?['requirements'] ?? {};
+    jobData = widget.jobData ?? {};
+    id = widget.jobData?['ID'];
 
     DocumentSnapshot<Map<String, dynamic>> subjectsSnapshot =
     await FirebaseFirestore.instance

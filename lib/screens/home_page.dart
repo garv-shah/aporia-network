@@ -173,7 +173,7 @@ Widget userInfo(BuildContext context,
 
   // if our user is a volunteer, show different text
   if (abilities.contains('volunteering')) {
-    int volunteerHours = (profileMap?['volunteerHours'] ?? 0).toInt();
+    int volunteerHours = ((profileMap?['processedVolunteerHours'] ?? profileMap?['volunteerHours']) ?? 0).toInt();
     subText = {
       1: {
         'title': 'Time to Lesson',

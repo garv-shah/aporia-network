@@ -307,9 +307,15 @@ async function updatePublicProfile(id: string, jobID: string, jobData: DocumentD
             jobList.splice(index, 1);
         }
     } else {
+        // if already has hours in that subject, set
+        let currentHours: number = 0;
+        if (hoursPerSubject[jobID] != null) {
+            currentHours = hoursPerSubject[jobID]['hours'];
+        }
+
         jobList.push(jobDataWithID);
         hoursPerSubject[jobID] = {
-            hours: 0,
+            hours: currentHours,
             data: jobDataWithID
         };
     }
@@ -357,6 +363,7 @@ exports.claimJob = functions
             let jobData = jobDoc.data();
 
             const googleResourceID = makeid(32);
+            let uri: string | null = null;
 
             // You already have the user emails from your NodeJS app
             const attendeesEmails = [
@@ -424,38 +431,50 @@ exports.claimJob = functions
             });
 
             // @ts-ignore
-            const response = await calendar.events.insert({
+            calendar.events.insert({
                 auth: oAuth2Client,
                 calendarId: '057d48896ad3b71f8302bcd00dcfc74b6986c9ea749610b59fecd60a32699dea@group.calendar.google.com',
                 sendUpdates: "all",
                 resource: event,
                 conferenceDataVersion: 1
-            });
+            }).then(async (response) => {
+                console.log(response.data);
 
-            // @ts-ignore
-            const { config: { data: { summary, location, start, end, attendees } }, data: { conferenceData } } = response;
+                // @ts-ignore
+                const {config: {data: {summary, location, start, end, attendees}}, data: {hangoutLink}} = response;
 
-            const { uri } = conferenceData.entryPoints[0];
-            console.log(`📅 Calendar event created: ${summary} at ${location}, from ${start.dateTime} to ${end.dateTime}, attendees:\n${attendees.map((person: { email: any; }) => `🧍 ${person.email}`).join('\n')} \n 💻 Join conference call link: ${uri}`);
+                uri = hangoutLink;
+                console.log(`📅 Calendar event created: ${summary} at ${location}, from ${start.dateTime} to ${end.dateTime}, attendees:\n${attendees.map((person: {
+                    email: any;
+                }) => `🧍 ${person.email}`).join('\n')} \n 💻 Join conference call link: ${uri}`);
 
-            userData['id'] = context.auth!.uid;
-            jobData['assignedTo'] = userData;
-            jobData['timezone'] = timezone;
-            jobData['status'] = 'assigned';
-            jobData['lessonTimes'] = {
-                'start': startTime,
-                'end': endTime
-            };
-            jobData['googleResourceID'] = googleResourceID;
-            jobData['meetUrl'] = uri;
+                userData['id'] = context.auth!.uid;
+                jobData['assignedTo'] = userData;
+                jobData['timezone'] = timezone;
+                jobData['status'] = 'assigned';
+                jobData['lessonTimes'] = {
+                    'start': startTime,
+                    'end': endTime
+                };
+                jobData['googleResourceID'] = googleResourceID;
+                jobData['meetUrl'] = uri;
 
-            await db.collection("jobs").doc(jobID).update(jobData);
+                if (jobID != null) {
+                    await db.collection("jobs").doc(jobID).update(jobData);
 
-            // update profile of both volunteer and company
-            await updatePublicProfile(userData['id'], jobID, jobData, true, false);
-            await updatePublicProfile(jobData['createdBy']['id'], jobID, jobData, false, false);
+                    // update profile of both volunteer and company
+                    await updatePublicProfile(userData['id'], jobID, jobData, true, false);
+                    await updatePublicProfile(jobData['createdBy']['id'], jobID, jobData, false, false);
 
-            console.log(`Job claim for ${context.auth!.uid} completed!`);
+                    console.log(`Job claim for ${context.auth!.uid} completed!`);
+                } else {
+                    console.log(`Job claim for ${context.auth!.uid} failed because jobID was null somehow :(`);
+                }
+            })
+                .catch((error) => {
+                    console.error(error);
+                    console.log(`Job claim for ${context.auth!.uid} failed because of the above error!`);
+                });
         }
     });
 
@@ -537,6 +556,7 @@ exports.startShift = functions
             throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
         } else {
             functions.logger.info(`Starting shift on job ${jobID} for ${context.auth?.uid}`, {structuredData: true});
+            const country: string | string[] | undefined = context.rawRequest.headers["x-appengine-country"];
 
             const publicProfile = db.collection('publicProfile').doc(context.auth!.uid);
             const doc = await publicProfile.get();
@@ -626,6 +646,14 @@ exports.startShift = functions
                     let hoursVolunteeredNow: number = Math.abs(end.getTime() - start.getTime()) / 3.6e6;
                     volunteerHours += hoursVolunteeredNow
 
+                    // processed volunteer hours based on country
+                    let processedVolunteerHours: number = 0;
+                    if (country === 'US') {
+                        processedVolunteerHours = 4 * volunteerHours;
+                    } else {
+                        processedVolunteerHours = 2 * volunteerHours;
+                    }
+
                     // add hours volunteered now to hoursPerSubject
                     if (hoursPerSubject[jobID] != undefined) {
                         hoursPerSubject[jobID]['hours'] = hoursPerSubject[jobID]['hours'] + hoursVolunteeredNow
@@ -635,6 +663,7 @@ exports.startShift = functions
                         'volunteerRecord': volunteerRecord,
                         'volunteerHours': volunteerHours,
                         'hoursPerSubject': hoursPerSubject,
+                        'processedVolunteerHours': processedVolunteerHours,
                     });
 
                     console.log(`Volunteering has finished for ${context.auth?.uid} in lesson ${jobID}. Hours volunteered now is ${hoursVolunteeredNow} with total of ${volunteerHours} volunteer hours globally.`);
@@ -797,6 +826,16 @@ exports.generateCertificate = functions
         } else {
             functions.logger.info(`Generating Certificate of Completion for ${context.auth?.uid}`, {structuredData: true});
 
+            const country: string | string[] | undefined = context.rawRequest.headers["x-appengine-country"];
+
+            let multiplier: number = 1;
+
+            if (country === 'US') {
+                multiplier = 4;
+            } else {
+                multiplier = 2;
+            }
+
             const publicProfile = db.collection('publicProfile').doc(context.auth!.uid);
             const doc = await publicProfile.get();
             let profileData = doc.data();
@@ -807,7 +846,7 @@ exports.generateCertificate = functions
 
             let hoursPerSubject: DocumentData = profileData['hoursPerSubject'];
             let name: string = profileData['username'];
-            let hours: number = Math.round((profileData['volunteerHours'] + Number.EPSILON) * 100) / 100;
+            let hours: number = Math.round(((profileData['volunteerHours'] * multiplier) + Number.EPSILON) * 100) / 100;
             const firstTime: firestore.Timestamp = profileData['volunteerRecord'][0]['start'];
             const lastTime: firestore.Timestamp = profileData['volunteerRecord'][profileData['volunteerRecord'].length - 1]['end'];
             let startDate = firstTime.toDate();
@@ -836,7 +875,7 @@ exports.generateCertificate = functions
 
             for (let key in hoursPerSubject) {
                 const subjectName: string = hoursPerSubject[key]['data']['Job Title'];
-                const hours: number = Math.round((hoursPerSubject[key]['hours'] + Number.EPSILON) * 100) / 100;
+                const hours: number = Math.round(((hoursPerSubject[key]['hours'] * multiplier) + Number.EPSILON) * 100) / 100;
                 subjectData.push(
                     [
                         {
