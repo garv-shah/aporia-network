@@ -42,7 +42,7 @@ dependencies:
   appflowy_editor:
     git:
       url: https://github.com/AppFlowy-IO/appflowy-editor
-      ref: db5f5f9
+      ref: e470a9a
   tuple: ^2.0.0
   cupertino_icons: ^1.0.5
   cloud_firestore: ^4.4.4
@@ -68,7 +68,7 @@ dependencies:
   firebase_ui_oauth_google: ^1.2.11
   firebase_ui_oauth_apple: ^1.2.11
   universal_io: ^2.2.2
-  syncfusion_flutter_calendar: ^22.1.37
+  syncfusion_flutter_calendar: ^23.1.36
   intl: ^0.18.0
   firebase_app_check: ^0.1.5
   googleapis: ^11.2.0

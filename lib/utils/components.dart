@@ -138,3 +138,29 @@ Map timezoneToOffset = {
 DateTime toLocalTime(DateTime time, String originalTimezone) {
   return time.subtract(Duration(milliseconds: timezoneToOffset[originalTimezone] - DateTime.now().timeZoneOffset.inMilliseconds));
 }
+
+String getRecurrenceRule({required int dayOfWeek, DateTime? until}) {
+  String recurrenceDay = 'MO';
+
+  if (dayOfWeek == 1) {
+    recurrenceDay = 'MO';
+  } else if (dayOfWeek == 2) {
+    recurrenceDay = 'TU';
+  } else if (dayOfWeek == 3) {
+    recurrenceDay = 'WE';
+  } else if (dayOfWeek == 4) {
+    recurrenceDay = 'TH';
+  } else if (dayOfWeek == 5) {
+    recurrenceDay = 'FR';
+  } else if (dayOfWeek == 6) {
+    recurrenceDay = 'SA';
+  } else if (dayOfWeek == 7) {
+    recurrenceDay = 'SU';
+  }
+
+  String rule = 'FREQ=WEEKLY;INTERVAL=1;BYDAY=$recurrenceDay';
+  if (until != null) {
+    rule += ';UNTIL=${until.toIso8601String()}';
+  }
+  return rule;
+}

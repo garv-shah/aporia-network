@@ -28,6 +28,7 @@ Widget jobCard(BuildContext context,
       required bool isCompany,
       bool showAssigned = false,
       List? times,
+      Map<Object, Object?>? initialData,
       required Map<String, dynamic> data}) {
   Color statusColour = (() {
     if (data['status'] == 'pending_assignment') {
@@ -61,7 +62,7 @@ Widget jobCard(BuildContext context,
             if (times != null) {
               final functions = FirebaseFunctions.instanceFor(
                   region: 'australia-southeast1');
-              void claimJob(List chosenTime) {
+              void claimJob(Map chosenTime) {
                 showOkCancelAlertDialog(
                     okLabel: 'Confirm',
                     title: 'Claim Job',
@@ -92,8 +93,8 @@ Widget jobCard(BuildContext context,
                         .httpsCallable('claimJob')
                         .call({
                       'jobID': data['Job ID'],
-                      'startTime': chosenTime[0]['from'].toIso8601String().toString(),
-                      'endTime': chosenTime[0]['to'].toIso8601String().toString(),
+                      'startTime': chosenTime['from'].toIso8601String().toString(),
+                      'endTime': chosenTime['to'].toIso8601String().toString(),
                       'timezone': timezoneNames[DateTime.now().timeZoneOffset.inMilliseconds],
                     });
                   }
@@ -106,6 +107,7 @@ Widget jobCard(BuildContext context,
                       builder: (context) =>
                           AvailabilityPage(
                             restrictionZone: times,
+                            initialValue: initialData,
                             onSave: (slots) {
                               claimJob(slots);
                             },
@@ -307,7 +309,7 @@ Widget jobCard(BuildContext context,
 
 /// This is the leaderboards page for rankings based on experience.
 class AvailableJobsPage extends StatefulWidget {
-  final List availability;
+  final Map availability;
   const AvailableJobsPage({Key? key, required this.availability}) : super(key: key);
 
   @override
@@ -368,15 +370,59 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                           QueryDocumentSnapshot<Map<String, dynamic>>? document = jobSnapshot.data?.docs[index - 1];
                           Map<String, dynamic> data = document?.data() ?? {};
                           data['Job ID'] = document?.id;
-                          Iterable myAvailability = widget.availability.map((e) => e['from'].toString());
-                          Iterable companyAvailability = data['availability'].map((e) => e['from'].toDate().toString());
+                          Iterable myAvailability = widget.availability['slots'].map((e) {
+                            if (e['from'] is DateTime) {
+                              return e['from'].toString();
+                            } else {
+                              return e['from'].toDate().toString();
+                            }
+                          });
+                          Iterable companyAvailability = [];
+                          if (data['availability'] != null) {
+                            companyAvailability = data['availability']['slots'].map((e) => e['from'].toDate().toString());
+                          }
+
+                          // Note, exceptions are not factored into the ranking, because they are one off
 
                           List common = myAvailability.toSet().intersection(companyAvailability.toSet()).toList();
+                          print("length of common is ${common.length}");
 
                           if (common.isNotEmpty) {
                             availableJobsCounter++;
-                            return jobCard(context, data: data, isAdmin: false, isCompany: false, times: common);
+
+                            Map<String, List> myExceptions = {
+                              'add': [],
+                              'remove': [],
+                            };
+                            Map<String, List> companyExceptions = {
+                              'add': [],
+                              'remove': [],
+                            };
+
+                            if (data['availability']['exceptions'] != null) {
+                              companyExceptions['add'] = data['availability']['exceptions']['add'];
+                              companyExceptions['remove'] = data['availability']['exceptions']['remove'];
+                            }
+                            if (widget.availability['exceptions'] != null) {
+                              myExceptions['add'] = widget.availability['exceptions']['add'];
+                              myExceptions['remove'] = widget.availability['exceptions']['remove'];
+                            }
+
+                            Map initialExceptions = globalExceptions = {
+                              'add': myExceptions['add']! + companyExceptions['add']!,
+                              'remove': myExceptions['remove']! + companyExceptions['remove']!,
+                            };
+
+                            Map<Object, Object?> initialData = {
+                              'slots': [],
+                              'exceptions': initialExceptions
+                            };
+
+                            return jobCard(context, data: data, isAdmin: false, isCompany: false, times: common, initialData: initialData);
                           } else {
+                            print("index is $index");
+                            print("data length is ${(jobSnapshot.data?.docs.length ?? 0)}");
+                            print("availableJobsCounter is $availableJobsCounter");
                             if (availableJobsCounter == 0 && index == (jobSnapshot.data?.docs.length ?? 0)) {
                               return const Padding(
                                   padding: EdgeInsets.all(48),

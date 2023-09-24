@@ -6,18 +6,53 @@ Created: Sat Jul 8 17:04:21 2023
  */
 
 import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
+import 'package:aporia_app/utils/components.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-typedef DataCallback = void Function(List data);
+import '../post_creation/create_post_view.dart';
+
+typedef DataCallback = void Function(Map data);
 LessonDataSource? _dataSource;
+List<Appointment> repeatingRemoveDates = [];
+List<Appointment> exceptionRemoveDates = [];
+List oldSlots = [];
+Set<Appointment> newDates = {};
+Map<String, List> globalExceptions = {
+  'add': [],
+  'remove': [],
+};
+
+class RawLesson {
+  const RawLesson(
+      this.from,
+      this.to,
+      );
+
+  final DateTime from;
+  final DateTime to;
+
+  Map<String, dynamic> toMap(){
+    return {'from': from, 'to': to};
+  }
+}
+
+// returns a normalised time so days can be compared
+DateTime justTime(DateTime time) {
+  return time.copyWith(year: 2018, month: 1, day: time.weekday);
+}
+
+DateTime toDateTime(dynamic time) {
+  return time is DateTime ? time : DateTime.parse(time.toDate().toString());
+}
 
 class LessonDataSource extends CalendarDataSource {
-  LessonDataSource(List<Appointment> source){
+  LessonDataSource(List<Appointment> source) {
     appointments = source;
   }
 
@@ -49,19 +84,31 @@ class LessonDataSource extends CalendarDataSource {
 
 class AvailabilityPage extends StatefulWidget {
   final bool isCompany;
-  final List? initialValue;
+  final Map<Object, Object?>? initialValue;
   final DataCallback? onSave;
   final List? restrictionZone;
 
-  const AvailabilityPage({Key? key, required this.isCompany, this.onSave, this.initialValue, this.restrictionZone}) : super(key: key);
+  const AvailabilityPage(
+      {Key? key,
+      required this.isCompany,
+      this.onSave,
+      this.initialValue,
+      this.restrictionZone})
+      : super(key: key);
 
   @override
   State<AvailabilityPage> createState() => _AvailabilityPageState();
 }
 
 class _AvailabilityPageState extends State<AvailabilityPage> {
+  bool repeatOnSave = true;
+  String _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
+  late CalendarController _controller;
+
   @override
   void initState() {
+    _controller = CalendarController();
+    _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
     if (widget.restrictionZone == null) {
       getDataFromFireStore().then((results) {
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
@@ -71,6 +118,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     } else {
       _dataSource = LessonDataSource([]);
     }
+
     super.initState();
   }
 
@@ -80,18 +128,57 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         .doc(FirebaseAuth.instance.currentUser?.uid)
         .get();
 
-    List slots = widget.initialValue ?? ((availabilitySnapshot.data() as Map<String, dynamic>?)?['slots'] ?? []);
+    Map<String, dynamic>? snapshotData =
+        availabilitySnapshot.data() as Map<String, dynamic>?;
+
+    List slots = widget.initialValue?['slots'] ?? (snapshotData?['slots'] ?? []);
+    oldSlots = slots;
+    Map exceptions = widget.initialValue?['exceptions'] ?? (snapshotData?['exceptions'] ?? {
+      'add': [],
+      'remove': [],
+    });
+
+    // key is the bare time, value is the actual time
+    Map<DateTime, List<DateTime>> exceptionsRemove = {};
+    exceptions['remove'].forEach((element) {
+      DateTime start = toDateTime(element['from']);
+      if (exceptionsRemove[justTime(start)] == null) {
+        exceptionsRemove[justTime(start)] = [];
+      }
+      exceptionsRemove[justTime(start)]?.add(start);
+    });
+    globalExceptions['remove'] = exceptions['remove'];
 
     List<Appointment> list = [];
 
-    for (var slot in slots) {
+    void addLesson(dynamic lesson, bool repeating) {
+      DateTime start = toDateTime(lesson['from']);
+      DateTime end = toDateTime(lesson['to']);
+      List<DateTime>? recurrenceExceptionDates;
+
+      if (exceptionsRemove.keys.contains(start) && repeating) {
+        recurrenceExceptionDates = exceptionsRemove[start];
+      }
+
       list.add(Appointment(
-          subject: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
-          startTime: slot['from'] is DateTime ? slot['from'] : DateTime.parse(slot['from'].toDate().toString()),
-          endTime: slot['to'] is DateTime ? slot['to'] : DateTime.parse(slot['to'].toDate().toString()),
-          color: Theme.of(context).colorScheme.primary
-      ));
+          subject: widget.restrictionZone == null ? '' : 'Lesson Time!',
+          startTime: start,
+          endTime: end,
+          color: Theme.of(context).colorScheme.primary,
+          recurrenceRule: repeating ? getRecurrenceRule(dayOfWeek: start.weekday) : null,
+          recurrenceExceptionDates: recurrenceExceptionDates));
     }
+
+    for (var slot in slots) {
+      addLesson(slot, true);
+    }
+
+    List toAdd = [];
+    for (var onceOff in exceptions['add']) {
+      toAdd.add(onceOff);
+      addLesson(onceOff, false);
+    }
+    globalExceptions['add']?.addAll(toAdd);
 
     setState(() {
       _dataSource = LessonDataSource(list);
@@ -104,17 +191,29 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
       DateTime startTime = calendarTapDetails.date!;
       DateTime endTime = calendarTapDetails.date!.add(const Duration(hours: 1));
       Appointment lesson = Appointment(
-          subject: widget.restrictionZone == null ? 'Available!' : 'Lesson Time!',
+          subject: widget.restrictionZone == null ? '' : 'Lesson Time!',
           startTime: startTime,
           endTime: endTime,
-          color: Theme.of(context).colorScheme.primary
-      );
-      List? lessonsInSlot = _dataSource?.appointments?.where((element) => element.startTime == lesson.startTime).toList();
+          color: Theme.of(context).colorScheme.primary);
+      List? lessonsInSlot = _dataSource?.appointments
+          ?.where((element) =>
+              justTime(element.startTime) == justTime(lesson.startTime))
+          .toList();
       bool filled = lessonsInSlot?.isNotEmpty ?? false;
       if (filled) {
         // remove lesson
-        _dataSource?.appointments!.remove(lessonsInSlot![0]);
-        _dataSource?.notifyListeners(CalendarDataSourceAction.remove, <Appointment>[lessonsInSlot![0]]);
+        Appointment currLesson = lessonsInSlot![0];
+        _dataSource?.appointments!.remove(currLesson);
+        _dataSource?.notifyListeners(
+            CalendarDataSourceAction.remove, <Appointment>[currLesson]);
+
+        newDates.remove(lesson);
+        if (currLesson.recurrenceRule != null) {
+          // repeating lesson
+          repeatingRemoveDates.add(lesson);
+        } else {
+          exceptionRemoveDates.add(lesson);
+        }
       } else {
         // add lesson
         // if we are simply selecting availability, you should be able to select
@@ -122,14 +221,20 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         // should only be able to select one time.
         if (widget.restrictionZone == null) {
           _dataSource?.appointments!.add(lesson);
+          newDates.add(lesson);
           _dataSource?.notifyListeners(
               CalendarDataSourceAction.add, <Appointment>[lesson]);
+
+          repeatingRemoveDates.removeWhere((element) =>
+              justTime(element.startTime) == justTime(lesson.startTime));
+          exceptionRemoveDates.removeWhere((element) =>
+              justTime(element.startTime) == justTime(lesson.startTime));
         } else {
           Navigator.of(context).pop();
-          widget.onSave!([{
-            'from': lesson.startTime,
-            'to': lesson.endTime,
-          }]);
+          widget.onSave!({
+              'from': lesson.startTime,
+              'to': lesson.endTime,
+            });
         }
       }
     }
@@ -149,26 +254,91 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
               saveAvailability(true);
             }),
       ),
-      body: SfCalendar(
-        view: PlatformExtension.isDesktopOrWeb ? CalendarView.week : CalendarView.day,
-        firstDayOfWeek: 1,
-        viewNavigationMode: PlatformExtension.isDesktopOrWeb ? ViewNavigationMode.none : ViewNavigationMode.snap,
-        minDate: DateTime(2018, 1, 1),
-        maxDate: DateTime.fromMillisecondsSinceEpoch(DateTime(2018, 1, 8).millisecondsSinceEpoch - 1),
-        showCurrentTimeIndicator: false,
-        headerHeight: 0,
-        dataSource: _dataSource,
-        onTap: calendarTapped,
-        initialDisplayDate: DateTime(2018, 1, 1),
-        specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
+      body: Column(
+        children: [
+          // the header
+          SizedBox(
+            height: 40,
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      _controller.backward!();
+                    },
+                    icon: const Icon(Icons.arrow_back_ios_new),iconSize: 15, splashRadius: 15),
+                IconButton(
+                    onPressed: () {
+                      _controller.forward!();
+                    },
+                    icon: const Icon(Icons.arrow_forward_ios),iconSize: 15, splashRadius: 15),
+                Text(_headerText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 15)),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: TextButton(
+                        onPressed: () {
+                          _controller.displayDate = DateTime.now();
+                        },
+                        child: const Text('Today'),),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: SfCalendar(
+              view: PlatformExtension.isDesktopOrWeb ? CalendarView.week : CalendarView.day,
+              firstDayOfWeek: 1,
+              viewNavigationMode: ViewNavigationMode.snap,
+              controller: _controller,
+              cellEndPadding: 0,
+              headerHeight: 0,
+              dataSource: _dataSource,
+              onViewChanged: (ViewChangedDetails details) {
+                SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                  setState(() {
+                    _headerText = DateFormat('MMMM yyyy').format(details.visibleDates.first);
+                  });
+                });
+              },
+              onTap: calendarTapped,
+              specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
+            ),
+          ),
+          (widget.restrictionZone == null) ? Tooltip(
+            message:
+                "Checking this box changes your general preferred availability for all weeks. If you wish to only change your availability for this current week, leave this box unchecked.",
+            child: LabeledCheckbox(
+              label: "Apply changes to all weeks",
+              value: repeatOnSave,
+              onChanged: (value) {
+                setState(() {
+                  repeatOnSave = value;
+                });
+              },
+              padding: const EdgeInsets.fromLTRB(36.0, 8.0, 0.0, 8.0),
+            ),
+          ) : const Text("this is where you change frequency"),
+        ],
       ),
-      floatingActionButton: (widget.restrictionZone == null) ? FloatingActionButton.extended(
-        onPressed: () {
-          saveAvailability(false);
-        },
-        label: widget.isCompany ? const Text("Save") : const Text("Continue"),
-        icon: widget.isCompany ? const Icon(Icons.check) : const Icon(Icons.arrow_forward),
-      ) : null,
+      floatingActionButton: (widget.restrictionZone == null)
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                saveAvailability(false);
+              },
+              label: widget.isCompany
+                  ? const Text("Save")
+                  : const Text("Continue"),
+              icon: widget.isCompany
+                  ? const Icon(Icons.check)
+                  : const Icon(Icons.arrow_forward),
+            )
+          : null,
     );
   }
 
@@ -177,10 +347,47 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
     if (times.isEmpty) return regions;
 
+    // process exception days
+    List<DateTime> exceptionDates = [];
+    Map<String, List> initialExceptions = widget.initialValue!['exceptions'] as Map<String, List>;
+    for (var time in initialExceptions['add'] ?? []) {
+      DateTime date = toDateTime(time['from']);
+
+      regions.add(TimeRegion(
+        startTime: justTime(date),
+        endTime: justTime(date).add(const Duration(hours: 1)),
+        color: Colors.redAccent.withOpacity(0.6),
+        text: "Future Conflict!",
+        enablePointerInteraction: true,
+        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date),
+      ));
+    }
+    for (var time in initialExceptions['remove'] ?? []) {
+      DateTime date = toDateTime(time['from']);
+
+      regions.add(TimeRegion(
+        startTime: justTime(date),
+        endTime: justTime(date).add(const Duration(hours: 1)),
+        color: Colors.redAccent.withOpacity(0.6),
+        text: "Future Conflict!",
+        enablePointerInteraction: true,
+        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date.subtract(const Duration(hours: 1))),
+      ));
+
+      // since you are not free on that day specifically, it should also be a removed time region
+      regions.add(TimeRegion(
+        startTime: date,
+        endTime: date.add(const Duration(hours: 1)),
+        enablePointerInteraction: false,
+      ));
+    }
+
+    // the following is done to get the "inverse" of the common times, such that they are the only ones that can be selected
     List<int> relativeTimes = [];
 
     for (var i = 0; i < times.length; i++) {
-      relativeTimes.add(DateTime.parse(times[i]).difference(DateTime(2018, 1, 1)).inHours);
+      relativeTimes.add(
+          DateTime.parse(times[i]).difference(DateTime(2018, 1, 1)).inHours);
     }
 
     for (var i = 0; i < 168; i++) {
@@ -189,6 +396,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           startTime: DateTime(2018, 1, 1).add(Duration(hours: i)),
           endTime: DateTime(2018, 1, 1).add(Duration(hours: i + 1)),
           enablePointerInteraction: false,
+          recurrenceRule: getRecurrenceRule(dayOfWeek: DateTime(2018, 1, 1).add(Duration(hours: i)).weekday),
         ));
       }
     }
@@ -197,34 +405,134 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
   }
 
   void saveAvailability(bool backArrow) {
-    List slots = [];
+    List newSlots = [];
+
     if (widget.restrictionZone == null) {
+      List<DateTime> usedTimes = [];
       for (var lesson in _dataSource?.appointments as List<Appointment>) {
+        if (repeatOnSave) {
+          if (newDates.contains(lesson)) {
+            DateTime start = lesson.startTime;
+            DateTime end = lesson.endTime;
+            if (!usedTimes.contains(start)) {
+              usedTimes.add(start);
+
+              newSlots.add({
+                'from': start,
+                'to': end,
+              });
+
+              // also remove it from the exceptions
+              globalExceptions['remove']?.removeWhere((element) => toDateTime(element['from']) == start);
+            }
+          }
+        } else {
+          if (lesson.recurrenceRule == null && newDates.contains(lesson)) {
+            // a new lesson was added
+            DateTime start = lesson.startTime;
+            DateTime end = lesson.endTime;
+
+            globalExceptions['add']?.add({
+              'from': start,
+              'to': end,
+            });
+          }
+        }
+      }
+
+      List removeDuplicates(List input) {
+        Set seen = {};
+        List returnList = [];
+        for (var value in input) {
+          DateTime start = toDateTime(value['from']);
+          if (!seen.contains(start)) {
+            seen.add(start);
+            returnList.add(value);
+          }
+        }
+
+        return returnList;
+      }
+
+      // make sure there are no duplicates
+      globalExceptions = {
+        'add': removeDuplicates(globalExceptions['add']!),
+        'remove': removeDuplicates(globalExceptions['remove']!),
+      };
+
+      if (exceptionRemoveDates.isNotEmpty) {
+        // some of the repeating lessons were removed
+        for (Appointment lesson in exceptionRemoveDates) {
+          DateTime start = lesson.startTime;
+          globalExceptions['add']?.removeWhere((lesson) => toDateTime(lesson['from']) == start);
+        }
+      }
+
+      // remove recurring dates that are in the global exceptions
+      List globalAddList = [];
+      for (var entry in globalExceptions['add']!) {
+        DateTime start = toDateTime(entry['from']);
+        globalAddList.add(start);
+      }
+      List toRemove = [];
+      for (var slot in newSlots) {
+        DateTime start = toDateTime(slot['from']);
+        if (globalAddList.contains(start)) {
+          toRemove.add(slot);
+        }
+      }
+      newSlots.removeWhere( (e) => toRemove.contains(e));
+      // convert new slots into 2018 format
+      List slots = oldSlots;
+      for (var slot in newSlots) {
+        DateTime start = justTime(slot['from']);
+        DateTime end = justTime(slot['to']);
         slots.add({
-          'from': lesson.startTime,
-          'to': lesson.endTime,
+          'from': start,
+          'to': end,
         });
       }
 
+      if (repeatingRemoveDates.isNotEmpty) {
+        // some of the repeating lessons were removed
+        for (Appointment lesson in repeatingRemoveDates) {
+          DateTime start = lesson.startTime;
+          DateTime end = lesson.endTime;
+
+          // if this is repeating, it should be removed from all slots
+          // if not, it is an exception
+          if (repeatOnSave) {
+            slots.removeWhere((element) => toDateTime(element['from']) == justTime(start));
+          } else {
+            globalExceptions['remove']?.add({
+              'from': start,
+              'to': end,
+            });
+          }
+        }
+      }
+
+      Map<Object, Object?> availability = {
+        'slots': slots,
+        'exceptions': globalExceptions,
+      };
       if (widget.onSave == null) {
         // update Firebase
         FirebaseFirestore.instance
             .collection("availability")
             .doc(FirebaseAuth.instance.currentUser?.uid)
-            .set({
-          'slots': slots
-        });
+            .update(availability);
         if (!backArrow) {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => AvailableJobsPage(availability: slots)),
+                builder: (context) => AvailableJobsPage(availability: availability)),
           );
         } else {
           Navigator.of(context).pop();
         }
       } else {
-        widget.onSave!(slots);
+        widget.onSave!(availability);
         Navigator.of(context).pop();
       }
     } else {
