@@ -13,6 +13,7 @@ import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
 import 'package:aporia_app/widgets/action_card.dart';
 import 'availability_page.dart';
+import 'create_job_view.dart';
 import 'job_view.dart';
 
 /**
@@ -24,12 +25,12 @@ import 'job_view.dart';
 // Manage Jobs Card
 Widget jobCard(BuildContext context,
     {PositionPadding position = PositionPadding.middle,
-      required bool isAdmin,
-      required bool isCompany,
-      bool showAssigned = false,
-      List? times,
-      Map<Object, Object?>? initialData,
-      required Map<String, dynamic> data}) {
+    required bool isAdmin,
+    required bool isCompany,
+    bool showAssigned = false,
+    List? times,
+    Map<Object, Object?>? initialData,
+    required Map<String, dynamic> data}) {
   Color statusColour = (() {
     if (data['status'] == 'pending_assignment') {
       return Colors.blue;
@@ -60,28 +61,26 @@ Widget jobCard(BuildContext context,
           borderRadius: BorderRadius.circular(15.0),
           onTap: () {
             if (times != null) {
-              final functions = FirebaseFunctions.instanceFor(
-                  region: 'australia-southeast1');
+              final functions =
+                  FirebaseFunctions.instanceFor(region: 'australia-southeast1');
               void claimJob(Map chosenTime) {
                 showOkCancelAlertDialog(
-                    okLabel: 'Confirm',
-                    title: 'Claim Job',
-                    message:
-                    'This is a commitment that you will be making to us and the company that you will complete the job to the best of your abilities. Are you sure you want to claim this job?',
-                    context: context)
+                        okLabel: 'Confirm',
+                        title: 'Claim Job',
+                        message:
+                            'This is a commitment that you will be making to us and the company that you will complete the job to the best of your abilities. Are you sure you want to claim this job?',
+                        context: context)
                     .then((result) async {
                   if (result == OkCancelResult.ok) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
                           "Claiming Job!",
-                          style: TextStyle(color: Theme
-                              .of(context)
-                              .primaryColorLight),
+                          style: TextStyle(
+                              color: Theme.of(context).primaryColorLight),
                         ),
-                        backgroundColor: Theme
-                            .of(context)
-                            .scaffoldBackgroundColor,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
                       ),
                     );
                     Navigator.of(context).pop();
@@ -89,13 +88,15 @@ Widget jobCard(BuildContext context,
 
                     DateTime.now().copyWith(year: DateTime.now().year);
 
-                    await functions
-                        .httpsCallable('claimJob')
-                        .call({
+                    await functions.httpsCallable('claimJob').call({
                       'jobID': data['Job ID'],
-                      'startTime': chosenTime['from'].toIso8601String().toString(),
+                      'startTime':
+                          chosenTime['from'].toIso8601String().toString(),
                       'endTime': chosenTime['to'].toIso8601String().toString(),
-                      'timezone': timezoneNames[DateTime.now().timeZoneOffset.inMilliseconds],
+                      'repeat': chosenTime['repeat'],
+                      'recurrenceRule': chosenTime['rule'],
+                      'timezone': timezoneNames[
+                          DateTime.now().timeZoneOffset.inMilliseconds],
                     });
                   }
                 });
@@ -104,30 +105,29 @@ Widget jobCard(BuildContext context,
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          AvailabilityPage(
+                      builder: (context) => AvailabilityPage(
                             restrictionZone: times,
                             initialValue: initialData,
+                            repeatOptions: data['repeatOptions'],
                             onSave: (slots) {
                               claimJob(slots);
                             },
                             isCompany: false,
-                          )
-                  ));
+                          )));
             } else {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => JobView(jobID: data['Job ID'], isCompany: isCompany, isAdmin: isAdmin)
-                  ));
+                      builder: (context) => JobView(
+                          jobID: data['Job ID'],
+                          isCompany: isCompany,
+                          isAdmin: isAdmin)));
             }
           },
           child: Container(
               decoration: BoxDecoration(
-                border: Border(
-                    right: BorderSide(
-                        color: statusColour,
-                        width: 15)),
+                border:
+                    Border(right: BorderSide(color: statusColour, width: 15)),
               ),
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -142,37 +142,54 @@ Widget jobCard(BuildContext context,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 6),
-                                child: Text(
-                                    "${data["Job Title"]}",
+                                child: Text("${data["Job Title"]}",
                                     style: const TextStyle(
                                         fontSize: 25,
-                                        overflow: TextOverflow.clip
-                                    ),
+                                        overflow: TextOverflow.clip),
                                     maxLines: 1),
                               ),
                               Flexible(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
                                   child: SizedBox(
                                     height: 35,
                                     child: ListView.builder(
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         scrollDirection: Axis.horizontal,
                                         shrinkWrap: true,
-                                        itemCount: (data['requirements'].length > 2)
-                                            ? (screenWidth < 500) ? 2 : 3
-                                            : data['requirements'].length,
-                                        itemBuilder: (BuildContext context, int itemNum) {
-                                          if ((data['requirements'].length > 2 && itemNum == 2) | (screenWidth < 500 && data['requirements'].length > 1 && itemNum == 1)) {
+                                        itemCount:
+                                            (data['requirements'].length > 2)
+                                                ? (screenWidth < 500)
+                                                    ? 2
+                                                    : 3
+                                                : data['requirements'].length,
+                                        itemBuilder: (BuildContext context,
+                                            int itemNum) {
+                                          if ((data['requirements'].length >
+                                                      2 &&
+                                                  itemNum == 2) |
+                                              (screenWidth < 500 &&
+                                                  data['requirements'].length >
+                                                      1 &&
+                                                  itemNum == 1)) {
                                             return Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
                                               child: Card(
-                                                color: Theme.of(context).highlightColor,
-                                                shape: const RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                                color: Theme.of(context)
+                                                    .highlightColor,
+                                                shape:
+                                                    const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(8)),
                                                 ),
                                                 child: const Padding(
-                                                  padding: EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+                                                  padding: EdgeInsets.fromLTRB(
+                                                      8.0, 4.0, 8.0, 4.0),
                                                   child: Text(
                                                     "More",
                                                     style: TextStyle(
@@ -183,14 +200,22 @@ Widget jobCard(BuildContext context,
                                               ),
                                             );
                                           }
-                                          Map<String, dynamic>? requirement = data["requirements"]["Subject ${itemNum + 1}"];
+                                          Map<String, dynamic>? requirement =
+                                              data["requirements"]
+                                                  ["Subject ${itemNum + 1}"];
                                           return Card(
-                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.15),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.15),
                                             shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(8)),
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      8.0, 4.0, 8.0, 4.0),
                                               child: Text(
                                                 "Yr${requirement?["Level"].toString() ?? '0'} ${requirement?["Subject"]}",
                                                 style: const TextStyle(
@@ -208,55 +233,57 @@ Widget jobCard(BuildContext context,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
-                          child: isCompany ? SizedBox(
-                            height: 32.0,
-                            width: 32.0,
-                            child: InkWell(
-                                borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  showOkCancelAlertDialog(
-                                      okLabel: 'Confirm',
-                                      title: 'Delete Job',
-                                      message: 'Are you sure you want to delete this job?',
-                                      context: context)
-                                      .then((result) async {
-                                    if (result == OkCancelResult.ok) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Deleting Job! This may take a couple seconds, hold on tight.",
-                                            style: TextStyle(color: Theme
-                                                .of(context)
-                                                .primaryColorLight),
-                                          ),
-                                          backgroundColor: Theme
-                                              .of(context)
-                                              .scaffoldBackgroundColor,
-                                        ),
-                                      );
+                          child: isCompany
+                              ? SizedBox(
+                                  height: 32.0,
+                                  width: 32.0,
+                                  child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () {
+                                        showOkCancelAlertDialog(
+                                                okLabel: 'Confirm',
+                                                title: 'Delete Job',
+                                                message:
+                                                    'Are you sure you want to delete this job?',
+                                                context: context)
+                                            .then((result) async {
+                                          if (result == OkCancelResult.ok) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  "Deleting Job! This may take a couple seconds, hold on tight.",
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .primaryColorLight),
+                                                ),
+                                                backgroundColor: Theme.of(
+                                                        context)
+                                                    .scaffoldBackgroundColor,
+                                              ),
+                                            );
 
-                                      await FirebaseFunctions.instanceFor(
-                                          region: 'australia-southeast1')
-                                          .httpsCallable('unassignJob')
-                                          .call({
-                                        'jobID': data['Job ID'],
-                                        'deleteOperation': true,
-                                      });
-                                    }
-                                  });
-                                },
-                                child: Icon(Icons.delete,
-                                    color:
-                                    Theme.of(context).errorColor)),
-                          ) : const SizedBox.shrink(),
+                                            await FirebaseFunctions.instanceFor(
+                                                    region:
+                                                        'australia-southeast1')
+                                                .httpsCallable('unassignJob')
+                                                .call({
+                                              'jobID': data['Job ID'],
+                                              'deleteOperation': true,
+                                            });
+                                          }
+                                        });
+                                      },
+                                      child: Icon(Icons.delete,
+                                          color: Theme.of(context).errorColor)),
+                                )
+                              : const SizedBox.shrink(),
                         ),
                       ],
                     ),
                     Text(
-                        "${data["Job Description"]}",
-                        style: const TextStyle(
-                            overflow: TextOverflow.clip
-                        ),
+                      "${data["Job Description"]}",
+                      style: const TextStyle(overflow: TextOverflow.clip),
                     ),
                     const SizedBox(height: 10),
                     Row(
@@ -274,24 +301,28 @@ Widget jobCard(BuildContext context,
                                 "${showAssigned ? 'Assigned to' : 'By'} ${data[subtitleUser]['username']}",
                                 maxLines: 1)),
                         // how many times available counter
-                        (times?.isNotEmpty ?? false) ? SizedBox(
-                          height: 35,
-                          child: Card(
-                            color: Theme.of(context).indicatorColor,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
-                              child: Text(
-                                "${times?.length ?? 0} availabilities",
-                                style: const TextStyle(
-                                  color: Colors.white,
+                        (times?.isNotEmpty ?? false)
+                            ? SizedBox(
+                                height: 35,
+                                child: Card(
+                                  color: Theme.of(context).indicatorColor,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        8.0, 4.0, 8.0, 4.0),
+                                    child: Text(
+                                      "${times?.length ?? 0} availabilities",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ) : const SizedBox.shrink(),
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ],
@@ -310,21 +341,104 @@ Widget jobCard(BuildContext context,
 /// This is the leaderboards page for rankings based on experience.
 class AvailableJobsPage extends StatefulWidget {
   final Map availability;
-  const AvailableJobsPage({Key? key, required this.availability}) : super(key: key);
+  const AvailableJobsPage({Key? key, required this.availability})
+      : super(key: key);
 
   @override
   State<AvailableJobsPage> createState() => _AvailableJobsPageState();
 }
 
 class _AvailableJobsPageState extends State<AvailableJobsPage> {
+  List<String> subjectBlockList = [];
+  List<String> repeatBlockList = [];
+
   @override
   Widget build(BuildContext context) {
     int availableJobsCounter = 0;
 
+    void addToBlockList(bool active, String id, String type) {
+      setState(() {
+        if (!active) {
+          if (type == 'subject') {
+            subjectBlockList.add(id);
+          } else if (type == 'repeat') {
+            repeatBlockList.add(id);
+          }
+        } else {
+          if (type == 'subject') {
+            subjectBlockList.remove(id);
+          } else if (type == 'repeat') {
+            repeatBlockList.remove(id);
+          }
+        }
+      });
+    }
+
+    List<Widget> repeatDialogueList = [
+      const Padding(
+        padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+        child: SizedBox(
+          width: 200,
+          child: Text("Select how frequently you'd like the lesson to repeat!"),
+        ),
+      ),
+      BoolDialogueOption(
+          title: "Daily",
+          id: 'daily',
+          initialValue: true,
+          onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
+      BoolDialogueOption(
+          title: "Weekly",
+          id: 'weekly',
+          initialValue: true,
+          onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
+      BoolDialogueOption(
+          title: "Fortnightly",
+          id: 'fortnightly',
+          initialValue: true,
+          onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
+      BoolDialogueOption(
+          title: "Monthly",
+          id: 'monthly',
+          initialValue: true,
+          onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
+      BoolDialogueOption(
+          title: "Once Off",
+          id: 'once',
+          initialValue: true,
+          onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
+    ];
+
+    List<Widget> subjectDialogueList = [
+      const Padding(
+        padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+        child: SizedBox(
+          width: 200,
+          child: Text("Select which subjects you'd like to tutor!"),
+        ),
+      ),
+    ];
+
+    FirebaseFirestore.instance
+        .collection('global')
+        .doc('subjects')
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> subjectsSnapshot) {
+      // Iterates through the documents in he collection and creates a list of dropdown menu options.
+      for (String subject in (subjectsSnapshot.data()?['available'])) {
+        subjectDialogueList.add(BoolDialogueOption(
+            title: subject,
+            id: subject,
+            initialValue: true,
+            onTap: (active, repeat) =>
+                addToBlockList(active, repeat, 'subject')));
+      }
+    });
+
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        // Gets the publicProfile collection ordered by the amount of experience
-        // each user has.
+          // Gets the publicProfile collection ordered by the amount of experience
+          // each user has.
           stream: FirebaseFirestore.instance
               .collection('jobs')
               .where('status', isEqualTo: 'pending_assignment')
@@ -350,27 +464,132 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                                     fontSize: 30, backArrow: true),
                                 const Flexible(
                                     child: Padding(
-                                      padding: EdgeInsets.all(48),
+                                        padding: EdgeInsets.all(48),
                                         child: Text(
-                                            "There are currently no jobs available. Please check back later to see if we have any jobs for you!",
+                                          "There are currently no jobs available. Please check back later to see if we have any jobs for you!",
                                           textAlign: TextAlign.center,
-                                        )
-                                    )
-                                )
+                                        )))
                               ],
                             );
                           } else {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 50),
-                              child: header("Available Jobs", context,
-                                  fontSize: 30, backArrow: true),
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 50),
+                                  child: header("Available Jobs", context,
+                                      fontSize: 30, backArrow: true),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Filters:",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 16, 8, 16),
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return SimpleDialog(
+                                                    title: const Text(
+                                                        "Subject Filter"),
+                                                    children:
+                                                        subjectDialogueList);
+                                              });
+                                        },
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.white),
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          4.0),
+                                                  side: BorderSide(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary))),
+                                        ),
+                                        child: const Text('Subject'),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          8, 16, 16, 16),
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return SimpleDialog(
+                                                    title: const Text(
+                                                        "Repeat Frequency Preference"),
+                                                    children:
+                                                        repeatDialogueList);
+                                              });
+                                        },
+                                        style: ButtonStyle(
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.white),
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .primary),
+                                          shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          4.0),
+                                                  side: BorderSide(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .primary))),
+                                        ),
+                                        child: const Text('Repeat Frequency'),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
                             );
                           }
                         } else {
-                          QueryDocumentSnapshot<Map<String, dynamic>>? document = jobSnapshot.data?.docs[index - 1];
+                          QueryDocumentSnapshot<Map<String, dynamic>>?
+                              document = jobSnapshot.data?.docs[index - 1];
                           Map<String, dynamic> data = document?.data() ?? {};
                           data['Job ID'] = document?.id;
-                          Iterable myAvailability = widget.availability['slots'].map((e) {
+
+                          // remove the jobs blocked by filter
+                          if (data['requirements'] != null) {
+                            for (var requirement
+                                in data['requirements'].values) {
+                              if (subjectBlockList
+                                  .contains(requirement['Subject'])) {
+                                return const SizedBox.shrink();
+                              }
+                            }
+                          }
+                          if (data['repeatOptions'].every(
+                              (item) => repeatBlockList.contains(item))) {
+                            return const SizedBox.shrink();
+                          }
+
+                          Iterable myAvailability =
+                              widget.availability['slots'].map((e) {
                             if (e['from'] is DateTime) {
                               return e['from'].toString();
                             } else {
@@ -379,13 +598,16 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                           });
                           Iterable companyAvailability = [];
                           if (data['availability'] != null) {
-                            companyAvailability = data['availability']['slots'].map((e) => e['from'].toDate().toString());
+                            companyAvailability = data['availability']['slots']
+                                .map((e) => e['from'].toDate().toString());
                           }
 
                           // Note, exceptions are not factored into the ranking, because they are one off
 
-                          List common = myAvailability.toSet().intersection(companyAvailability.toSet()).toList();
-                          print("length of common is ${common.length}");
+                          List common = myAvailability
+                              .toSet()
+                              .intersection(companyAvailability.toSet())
+                              .toList();
 
                           if (common.isNotEmpty) {
                             availableJobsCounter++;
@@ -400,17 +622,23 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                             };
 
                             if (data['availability']['exceptions'] != null) {
-                              companyExceptions['add'] = data['availability']['exceptions']['add'];
-                              companyExceptions['remove'] = data['availability']['exceptions']['remove'];
+                              companyExceptions['add'] =
+                                  data['availability']['exceptions']['add'];
+                              companyExceptions['remove'] =
+                                  data['availability']['exceptions']['remove'];
                             }
                             if (widget.availability['exceptions'] != null) {
-                              myExceptions['add'] = widget.availability['exceptions']['add'];
-                              myExceptions['remove'] = widget.availability['exceptions']['remove'];
+                              myExceptions['add'] =
+                                  widget.availability['exceptions']['add'];
+                              myExceptions['remove'] =
+                                  widget.availability['exceptions']['remove'];
                             }
 
                             Map initialExceptions = globalExceptions = {
-                              'add': myExceptions['add']! + companyExceptions['add']!,
-                              'remove': myExceptions['remove']! + companyExceptions['remove']!,
+                              'add': myExceptions['add']! +
+                                  companyExceptions['add']!,
+                              'remove': myExceptions['remove']! +
+                                  companyExceptions['remove']!,
                             };
 
                             Map<Object, Object?> initialData = {
@@ -418,21 +646,26 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                               'exceptions': initialExceptions
                             };
 
-                            return jobCard(context, data: data, isAdmin: false, isCompany: false, times: common, initialData: initialData);
+                            return jobCard(
+                              context,
+                              data: data,
+                              isAdmin: false,
+                              isCompany: false,
+                              times: common,
+                              initialData: initialData,
+                            );
                           } else {
-                            print("index is $index");
-                            print("data length is ${(jobSnapshot.data?.docs.length ?? 0)}");
-                            print("availableJobsCounter is $availableJobsCounter");
-                            if (availableJobsCounter == 0 && index == (jobSnapshot.data?.docs.length ?? 0)) {
+                            if (availableJobsCounter == 0 &&
+                                index == (jobSnapshot.data?.docs.length ?? 0)) {
                               return const Padding(
                                   padding: EdgeInsets.all(48),
-                                  child: Text("There are no jobs currently "
-                                      "available when you are free. "
-                                      "Please check back later to see if "
-                                      "we have any jobs for you!",
+                                  child: Text(
+                                    "There are no jobs currently "
+                                    "available when you are free. "
+                                    "Please check back later to see if "
+                                    "we have any jobs for you!",
                                     textAlign: TextAlign.center,
-                                  )
-                              );
+                                  ));
                             } else {
                               return const SizedBox.shrink();
                             }

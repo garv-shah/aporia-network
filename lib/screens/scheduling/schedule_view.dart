@@ -43,6 +43,7 @@ class _ScheduleViewState extends State<ScheduleView> {
 
     for (Map<String, dynamic> job in widget.jobList) {
       int dayOfWeek = DateTime.parse(job['lessonTimes']['start']).weekday;
+      String repeat = job['lessonTimes']['repeat'];
 
       list.add(Appointment(
           subject: job['Job Title'],
@@ -52,7 +53,7 @@ class _ScheduleViewState extends State<ScheduleView> {
           startTime: toLocalTime(DateTime.parse(job['lessonTimes']['start']), job['timezone']),
           endTime: toLocalTime(DateTime.parse(job['lessonTimes']['end']), job['timezone']),
           color: Theme.of(context).colorScheme.primary,
-          recurrenceRule: getRecurrenceRule(dayOfWeek: dayOfWeek)
+          recurrenceRule: getRecurrenceRule(dayOfWeek: dayOfWeek, repeat: repeat)
       ));
     }
 
@@ -63,7 +64,6 @@ class _ScheduleViewState extends State<ScheduleView> {
 
   void calendarTapped(CalendarTapDetails calendarTapDetails) {
     if (calendarTapDetails.appointments != null) {
-      print(calendarTapDetails.appointments!.first.id);
       Navigator.push(
           context,
           MaterialPageRoute(

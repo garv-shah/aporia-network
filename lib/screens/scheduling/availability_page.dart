@@ -87,12 +87,14 @@ class AvailabilityPage extends StatefulWidget {
   final Map<Object, Object?>? initialValue;
   final DataCallback? onSave;
   final List? restrictionZone;
+  final List? repeatOptions;
 
   const AvailabilityPage(
       {Key? key,
       required this.isCompany,
       this.onSave,
       this.initialValue,
+      this.repeatOptions,
       this.restrictionZone})
       : super(key: key);
 
@@ -105,10 +107,72 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
   String _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
   late CalendarController _controller;
 
+  List<DropdownMenuItem<String>> availableRepeatOptions = [];
+  String selectedRepeatOption = 'weekly';
+
+  String processRepeatOptionTag(String tag) {
+    switch (tag) {
+      case 'daily':
+        return 'Daily';
+      case 'weekly':
+        return 'Weekly';
+      case 'fortnightly':
+        return 'Fortnightly';
+      case 'monthly':
+        return 'Monthly';
+      case 'once':
+        return 'Once Off';
+      default:
+        return tag;
+    }
+  }
+
+  DateTime dateToRepeatStart(String tag, DateTime date) {
+    // returns the date from 2018, where that repeat forward connects with the date
+    switch (tag) {
+      case 'daily':
+        return justTime(date);
+      case 'weekly':
+        return justTime(date);
+      case 'fortnightly':
+        // 260 fortnights before
+        return date.subtract(const Duration(days: 3640));
+      case 'monthly':
+        return date.copyWith(year: 2018, month: 1, day: date.day);
+      case 'once':
+        return date;
+      default:
+        return date;
+    }
+  }
+
   @override
   void initState() {
     _controller = CalendarController();
     _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
+
+    // populate available repeat times
+    if (widget.repeatOptions != null) {
+      availableRepeatOptions = widget.repeatOptions!
+          .map((e) => DropdownMenuItem(
+                value: e.toString(),
+                child: Text(processRepeatOptionTag(e)),
+              ))
+          .toList();
+
+      if (widget.repeatOptions!.contains('weekly')) {
+        selectedRepeatOption = 'weekly';
+      } else if (widget.repeatOptions!.contains('fortnightly')) {
+        selectedRepeatOption = 'fortnightly';
+      } else if (widget.repeatOptions!.contains('monthly')) {
+        selectedRepeatOption = 'monthly';
+      } else if (widget.repeatOptions!.contains('once')) {
+        selectedRepeatOption = 'once';
+      } else if (widget.repeatOptions!.contains('daily')) {
+        selectedRepeatOption = 'daily';
+      }
+    }
+
     if (widget.restrictionZone == null) {
       getDataFromFireStore().then((results) {
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
@@ -230,10 +294,13 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
           exceptionRemoveDates.removeWhere((element) =>
               justTime(element.startTime) == justTime(lesson.startTime));
         } else {
+          String? rule = getRecurrenceRule(dayOfWeek: lesson.startTime.weekday, repeat: selectedRepeatOption);
           Navigator.of(context).pop();
           widget.onSave!({
               'from': lesson.startTime,
               'to': lesson.endTime,
+              'repeat': selectedRepeatOption,
+              'rule': (rule != null) ? 'RRULE:$rule' : 'none',
             });
         }
       }
@@ -274,6 +341,22 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                 Text(_headerText,
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 15)),
+                (widget.repeatOptions != null) ? Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                      value: selectedRepeatOption,
+                      items: availableRepeatOptions,
+                      onChanged: (String? value) {
+                        if (value != null) {
+                          setState(() {
+                            selectedRepeatOption = value;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ) : const SizedBox.shrink(),
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerRight,
@@ -283,7 +366,8 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
                         onPressed: () {
                           _controller.displayDate = DateTime.now();
                         },
-                        child: const Text('Today'),),
+                        child: const Text('Today'),
+                      ),
                     ),
                   ),
                 )
@@ -323,7 +407,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
               },
               padding: const EdgeInsets.fromLTRB(36.0, 8.0, 0.0, 8.0),
             ),
-          ) : const Text("this is where you change frequency"),
+          ) : const SizedBox.shrink(),
         ],
       ),
       floatingActionButton: (widget.restrictionZone == null)
@@ -348,30 +432,31 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     if (times.isEmpty) return regions;
 
     // process exception days
-    List<DateTime> exceptionDates = [];
     Map<String, List> initialExceptions = widget.initialValue!['exceptions'] as Map<String, List>;
     for (var time in initialExceptions['add'] ?? []) {
       DateTime date = toDateTime(time['from']);
+      DateTime start = dateToRepeatStart(selectedRepeatOption, date);
 
       regions.add(TimeRegion(
-        startTime: justTime(date),
-        endTime: justTime(date).add(const Duration(hours: 1)),
+        startTime: start,
+        endTime: start.add(const Duration(hours: 1)),
         color: Colors.redAccent.withOpacity(0.6),
         text: "Future Conflict!",
         enablePointerInteraction: true,
-        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date),
+        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date, repeat: selectedRepeatOption),
       ));
     }
     for (var time in initialExceptions['remove'] ?? []) {
       DateTime date = toDateTime(time['from']);
+      DateTime start = dateToRepeatStart(selectedRepeatOption, date);
 
       regions.add(TimeRegion(
-        startTime: justTime(date),
-        endTime: justTime(date).add(const Duration(hours: 1)),
+        startTime: start,
+        endTime: start.add(const Duration(hours: 1)),
         color: Colors.redAccent.withOpacity(0.6),
         text: "Future Conflict!",
         enablePointerInteraction: true,
-        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date.subtract(const Duration(hours: 1))),
+        recurrenceRule: getRecurrenceRule(dayOfWeek: date.weekday, until: date.subtract(const Duration(hours: 1)), repeat: selectedRepeatOption),
       ));
 
       // since you are not free on that day specifically, it should also be a removed time region

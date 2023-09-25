@@ -77,6 +77,7 @@ class _CreateJobState extends State<CreateJob> {
     // allowing for loading documents
     requirements = widget.jobData?['requirements'] ?? {};
     jobData = widget.jobData ?? {};
+    jobData['repeatOptions'] ??= ['weekly'];
     id = widget.jobData?['ID'];
 
     DocumentSnapshot<Map<String, dynamic>> subjectsSnapshot =
@@ -226,6 +227,29 @@ class _CreateJobState extends State<CreateJob> {
 
   @override
   Widget build(BuildContext context) {
+    void handleRepeatClick(bool active, String repeat) {
+      if (active) {
+        jobData['repeatOptions'].add(repeat);
+      } else {
+        jobData['repeatOptions'].remove(repeat);
+      }
+    }
+    List<Widget> repeatDialogueList = [
+      const Padding(
+        padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+        child: SizedBox(
+          width: 200,
+          child:
+          Text("If multiple options are selected, it will be up to the volunteer to decide."),
+        ),
+      ),
+      BoolDialogueOption(title: "Daily", id: 'daily', initialValue: jobData['repeatOptions'].contains('daily'), onTap: handleRepeatClick),
+      BoolDialogueOption(title: "Weekly", id: 'weekly', initialValue: jobData['repeatOptions'].contains('weekly'), onTap: handleRepeatClick),
+      BoolDialogueOption(title: "Fortnightly", id: 'fortnightly', initialValue: jobData['repeatOptions'].contains('fortnightly'), onTap: handleRepeatClick),
+      BoolDialogueOption(title: "Monthly", id: 'monthly', initialValue: jobData['repeatOptions'].contains('monthly'), onTap: handleRepeatClick),
+      BoolDialogueOption(title: "Once Off", id: 'once', initialValue: jobData['repeatOptions'].contains('once'), onTap: handleRepeatClick),
+    ];
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -360,6 +384,32 @@ class _CreateJobState extends State<CreateJob> {
                               child: const Text('Define Availability'),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: OutlinedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SimpleDialog(
+                                          title: const Text("Repeat Frequency Preference"),
+                                          children: repeatDialogueList
+                                      );
+                                    });
+                              },
+                              style: ButtonStyle(
+                                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.primary),
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4.0),
+                                        side: BorderSide(
+                                            color:
+                                            Theme.of(context).colorScheme.primary))),
+                              ),
+                              child: const Text('Choose Repeat Frequency'),
+                            ),
+                          ),
                         ],
                       )
                     ],
@@ -368,7 +418,7 @@ class _CreateJobState extends State<CreateJob> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(40, 16, 24, 4),
                 child: Text("Requirements",
-                    style: Theme.of(context).textTheme.headline3),
+                    style: Theme.of(context).textTheme.displaySmall),
               ),
               // the place where the cards pop up
               AnimatedList(
@@ -423,6 +473,54 @@ class _CreateJobState extends State<CreateJob> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class BoolDialogueOption extends StatefulWidget {
+  const BoolDialogueOption({
+    super.key,
+    required this.title,
+    required this.id,
+    required this.initialValue,
+    required this.onTap,
+  });
+
+  final String title;
+  final String id;
+  final bool initialValue;
+  final Function(bool active, String repeat) onTap;
+
+  @override
+  State<BoolDialogueOption> createState() => _BoolDialogueOptionState();
+}
+
+class _BoolDialogueOptionState extends State<BoolDialogueOption> {
+  late bool active;
+
+  @override
+  void initState() {
+    super.initState();
+    active = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialogOption(
+      onPressed: () async {
+        setState(() {
+          active = !active;
+        });
+
+        widget.onTap.call(active, widget.id);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(widget.title),
+          active ? const Icon(Icons.check) : const SizedBox.shrink()
+        ],
       ),
     );
   }

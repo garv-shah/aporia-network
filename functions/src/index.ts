@@ -341,12 +341,18 @@ exports.claimJob = functions
         let timezone: string | null = data.timezone;
         let startTime: string | null = data.startTime;
         let endTime: string | null = data.endTime;
+        let repeat: string | null = data.repeat;
+        let recurrenceRule: string | null = data.recurrenceRule;
         if (!jobID) {
             throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
         } else if (!startTime) {
             throw new functions.https.HttpsError('invalid-argument', 'A start time must be provided!');
         } else if (!endTime) {
             throw new functions.https.HttpsError('invalid-argument', 'An end time must be provided!');
+        } else if (!repeat) {
+            throw new functions.https.HttpsError('invalid-argument', 'The repeat frequency must be specified!');
+        } else if (!recurrenceRule) {
+            throw new functions.https.HttpsError('invalid-argument', 'A recurrence rule must be provided (can be "none" for no recurrence).');
         } else if (!timezone) {
             throw new functions.https.HttpsError('invalid-argument', 'A timezone must be provided!');
         } else if (context.auth?.uid == null) {
@@ -377,7 +383,7 @@ exports.claimJob = functions
                 },
             ];
 
-            const event = {
+            let event : { [name: string]: any } = {
                 id: googleResourceID,
                 summary: jobData['Job Title'],
                 location: '2cousins',
@@ -402,9 +408,6 @@ exports.claimJob = functions
                 reminders: {
                     useDefault: true,
                 },
-                "recurrence": [
-                    "RRULE:FREQ=WEEKLY;UNTIL=40110701T170000Z",
-                ],
                 conferenceData: {
                     createRequest: {
                         conferenceSolutionKey: {
@@ -419,6 +422,12 @@ exports.claimJob = functions
                     notes: "This is an official 2cousins meeting. By joining the room, you agree to the 2cousins terms of service and privacy policy.",
                 },
             };
+
+            if (recurrenceRule != 'none') {
+                event["recurrence"] = [
+                    recurrenceRule + ';UNTIL=40110701T170000Z',
+                ];
+            }
 
             const oAuth2Client = new google.auth.OAuth2(
                 googleCredentials.web.client_id,
@@ -454,7 +463,8 @@ exports.claimJob = functions
                 jobData['status'] = 'assigned';
                 jobData['lessonTimes'] = {
                     'start': startTime,
-                    'end': endTime
+                    'end': endTime,
+                    'repeat': repeat,
                 };
                 jobData['googleResourceID'] = googleResourceID;
                 jobData['meetUrl'] = uri;
