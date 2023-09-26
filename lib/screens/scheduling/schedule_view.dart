@@ -79,6 +79,10 @@ class _ScheduleViewState extends State<ScheduleView> {
 
   @override
   Widget build(BuildContext context) {
+    List<Appointment> upcoming = _dataSource?.getVisibleAppointments(DateTime.now(), '', DateTime.now().add(const Duration(days: 7))) ?? [];
+    for (Appointment lesson in upcoming) {
+      print(lesson.startTime);
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(

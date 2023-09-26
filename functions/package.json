@@ -22,7 +22,8 @@
     "gaxios": "^5.1.3",
     "googleapis": "^120.0.0",
     "math-expressions": "^2.0.0-alpha44",
-    "pdfmake": "^0.2.7"
+    "pdfmake": "^0.2.7",
+    "rrule": "^2.7.2"
   },
   "devDependencies": {
     "typescript": "^4.6.4"
