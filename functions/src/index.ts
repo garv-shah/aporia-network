@@ -688,7 +688,7 @@ exports.startShift = functions
                         intendedEnd = lessonTimeEnd;
                     } else {
                         // checks in between start time and 20 minutes past start time
-                        let dateList: Date[] = repeatRule.between(start, new Date(now.getTime() + ((20*60*1000))))
+                        let dateList: Date[] = repeatRule.between(start, new Date(now.getTime() + (20*60*1000)))
                         if (dateList.length == 0) {
                             intendedEnd = null;
                         } else {

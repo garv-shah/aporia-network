@@ -28,10 +28,15 @@ Widget jobCard(BuildContext context,
     required bool isAdmin,
     required bool isCompany,
     bool showAssigned = false,
+    bool doesNotMatchAvailability = false,
     List? times,
     Map<Object, Object?>? initialData,
     required Map<String, dynamic> data}) {
   Color statusColour = (() {
+    if (doesNotMatchAvailability) {
+      return Colors.red;
+    }
+
     if (data['status'] == 'pending_assignment') {
       return Colors.blue;
     } else if (data['status'] == 'assigned') {
@@ -351,6 +356,7 @@ class AvailableJobsPage extends StatefulWidget {
 class _AvailableJobsPageState extends State<AvailableJobsPage> {
   List<String> subjectBlockList = [];
   List<String> repeatBlockList = [];
+  bool viewAll = false;
 
   @override
   Widget build(BuildContext context) {
@@ -445,12 +451,13 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
               .snapshots(),
           builder: (context, jobSnapshot) {
             if (jobSnapshot.connectionState == ConnectionState.active) {
+              int itemCount = (jobSnapshot.data?.docs.length ?? 0) + 2;
               return SafeArea(
                 child: Center(
                   child: SizedBox(
                     width: 760,
                     child: ListView.builder(
-                      itemCount: (jobSnapshot.data?.docs.length ?? 0) + 1,
+                      itemCount: itemCount,
                       itemBuilder: (BuildContext context, int index) {
                         // If index is first, return header, if not, return user entry.
                         if (index == 0) {
@@ -567,6 +574,32 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                               ],
                             );
                           }
+                        } else if (index == (itemCount - 1)) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Center(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    viewAll = !viewAll;
+                                  });
+                                },
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                          BorderRadius.circular(
+                                              4.0),
+                                          side: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary))),
+                                ),
+                                child: Text(viewAll ? 'View Less' : 'View All'),
+                              ),
+                            ),
+                          );
                         } else {
                           QueryDocumentSnapshot<Map<String, dynamic>>?
                               document = jobSnapshot.data?.docs[index - 1];
@@ -578,13 +611,12 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                             for (var requirement
                                 in data['requirements'].values) {
                               if (subjectBlockList
-                                  .contains(requirement['Subject'])) {
+                                  .contains(requirement['Subject']) && viewAll == false) {
                                 return const SizedBox.shrink();
                               }
                             }
                           }
-                          if (data['repeatOptions'].every(
-                              (item) => repeatBlockList.contains(item))) {
+                          if (data['repeatOptions'].every((item) => repeatBlockList.contains(item)) && viewAll == false) {
                             return const SizedBox.shrink();
                           }
 
@@ -667,7 +699,41 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                                     textAlign: TextAlign.center,
                                   ));
                             } else {
-                              return const SizedBox.shrink();
+                              if (viewAll == false) {
+                                return const SizedBox.shrink();
+                              } else {
+                                Map<String, List> companyExceptions = {
+                                  'add': [],
+                                  'remove': [],
+                                };
+
+                                if (data['availability']['exceptions'] != null) {
+                                  companyExceptions['add'] =
+                                  data['availability']['exceptions']['add'];
+                                  companyExceptions['remove'] =
+                                  data['availability']['exceptions']['remove'];
+                                }
+
+                                Map initialExceptions = globalExceptions = {
+                                  'add': companyExceptions['add']!,
+                                  'remove': companyExceptions['remove']!,
+                                };
+
+                                Map<Object, Object?> initialData = {
+                                  'slots': [],
+                                  'exceptions': initialExceptions
+                                };
+
+                                return jobCard(
+                                  context,
+                                  data: data,
+                                  isAdmin: false,
+                                  isCompany: false,
+                                  doesNotMatchAvailability: true,
+                                  times: companyAvailability.toList(),
+                                  initialData: initialData,
+                                );
+                              }
                             }
                           }
                         }
