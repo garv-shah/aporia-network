@@ -930,7 +930,7 @@ exports.generateCertificate = functions
             const doc = await publicProfile.get();
             let profileData = doc.data();
 
-            if (profileData['hoursPerSubject'] == null || profileData['volunteer'] != true) {
+            if (profileData['hoursPerSubject'] == null) {
                 throw new functions.https.HttpsError('unauthenticated', 'User has no subjects they have volunteered for!');
             }
 

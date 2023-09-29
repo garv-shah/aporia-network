@@ -95,7 +95,7 @@ Widget jobCard(BuildContext context,
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          "Claiming Job!",
+                          "Claiming Job! This may take a couple minutes, hold on tight.",
                           style: TextStyle(
                               color: Theme.of(context).primaryColorLight),
                         ),
@@ -647,7 +647,7 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                                                   .colorScheme
                                                   .primary))),
                                 ),
-                                child: Text(viewAll ? 'View Less' : 'View All'),
+                                child: Text(viewAll ? 'View Less Jobs' : 'View More Jobs'),
                               ),
                             ),
                           );

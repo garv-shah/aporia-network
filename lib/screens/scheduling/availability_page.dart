@@ -7,6 +7,7 @@ Created: Sat Jul 8 17:04:21 2023
 
 import 'package:aporia_app/screens/scheduling/job_selector_page.dart';
 import 'package:aporia_app/utils/components.dart';
+import 'package:aporia_app/utils/get_country.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -128,6 +129,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
   List<DropdownMenuItem<String>> availableRepeatOptions = [];
   String selectedRepeatOption = 'weekly';
+  String? country;
 
   DateTime dateToRepeatStart(String tag, DateTime date) {
     // returns the date from 2018, where that repeat forward connects with the date
@@ -152,6 +154,20 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
   void initState() {
     _controller = CalendarController();
     _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
+    getCountry().then((String value) {
+      if (value == 'United States') {
+        SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          setState(() {
+            country = value;
+            repeatOnSave = false;
+
+            if ((widget.repeatOptions ?? []).contains('once')) {
+              selectedRepeatOption = 'once';
+            }
+          });
+        });
+      }
+    });
 
     // populate available repeat times
     if (widget.repeatOptions != null) {

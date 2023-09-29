@@ -660,6 +660,29 @@ class _SettingsPageState extends State<SettingsPage> {
                               // go to download url
                               launchUrl(Uri.parse(url));
                             });
+                          })
+                          .catchError((err) {
+                            FirebaseFunctionsException error = err;
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                      title: const Text('Error while generating certificate'),
+                                      content: Text((error.message ?? "We're not sure what the error was, sorry!").toString()),
+                                      actions: [
+                                        TextButton(
+                                          style: TextButton.styleFrom(
+                                            textStyle: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge,
+                                          ),
+                                          child: const Text('Okay'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ]);
+                                });
                           });
                         }) : const SizedBox.shrink(),
                     settingsCard(context,
