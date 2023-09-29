@@ -66,6 +66,9 @@ DateTime justTime(DateTime time) {
 }
 
 DateTime toDateTime(dynamic time) {
+  if (time is String) {
+    return DateTime.parse(time);
+  }
   return time is DateTime ? time : DateTime.parse(time.toDate().toString());
 }
 
@@ -105,6 +108,7 @@ class AvailabilityPage extends StatefulWidget {
   final Map<Object, Object?>? initialValue;
   final DataCallback? onSave;
   final bool lessonSelector;
+  final bool modifyingSchedule;
   final List? restrictionZone;
   final List? repeatOptions;
 
@@ -113,6 +117,7 @@ class AvailabilityPage extends StatefulWidget {
       required this.isCompany,
       this.onSave,
       this.lessonSelector = false,
+      this.modifyingSchedule = false,
       this.initialValue,
       this.repeatOptions,
       this.restrictionZone})
@@ -214,6 +219,19 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
         availabilitySnapshot.data() as Map<String, dynamic>?;
 
     List slots = widget.initialValue?['slots'] ?? (snapshotData?['slots'] ?? []);
+
+    if (widget.modifyingSchedule) {
+      // load from the schedule format
+      repeatOnSave = false;
+      DateTime from = toLocalTime(toDateTime(widget.initialValue?['start']), widget.initialValue!['timezone'] as String);
+      DateTime to = toLocalTime(toDateTime(widget.initialValue?['end']), widget.initialValue!['timezone'] as String);
+
+      selectedRepeatOption = widget.initialValue?['repeat'] as String;
+      slots = [
+        {'from': from, 'to': to}
+      ];
+    }
+
     oldSlots = slots;
     Map exceptions = widget.initialValue?['exceptions'] ?? (snapshotData?['exceptions'] ?? {
       'add': [],
@@ -412,9 +430,8 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
               specialRegions: _getTimeRegions(widget.restrictionZone ?? []),
             ),
           ),
-          (widget.restrictionZone == null) ? Tooltip(
-            message:
-                "Checking this box changes your general preferred availability for all weeks. If you wish to only change your availability for this current week, leave this box unchecked.",
+          (widget.restrictionZone == null && widget.modifyingSchedule != true) ? Tooltip(
+            message: "Checking this box changes your general preferred availability for all weeks. If you wish to only change your availability for this current week, leave this box unchecked.",
             child: LabeledCheckbox(
               label: "Apply changes to all weeks",
               value: repeatOnSave,

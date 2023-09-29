@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../screens/scheduling/availability_page.dart';
+import '../screens/scheduling/schedule_view.dart';
 import '../utils/components.dart';
 import 'action_card.dart';
 
@@ -43,6 +44,34 @@ class _VolunteerButtonState extends State<VolunteerButton> {
             shiftLabel = "Start Shift";
           }
 
+          void showError() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                      title: const Text('Error!'),
+                      content: const Text(
+                          'Volunteer hours cannot be contributed if a lesson is '
+                              'not currently running. You can join a lesson up to 15 minutes before it starts. '
+                              'Once your lesson has started, '
+                              'come back and start your shift again!'),
+                      actions: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            textStyle: Theme
+                                .of(context)
+                                .textTheme
+                                .labelLarge,
+                          ),
+                          child: const Text('Okay'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ]);
+                });
+          }
+
           return ActionCard(
               icon: shiftIcon,
               text: shiftLabel,
@@ -61,26 +90,8 @@ class _VolunteerButtonState extends State<VolunteerButton> {
                 String jobID = '';
                 String meetUrl = '';
 
-                // find lesson happening right now
-                List<Appointment> upcomingLessons = [];
-                for (Map<String, dynamic> job in widget.jobList) {
-                  int dayOfWeek = DateTime.parse(job['lessonTimes']['start']).weekday;
-                  String repeat = job['lessonTimes']['repeat'];
-
-                  upcomingLessons.add(Appointment(
-                      subject: job['Job Title'],
-                      notes: job['Job Description'],
-                      location: "2cousins Meeting",
-                      id: job['ID'],
-                      startTime: toLocalTime(DateTime.parse(job['lessonTimes']['start']), job['timezone']),
-                      endTime: toLocalTime(DateTime.parse(job['lessonTimes']['end']), job['timezone']),
-                      color: Theme.of(context).colorScheme.primary,
-                      recurrenceRule: getRecurrenceRule(dayOfWeek: dayOfWeek, repeat: repeat)
-                  ));
-                }
-
-                LessonDataSource dataSource = LessonDataSource(upcomingLessons);
-                upcomingLessons = dataSource.getVisibleAppointments(DateTime.now(), '', DateTime.now().add(const Duration(minutes: 15))) ?? [];
+                LessonDataSource dataSource = await jobListToDataSource(widget.jobList ?? []);
+                List<Appointment> upcomingLessons = dataSource.getVisibleAppointments(DateTime.now(), '', DateTime.now().add(const Duration(minutes: 15))) ?? [];
                 // ^^ can join up to 15 minutes before
 
                 List<Appointment> toRemove = [];
@@ -158,31 +169,7 @@ class _VolunteerButtonState extends State<VolunteerButton> {
                     );
                   });
                 } else {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                            title: const Text('Error!'),
-                            content: const Text(
-                                'Volunteer hours cannot be contributed if a lesson is '
-                                    'not currently running. You can join a lesson up to 15 minutes before it starts. '
-                                    'Once your lesson has started, '
-                                    'come back and start your shift again!'),
-                            actions: [
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  textStyle: Theme
-                                      .of(context)
-                                      .textTheme
-                                      .labelLarge,
-                                ),
-                                child: const Text('Okay'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ]);
-                      });
+                  showError();
                 }
               },
               position: PositionPadding.start);

@@ -1,4 +1,7 @@
+import 'package:aporia_app/screens/scheduling/schedule_view.dart';
+import 'package:aporia_app/widgets/forks/flutter_calendar/calendar/appointment_engine/recurrence_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/admob/v1.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -12,161 +15,172 @@ Widget lessonCountdown(Map<String, dynamic>? profileMap) {
   DateTime now = DateTime.now();
 
   // find the most recent lesson that happened
-  List<Appointment> upcomingLessons = [];
-  for (Map<String, dynamic> job in profileMap?['jobList'] ?? []) {
-    // DateTime start = DateTime.parse(job['lessonTimes']['start']);
-    // DateTime end = DateTime.parse(job['lessonTimes']['end']);
-    //
-    // if (start.weekday < now.weekday) {
-    //   // lesson has already passed in the week
-    //   int daysBefore = now.weekday - start.weekday;
-    //   // go back the number of days and add a week
-    //   DateTime nextLessonTime = now.subtract(Duration(days: daysBefore)).add(const Duration(days: 7));
-    //   // ^^^ correct day next week
-    //   possibleTimes.add(DateTime(nextLessonTime.year, nextLessonTime.month, nextLessonTime.day, start.hour, start.minute, start.second));
-    // } else if (start.weekday == now.weekday) {
-    //   // lesson is today
-    //   DateTime startTime = DateTime(now.year, now.month, now.day, start.hour, start.minute, start.second);
-    //   DateTime endTime = DateTime(now.year, now.month, now.day, end.hour, end.minute, end.second);
-    //   if (startTime.isAfter(now)) {
-    //     // lesson will be later in the day
-    //     possibleTimes.add(startTime);
-    //   } else if (endTime.isBefore(now)) {
-    //     // lesson already happened today
-    //     DateTime nextLessonTime = startTime.add(const Duration(days: 7));
-    //     possibleTimes.add(nextLessonTime);
-    //   }
-    // } else if (start.weekday > now.weekday) {
-    //   // lesson is still to happen this week
-    //   int daysAfter = start.weekday - now.weekday;
-    //   // add number of days to get correct day of week
-    //   DateTime nextLessonTime = now.add(Duration(days: daysAfter));
-    //   possibleTimes.add(DateTime(nextLessonTime.year, nextLessonTime.month, nextLessonTime.day, start.hour, start.minute, start.second));
-    // }
-    //
-    // // if we are currently in the lesson time
-    // if (now.isAfter(DateTime(
-    //     now.year, now.month, now.day, start.hour, start.minute))
-    //     && now.isBefore(DateTime(
-    //         now.year, now.month, now.day, end.hour,
-    //         end.minute))) {
-    //   lessonRunning = true;
-    // }
+  // List<Appointment> upcomingLessons = [];
+  // for (Map<String, dynamic> job in profileMap?['jobList'] ?? []) {
+  //   // DateTime start = DateTime.parse(job['lessonTimes']['start']);
+  //   // DateTime end = DateTime.parse(job['lessonTimes']['end']);
+  //   //
+  //   // if (start.weekday < now.weekday) {
+  //   //   // lesson has already passed in the week
+  //   //   int daysBefore = now.weekday - start.weekday;
+  //   //   // go back the number of days and add a week
+  //   //   DateTime nextLessonTime = now.subtract(Duration(days: daysBefore)).add(const Duration(days: 7));
+  //   //   // ^^^ correct day next week
+  //   //   possibleTimes.add(DateTime(nextLessonTime.year, nextLessonTime.month, nextLessonTime.day, start.hour, start.minute, start.second));
+  //   // } else if (start.weekday == now.weekday) {
+  //   //   // lesson is today
+  //   //   DateTime startTime = DateTime(now.year, now.month, now.day, start.hour, start.minute, start.second);
+  //   //   DateTime endTime = DateTime(now.year, now.month, now.day, end.hour, end.minute, end.second);
+  //   //   if (startTime.isAfter(now)) {
+  //   //     // lesson will be later in the day
+  //   //     possibleTimes.add(startTime);
+  //   //   } else if (endTime.isBefore(now)) {
+  //   //     // lesson already happened today
+  //   //     DateTime nextLessonTime = startTime.add(const Duration(days: 7));
+  //   //     possibleTimes.add(nextLessonTime);
+  //   //   }
+  //   // } else if (start.weekday > now.weekday) {
+  //   //   // lesson is still to happen this week
+  //   //   int daysAfter = start.weekday - now.weekday;
+  //   //   // add number of days to get correct day of week
+  //   //   DateTime nextLessonTime = now.add(Duration(days: daysAfter));
+  //   //   possibleTimes.add(DateTime(nextLessonTime.year, nextLessonTime.month, nextLessonTime.day, start.hour, start.minute, start.second));
+  //   // }
+  //   //
+  //   // // if we are currently in the lesson time
+  //   // if (now.isAfter(DateTime(
+  //   //     now.year, now.month, now.day, start.hour, start.minute))
+  //   //     && now.isBefore(DateTime(
+  //   //         now.year, now.month, now.day, end.hour,
+  //   //         end.minute))) {
+  //   //   lessonRunning = true;
+  //   // }
+  // }
 
-    int dayOfWeek = DateTime.parse(job['lessonTimes']['start']).weekday;
-    String repeat = job['lessonTimes']['repeat'];
+  return FutureBuilder<LessonDataSource>(future: jobListToDataSource(profileMap?['jobList'] ?? []), builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      LessonDataSource dataSource = snapshot.data ?? LessonDataSource([]);
+      List<Appointment> lessonList = dataSource.appointments as List<Appointment>;
 
-    upcomingLessons.add(Appointment(
-        subject: job['Job Title'],
-        notes: job['Job Description'],
-        location: "2cousins Meeting",
-        id: job['ID'],
-        startTime: toLocalTime(DateTime.parse(job['lessonTimes']['start']), job['timezone']),
-        endTime: toLocalTime(DateTime.parse(job['lessonTimes']['end']), job['timezone']),
-        recurrenceRule: getRecurrenceRule(dayOfWeek: dayOfWeek, repeat: repeat)
-    ));
-  }
+      lessonList.forEach((lesson) {
+        print(RecurrenceHelper.getRecurrenceDateTimeCollection(lesson.recurrenceRule ?? '', lesson.startTime));
+      });
 
-  LessonDataSource dataSource = LessonDataSource(upcomingLessons);
-  upcomingLessons = dataSource.getVisibleAppointments(DateTime.now(), '', DateTime.now().add(const Duration(days: 7))) ?? [];
-  // ^^ detects up to a week in advance
+      List<dynamic> upcomingLessons = dataSource.appointments ?? [];
+      // ^^ detects up to a week in advance
 
-  if (upcomingLessons.isEmpty) {
-    return Builder(
-      builder: (context) {
-        return Text(
-          "No upcoming lessons",
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary),
-          overflow: TextOverflow.fade,
-          softWrap: false,
-        );
-      }
-    );
-  }
-
-  Appointment closestLesson = upcomingLessons.first;
-
-  for (Appointment lesson in upcomingLessons) {
-    if (now.isBefore(lesson.endTime)) {
-      closestLesson = lesson;
-      break;
-    }
-  }
-
-  if (now.isAfter(closestLesson.startTime) && now.isBefore(closestLesson.endTime)) {
-    lessonRunning = true;
-  } else {
-    minDifference = closestLesson.startTime.difference(now).inMilliseconds;
-  }
-
-  final StopWatchTimer stopWatchTimer = StopWatchTimer(
-    mode: StopWatchMode.countDown,
-    presetMillisecond: minDifference, // millisecond => minute.
-  );
-
-  stopWatchTimer.onStartTimer();
-
-  return StreamBuilder<int>(
-      stream: stopWatchTimer.rawTime,
-      builder: (context, snapshot) {
-        final value = snapshot.data ?? 0;
-        String displayTime = "";
-
-        bool seconds = true;
-        bool minutes = true;
-        bool hours = true;
-
-        int numHours = StopWatchTimer.getRawHours(value);
-        int numMinutes = StopWatchTimer.getRawMinute(value);
-        int numSeconds = StopWatchTimer.getRawSecond(value);
-
-        if (numHours == 0) {
-          hours = false;
-          if (numMinutes == 0) {
-            minutes = false;
-            if (numSeconds == 0) {
-              seconds = false;
+      if (upcomingLessons.isEmpty) {
+        return Builder(
+            builder: (context) {
+              return Text(
+                "No upcoming lessons",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+              );
             }
-          }
-        }
-
-        displayTime = StopWatchTimer.getDisplayTime(
-          value,
-          hours: hours,
-          hoursRightBreak: (numHours == 1) ? ' Hour, ' : ' Hours, ',
-          minute: minutes,
-          minuteRightBreak: (numMinutes == 1) ? ' Minute, ' : ' Minutes, ',
-          second: seconds,
-          milliSecond: false,
-        ) + ((numSeconds == 1) ? ' Second' : ' Seconds');
-
-        if (numHours > 24) {
-          int days = numHours ~/ 24;
-          displayTime = "$days ${days > 1 ? "Days" : "Day"}";
-        }
-
-        if (seconds == false || lessonRunning == true) {
-          displayTime = "Now!";
-        }
-
-        return Text(
-          displayTime,
-          style: Theme.of(context)
-              .textTheme
-              .titleLarge
-              ?.copyWith(
-              color: Theme.of(context)
-                  .colorScheme
-                  .primary),
-          overflow: TextOverflow.fade,
-          softWrap: false,
         );
       }
-  );
+
+      Appointment closestLesson = upcomingLessons.first;
+
+      for (Appointment lesson in upcomingLessons) {
+        print(dataSource.appointments);
+        if (now.isBefore(lesson.endTime)) {
+          closestLesson = lesson;
+          break;
+        }
+      }
+
+      if (now.isAfter(closestLesson.startTime) && now.isBefore(closestLesson.endTime)) {
+        lessonRunning = true;
+      } else {
+        minDifference = closestLesson.startTime.difference(now).inMilliseconds;
+      }
+
+      final StopWatchTimer stopWatchTimer = StopWatchTimer(
+        mode: StopWatchMode.countDown,
+        presetMillisecond: minDifference, // millisecond => minute.
+      );
+
+      stopWatchTimer.onStartTimer();
+
+      return StreamBuilder<int>(
+          stream: stopWatchTimer.rawTime,
+          builder: (context, snapshot) {
+            final value = snapshot.data ?? 0;
+            String displayTime = "";
+
+            bool seconds = true;
+            bool minutes = true;
+            bool hours = true;
+
+            int numHours = StopWatchTimer.getRawHours(value);
+            int numMinutes = StopWatchTimer.getRawMinute(value);
+            int numSeconds = StopWatchTimer.getRawSecond(value);
+
+            if (numHours == 0) {
+              hours = false;
+              if (numMinutes == 0) {
+                minutes = false;
+                if (numSeconds == 0) {
+                  seconds = false;
+                }
+              }
+            }
+
+            displayTime = StopWatchTimer.getDisplayTime(
+              value,
+              hours: hours,
+              hoursRightBreak: (numHours == 1) ? ' Hour, ' : ' Hours, ',
+              minute: minutes,
+              minuteRightBreak: (numMinutes == 1) ? ' Minute, ' : ' Minutes, ',
+              second: seconds,
+              milliSecond: false,
+            ) + ((numSeconds == 1) ? ' Second' : ' Seconds');
+
+            if (numHours > 24) {
+              int days = numHours ~/ 24;
+              displayTime = "$days ${days > 1 ? "Days" : "Day"}";
+            }
+
+            if (seconds == false || lessonRunning == true) {
+              displayTime = "Now!";
+            }
+
+            return Text(
+              displayTime,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary),
+              overflow: TextOverflow.fade,
+              softWrap: false,
+            );
+          }
+      );
+    } else {
+      return Text(
+        "Loading...",
+        style: Theme.of(context)
+            .textTheme
+            .titleLarge
+            ?.copyWith(
+            color: Theme.of(context)
+                .colorScheme
+                .primary),
+        overflow: TextOverflow.fade,
+        softWrap: false,
+      );
+    }
+  });
 }

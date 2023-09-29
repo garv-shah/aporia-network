@@ -62,7 +62,7 @@ function getRRule(date: Date, repeat: string) {
         interval: interval,
         byweekday: weekday,
         dtstart: date,
-        until: datetime(4000, 12, 31)
+        until: datetime(4000, 12, 31),
     });
 }
 
@@ -623,7 +623,6 @@ exports.startShift = functions
                 throw new functions.https.HttpsError('unauthenticated', 'User has no active jobs to start!');
             }
 
-            let jobList: DocumentData[] = profileData['jobList'];
             let hoursPerSubject: DocumentData | null = profileData['hoursPerSubject']; // volunteer record but collated to hours per subject
 
             if (hoursPerSubject == null) {
@@ -667,7 +666,8 @@ exports.startShift = functions
                 if (previous == undefined || previous['end'] != null) {
                     throw new functions.https.HttpsError('unauthenticated', 'An error seems to have occurred where you ended a lesson that never started.');
                 } else {
-                    let job: DocumentData | undefined = jobList.find((job) => job['ID'] == jobID);
+                    const jobDoc = await db.collection('jobs').doc(jobID).get();
+                    let job: DocumentData | undefined = jobDoc.data();
 
                     if (job == undefined) {
                         throw new functions.https.HttpsError('unauthenticated', 'An error seems to have occurred where you ended a lesson that you never claimed.');
@@ -689,6 +689,21 @@ exports.startShift = functions
                     } else {
                         // checks in between start time and 20 minutes past start time
                         let dateList: Date[] = repeatRule.between(start, new Date(now.getTime() + (20*60*1000)))
+
+                        // factor in add exceptions
+                        if (job['lessonTimes']['exceptions'] != null) {
+                            let addList: DocumentData[] = job['lessonTimes']['exceptions']['add'];
+                            dateList = dateList.concat(addList.map(val => new Date(Date.parse(val['to']))));
+
+                            let removeList: DocumentData[] = job['lessonTimes']['exceptions']['remove'];
+                            dateList = dateList.filter(val => !removeList.map(val => new Date(Date.parse(val['to']))).includes(val));
+                        }
+
+                        // sort the array by time
+                        dateList.sort((a: Date, b: Date) => {
+                            return a.getTime() - b.getTime();
+                        });
+
                         if (dateList.length == 0) {
                             intendedEnd = null;
                         } else {

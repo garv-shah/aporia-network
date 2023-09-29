@@ -468,7 +468,7 @@ class _HomePageState extends State<HomePage> {
 
                               // If user is in role, return normal ListView
                               return SizedBox(
-                                width: isAdmin ? 760 : 600,
+                                width: 760,
                                 child: ListView(
                                   padding: EdgeInsets.zero,
                                   children: [
