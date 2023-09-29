@@ -175,5 +175,5 @@ String? getRecurrenceRule({required int dayOfWeek, DateTime? until, String? repe
   if (until != null) {
     rule += ';UNTIL=${until.toIso8601String()}';
   }
-  return rule;
+  return '$rule;COUNT=128';
 }

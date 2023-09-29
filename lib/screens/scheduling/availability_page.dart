@@ -69,6 +69,11 @@ DateTime toDateTime(dynamic time) {
   if (time is String) {
     return DateTime.parse(time);
   }
+
+  if (time is Map<String, dynamic>) {
+    return Timestamp(time['_seconds'], time['_nanoseconds']).toDate();
+  }
+
   return time is DateTime ? time : DateTime.parse(time.toDate().toString());
 }
 

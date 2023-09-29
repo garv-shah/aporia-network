@@ -769,6 +769,72 @@ exports.startShift = functions
         }
     });
 
+exports.updateJob = functions
+    .region('australia-southeast1')
+    .https.onCall(async (data, context) => {
+        let jobID = data.jobID;
+        if (jobID == null) {
+            throw new functions.https.HttpsError('invalid-argument', 'A job ID must be provided!');
+        } else if (context.auth?.uid == null) {
+            throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
+        } else {
+            functions.logger.info(`Updating job data for ${jobID}`, {structuredData: true});
+            const jobDoc = await db.collection('jobs').doc(jobID).get();
+            const jobData: DocumentData = jobDoc.data();
+
+            const createdBy: DocumentData = jobData['createdBy'];
+            const assignedTo: DocumentData = jobData['assignedTo'];
+
+            let canUpdate: boolean = false;
+
+            if (createdBy != null && createdBy['id'] == context.auth?.uid) {
+                canUpdate = true;
+            } else {
+                // check if the user is an admin
+                const userRole = db.collection('roles').doc('admins');
+                const doc = await userRole.get();
+                let admins: string[] = doc.data()['members'];
+                if (admins.includes(context.auth?.uid)) {
+                    canUpdate = true;
+                }
+            }
+
+            if (canUpdate) {
+                // update in the assignedTo user
+                if (assignedTo != null) {
+                    const assignedToDoc = db.collection('publicProfile').doc(assignedTo['id']);
+                    const doc = await assignedToDoc.get();
+                    let jobList: DocumentData[] = doc.data()['jobList'];
+                    const index: number = jobList.findIndex(x => x['ID'] === jobID);
+                    jobList[index] = jobData;
+
+                    await assignedToDoc.update(JSON.parse(JSON.stringify({
+                        'jobList': jobList,
+                    })));
+                    console.log(`Updated assignedTo job ${jobID} for ${assignedTo['id']}`);
+                }
+
+                // update in the createdBy user
+                if (createdBy != null) {
+                    const createdByDoc = db.collection('publicProfile').doc(createdBy['id']);
+                    const doc = await createdByDoc.get();
+                    let jobList: DocumentData[] = doc.data()['jobList'];
+                    const index: number = jobList.findIndex(x => x['ID'] === jobID);
+                    jobList[index] = jobData;
+
+                    await createdByDoc.update(JSON.parse(JSON.stringify({
+                        'jobList': jobList,
+                    })));
+                    console.log(`Updated createdBy job ${jobID} for ${createdByDoc['id']}`);
+                }
+
+                console.log(`Finished updating job ${jobID}`);
+            } else {
+                throw new functions.https.HttpsError('permission-denied', 'You do not have permission to update this job');
+            }
+        }
+    });
+
 exports.updatePfp = functions
     .region('australia-southeast1')
     .https.onCall((data, context) => {

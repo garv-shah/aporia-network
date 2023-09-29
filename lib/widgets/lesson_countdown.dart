@@ -57,19 +57,13 @@ Widget lessonCountdown(Map<String, dynamic>? profileMap) {
   //   // }
   // }
 
-  return FutureBuilder<LessonDataSource>(future: jobListToDataSource(profileMap?['jobList'] ?? []), builder: (context, snapshot) {
+  return FutureBuilder<Map<DateTime, Appointment>>(future: jobListToDateTimeCollection(profileMap?['jobList'] ?? []), builder: (context, snapshot) {
     if (snapshot.hasData) {
-      LessonDataSource dataSource = snapshot.data ?? LessonDataSource([]);
-      List<Appointment> lessonList = dataSource.appointments as List<Appointment>;
+      Map<DateTime, Appointment> lessonMap = snapshot.data ?? {};
 
-      lessonList.forEach((lesson) {
-        print(RecurrenceHelper.getRecurrenceDateTimeCollection(lesson.recurrenceRule ?? '', lesson.startTime));
-      });
+      List<DateTime> upcomingTimes = lessonMap.keys.toList();
 
-      List<dynamic> upcomingLessons = dataSource.appointments ?? [];
-      // ^^ detects up to a week in advance
-
-      if (upcomingLessons.isEmpty) {
+      if (upcomingTimes.isEmpty) {
         return Builder(
             builder: (context) {
               return Text(
@@ -88,10 +82,11 @@ Widget lessonCountdown(Map<String, dynamic>? profileMap) {
         );
       }
 
-      Appointment closestLesson = upcomingLessons.first;
+      DateTime closestTime = upcomingTimes.first;
+      Appointment closestLesson = lessonMap[closestTime]!;
 
-      for (Appointment lesson in upcomingLessons) {
-        print(dataSource.appointments);
+      for (DateTime startTime in upcomingTimes) {
+        Appointment lesson = lessonMap[startTime]!;
         if (now.isBefore(lesson.endTime)) {
           closestLesson = lesson;
           break;

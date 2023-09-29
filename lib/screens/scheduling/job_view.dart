@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:aporia_app/screens/section_views/admin_view/user_list_view.dart';
@@ -314,6 +316,7 @@ class _JobViewState extends State<JobView> {
                                 Text(showAssignedTo ? "Volunteer" : "Company"),
                               ],
                             ),
+                            const Icon(Icons.email)
                           ]),
                         ),
                       ),
@@ -491,16 +494,22 @@ class _JobViewState extends State<JobView> {
                                     isCompany: true,
                                     modifyingSchedule: true,
                                     initialValue: lessonData,
-                                    onSave: (slots) {
+                                    onSave: (slots) async {
                                       // add the exceptions onto Firebase
-                                      FirebaseFirestore.instance.collection('jobs').doc(widget.jobID).update({
-                                        'lessonTimes': {
-                                          'exceptions': slots['exceptions'],
-                                          'start': lessonData['start'],
-                                          'end': lessonData['end'],
-                                          'repeat': lessonData['repeat'],
-                                        }
-                                      });
+                                      if (data != null) {
+                                        FirebaseFirestore.instance.collection('jobs').doc(widget.jobID).update({
+                                          'lessonTimes': {
+                                            'exceptions': slots['exceptions'],
+                                            'start': lessonData['start'],
+                                            'end': lessonData['end'],
+                                            'repeat': lessonData['repeat'],
+                                          }
+                                        });
+
+                                        await FirebaseFunctions.instanceFor(region: 'australia-southeast1')
+                                            .httpsCallable('updateJob')
+                                            .call({'jobID': widget.jobID});
+                                      }
                                     },
                                   )
                               ));

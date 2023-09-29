@@ -13,8 +13,6 @@ import 'package:algolia/algolia.dart';
 import 'package:aporia_app/widgets/section_app_bar.dart';
 import 'dart:ui';
 
-import '../home_page.dart';
-
 /// This is the page which allows all jobs to be searched and managed
 class ManageJobsPage extends StatefulWidget {
   final bool isAdmin;

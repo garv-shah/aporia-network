@@ -145,6 +145,12 @@ class _VolunteerButtonState extends State<VolunteerButton> {
                 }
 
                 if (lessonRunning || shiftStarted) {
+
+                  if (jobID == '') {
+                    List<Appointment> pastLessons = dataSource.getVisibleAppointments(DateTime.now().subtract(const Duration(days: 7)), '', DateTime.now()) ?? [];
+                    jobID = (pastLessons.last.id as String?) ?? '';
+                  }
+
                   toggleShift(meetUrl);
                   FirebaseFunctions.instanceFor(
                       region: 'australia-southeast1')
