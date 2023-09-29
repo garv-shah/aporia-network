@@ -17,6 +17,23 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../post_creation/create_post_view.dart';
 
+String processRepeatOptionTag(String tag) {
+  switch (tag) {
+    case 'daily':
+      return 'Daily';
+    case 'weekly':
+      return 'Weekly';
+    case 'fortnightly':
+      return 'Fortnightly';
+    case 'monthly':
+      return 'Monthly';
+    case 'once':
+      return 'Once Off';
+    default:
+      return tag;
+  }
+}
+
 typedef DataCallback = void Function(Map data);
 LessonDataSource? _dataSource;
 List<Appointment> repeatingRemoveDates = [];
@@ -109,23 +126,6 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
 
   List<DropdownMenuItem<String>> availableRepeatOptions = [];
   String selectedRepeatOption = 'weekly';
-
-  String processRepeatOptionTag(String tag) {
-    switch (tag) {
-      case 'daily':
-        return 'Daily';
-      case 'weekly':
-        return 'Weekly';
-      case 'fortnightly':
-        return 'Fortnightly';
-      case 'monthly':
-        return 'Monthly';
-      case 'once':
-        return 'Once Off';
-      default:
-        return tag;
-    }
-  }
 
   DateTime dateToRepeatStart(String tag, DateTime date) {
     // returns the date from 2018, where that repeat forward connects with the date

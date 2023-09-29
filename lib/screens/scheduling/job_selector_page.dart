@@ -51,6 +51,17 @@ Widget jobCard(BuildContext context,
   showAssigned = showAssigned && data['assignedTo'] != null;
   String? subtitleUser = showAssigned ? 'assignedTo' : 'createdBy';
 
+  String? subHeading;
+
+  if (data['repeatOptions'] != null) {
+    List<String> nameList = [];
+    for (String tag in data['repeatOptions']) {
+      String name = processRepeatOptionTag(tag);
+      nameList.add(name);
+    }
+    subHeading = "Offers: ${nameList.join(", ")}";
+  }
+
   return Padding(
     padding: const EdgeInsets.fromLTRB(24.0, 6.0, 24.0, 6.0),
     child: Card(
@@ -145,92 +156,92 @@ Widget jobCard(BuildContext context,
                         Expanded(
                           child: Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Text("${data["Job Title"]}",
-                                    style: const TextStyle(
-                                        fontSize: 25,
-                                        overflow: TextOverflow.clip),
-                                    maxLines: 1),
-                              ),
-                              Flexible(
+                              Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: SizedBox(
-                                    height: 35,
-                                    child: ListView.builder(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.horizontal,
-                                        shrinkWrap: true,
-                                        itemCount:
-                                            (data['requirements'].length > 2)
-                                                ? (screenWidth < 500)
-                                                    ? 2
-                                                    : 3
-                                                : data['requirements'].length,
-                                        itemBuilder: (BuildContext context,
-                                            int itemNum) {
-                                          if ((data['requirements'].length >
-                                                      2 &&
-                                                  itemNum == 2) |
-                                              (screenWidth < 500 &&
-                                                  data['requirements'].length >
-                                                      1 &&
-                                                  itemNum == 1)) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 4.0),
-                                              child: Card(
-                                                color: Theme.of(context)
-                                                    .highlightColor,
-                                                shape:
-                                                    const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8)),
-                                                ),
-                                                child: const Padding(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      8.0, 4.0, 8.0, 4.0),
-                                                  child: Text(
-                                                    "More",
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Text("${data["Job Title"]}",
+                                      style: const TextStyle(
+                                          fontSize: 25,
+                                          overflow: TextOverflow.ellipsis)
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0),
+                                child: SizedBox(
+                                  height: 35,
+                                  child: ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      scrollDirection: Axis.horizontal,
+                                      shrinkWrap: true,
+                                      itemCount:
+                                          (data['requirements'].length > 2)
+                                              ? (screenWidth < 500)
+                                                  ? 2
+                                                  : 3
+                                              : data['requirements'].length,
+                                      itemBuilder: (BuildContext context,
+                                          int itemNum) {
+                                        if ((data['requirements'].length >
+                                                    2 &&
+                                                itemNum == 2) |
+                                            (screenWidth < 500 &&
+                                                data['requirements'].length >
+                                                    1 &&
+                                                itemNum == 1)) {
+                                          return Padding(
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 4.0),
+                                            child: Card(
+                                              color: Theme.of(context)
+                                                  .highlightColor,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.all(
+                                                        Radius.circular(8)),
                                               ),
-                                            );
-                                          }
-                                          Map<String, dynamic>? requirement =
-                                              data["requirements"]
-                                                  ["Subject ${itemNum + 1}"];
-                                          return Card(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withOpacity(0.15),
-                                            shape: const RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(8)),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      8.0, 4.0, 8.0, 4.0),
-                                              child: Text(
-                                                "Yr${requirement?["Level"].toString() ?? '0'} ${requirement?["Subject"]}",
-                                                style: const TextStyle(
-                                                  color: Colors.white,
+                                              child: const Padding(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    8.0, 4.0, 8.0, 4.0),
+                                                child: Text(
+                                                  "More",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           );
-                                        }),
-                                  ),
+                                        }
+                                        Map<String, dynamic>? requirement =
+                                            data["requirements"]
+                                                ["Subject ${itemNum + 1}"];
+                                        return Card(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.15),
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8)),
+                                          ),
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.fromLTRB(
+                                                    8.0, 4.0, 8.0, 4.0),
+                                            child: Text(
+                                              "Yr${requirement?["Level"].toString() ?? '0'} ${requirement?["Subject"]}",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
                                 ),
                               ),
                             ],
@@ -286,6 +297,13 @@ Widget jobCard(BuildContext context,
                         ),
                       ],
                     ),
+                    (subHeading != null) ? Text(
+                      subHeading,
+                      style: TextStyle(
+                        overflow: TextOverflow.clip,
+                        color: Theme.of(context).primaryColorLight.withOpacity(0.5),
+                      ),
+                    ) : const SizedBox.shrink(),
                     Text(
                       "${data["Job Description"]}",
                       style: const TextStyle(overflow: TextOverflow.clip),
@@ -391,27 +409,27 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
       BoolDialogueOption(
           title: "Daily",
           id: 'daily',
-          initialValue: true,
+          initialValue: !repeatBlockList.contains('daily'),
           onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
       BoolDialogueOption(
           title: "Weekly",
           id: 'weekly',
-          initialValue: true,
+          initialValue: !repeatBlockList.contains('weekly'),
           onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
       BoolDialogueOption(
           title: "Fortnightly",
           id: 'fortnightly',
-          initialValue: true,
+          initialValue: !repeatBlockList.contains('fortnightly'),
           onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
       BoolDialogueOption(
           title: "Monthly",
           id: 'monthly',
-          initialValue: true,
+          initialValue: !repeatBlockList.contains('monthly'),
           onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
       BoolDialogueOption(
           title: "Once Off",
           id: 'once',
-          initialValue: true,
+          initialValue: !repeatBlockList.contains('once'),
           onTap: (active, repeat) => addToBlockList(active, repeat, 'repeat')),
     ];
 
@@ -435,7 +453,7 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
         subjectDialogueList.add(BoolDialogueOption(
             title: subject,
             id: subject,
-            initialValue: true,
+            initialValue: !subjectBlockList.contains(subject),
             onTap: (active, repeat) =>
                 addToBlockList(active, repeat, 'subject')));
       }
@@ -486,90 +504,93 @@ class _AvailableJobsPageState extends State<AvailableJobsPage> {
                                   child: header("Available Jobs", context,
                                       fontSize: 30, backArrow: true),
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Filters:",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16, 16, 8, 16),
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return SimpleDialog(
-                                                    title: const Text(
-                                                        "Subject Filter"),
-                                                    children:
-                                                        subjectDialogueList);
-                                              });
-                                        },
-                                        style: ButtonStyle(
-                                          foregroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.white),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary),
-                                          shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          4.0),
-                                                  side: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary))),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Wrap(
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text("Filters:",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 16, 8, 16),
+                                        child: OutlinedButton(
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return SimpleDialog(
+                                                      title: const Text(
+                                                          "Subject Filter"),
+                                                      children:
+                                                          subjectDialogueList);
+                                                });
+                                          },
+                                          style: ButtonStyle(
+                                            foregroundColor:
+                                                MaterialStateProperty.all<Color>(
+                                                    Colors.white),
+                                            backgroundColor:
+                                                MaterialStateProperty.all<Color>(
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary),
+                                            shape: MaterialStateProperty.all<
+                                                    RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.0),
+                                                    side: BorderSide(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary))),
+                                          ),
+                                          child: const Text('Subject'),
                                         ),
-                                        child: const Text('Subject'),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          8, 16, 16, 16),
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return SimpleDialog(
-                                                    title: const Text(
-                                                        "Repeat Frequency Preference"),
-                                                    children:
-                                                        repeatDialogueList);
-                                              });
-                                        },
-                                        style: ButtonStyle(
-                                          foregroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.white),
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary),
-                                          shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                              RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          4.0),
-                                                  side: BorderSide(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary))),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 16, 16, 16),
+                                        child: OutlinedButton(
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return SimpleDialog(
+                                                      title: const Text(
+                                                          "Repeat Frequency Preference"),
+                                                      children:
+                                                          repeatDialogueList);
+                                                });
+                                          },
+                                          style: ButtonStyle(
+                                            foregroundColor:
+                                                MaterialStateProperty.all<Color>(
+                                                    Colors.white),
+                                            backgroundColor:
+                                                MaterialStateProperty.all<Color>(
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary),
+                                            shape: MaterialStateProperty.all<
+                                                    RoundedRectangleBorder>(
+                                                RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4.0),
+                                                    side: BorderSide(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary))),
+                                          ),
+                                          child: const Text('Repeat Frequency'),
                                         ),
-                                        child: const Text('Repeat Frequency'),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 )
                               ],
                             );
