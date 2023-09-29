@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
+import 'package:aporia_app/utils/config/config.dart' as config;
 
 /**
  * The following section includes functions for the leaderboards page.
@@ -94,6 +95,8 @@ class Leaderboards extends StatefulWidget {
 class _LeaderboardsState extends State<Leaderboards> {
   @override
   Widget build(BuildContext context) {
+    int counter = 0;
+
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           // Gets the publicProfile collection ordered by the amount of experience
@@ -131,50 +134,59 @@ class _LeaderboardsState extends State<Leaderboards> {
                         } else {
                           // Current doc's data.
                           QueryDocumentSnapshot<Map<String, dynamic>>? data =
-                              publicProfileSnapshot.data?.docs[index - 1];
+                          publicProfileSnapshot.data?.docs[index - 1];
 
-                          // User entry.
-                          return user(context,
-                              username: (() {
-                                try {
-                                  return data?['username'];
-                                } on StateError {
-                                  return 'Error: no username';
-                                }
-                              }()),
-                              position: index,
-                              experience: (data?['experience'].isInfinite == false)
-                                  ? (data?['experience'].round())
-                                  : 0,
-                              infinity: data?['experience'].isInfinite,
-                              // Remove the background if the user's card is the
-                              // user that's logged in. This adds a bit of visual
-                              // difference and makes it easier to identify yourself.
-                              removeBackground: data?.id ==
-                                  FirebaseAuth.instance.currentUser?.uid,
-                              isAdmin: widget.isAdmin,
-                              profilePicture: (() {
-                                try {
-                                  return SizedBox(
-                                      height: 50,
-                                      width: 50,
-                                      child: fetchProfilePicture(
-                                          data?['profilePicture'],
-                                          data?['pfpType'],
-                                          data?['username'],
-                                          padding: true,
-                                          customPadding: 5));
-                                } on StateError {
-                                  return Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12.0, 0.0, 12.0, 0.0),
-                                    child: Icon(Icons.error,
-                                        size: 30,
-                                        color:
-                                            Theme.of(context).colorScheme.primary),
-                                  );
-                                }
-                              }()));
+                          if (widget.isAdmin || data?['userType'] == config.appID || config.appID == 'aporia_app') {
+                            // User entry.
+                            counter += 1;
+                            return user(context,
+                                username: (() {
+                                  try {
+                                    return data?['username'];
+                                  } on StateError {
+                                    return 'Error: no username';
+                                  }
+                                }()),
+                                position: counter,
+                                experience: (data?['experience'].isInfinite ==
+                                    false)
+                                    ? (data?['experience'].round())
+                                    : 0,
+                                infinity: data?['experience'].isInfinite,
+                                // Remove the background if the user's card is the
+                                // user that's logged in. This adds a bit of visual
+                                // difference and makes it easier to identify yourself.
+                                removeBackground: data?.id ==
+                                    FirebaseAuth.instance.currentUser?.uid,
+                                isAdmin: widget.isAdmin,
+                                profilePicture: (() {
+                                  try {
+                                    return SizedBox(
+                                        height: 50,
+                                        width: 50,
+                                        child: fetchProfilePicture(
+                                            data?['profilePicture'],
+                                            data?['pfpType'],
+                                            data?['username'],
+                                            padding: true,
+                                            customPadding: 5));
+                                  } on StateError {
+                                    return Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          12.0, 0.0, 12.0, 0.0),
+                                      child: Icon(Icons.error,
+                                          size: 30,
+                                          color:
+                                          Theme
+                                              .of(context)
+                                              .colorScheme
+                                              .primary),
+                                    );
+                                  }
+                                }()));
+                          } else {
+                            return const SizedBox.shrink();
+                          }
                         }
                       },
                     ),

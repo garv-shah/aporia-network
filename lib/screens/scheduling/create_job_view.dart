@@ -365,6 +365,7 @@ class _CreateJobState extends State<CreateJob> {
                                         builder: (context) => AvailabilityPage(
                                             isCompany: true,
                                             initialValue: jobData['availability'],
+                                            lessonSelector: true,
                                             onSave: (slots) {
                                               jobData['availability'] = slots;
                                             },

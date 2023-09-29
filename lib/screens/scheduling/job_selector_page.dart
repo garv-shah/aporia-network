@@ -322,11 +322,16 @@ Widget jobCard(BuildContext context,
                         ),
                       ],
                     ),
-                    (subHeading != null) ? Text(
-                      subHeading,
-                      style: TextStyle(
-                        overflow: TextOverflow.clip,
-                        color: Theme.of(context).hintColor,
+                    (subHeading != null) ? RichText(
+                      text: TextSpan(
+                        text: subHeading,
+                        style: TextStyle(
+                          overflow: TextOverflow.clip,
+                          color: Theme.of(context).hintColor,
+                        ),
+                        children: (isAdmin || isCompany) && data['status'] == 'pending_assignment' ? <TextSpan>[
+                          TextSpan(text: ' - awaiting assignment', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                        ] : [],
                       ),
                     ) : const SizedBox.shrink(),
                     Text(

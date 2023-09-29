@@ -862,7 +862,7 @@ exports.fixValidationIssues = functions
         const publicProfileCollections = await db.collection("publicProfile");
         const traverser = createTraverser(publicProfileCollections);
 
-        const requiredFields = ['pfpType', 'profilePicture', 'username']
+        const requiredFields = ['pfpType', 'profilePicture', 'username', 'userType']
         let missingFields: {[key: string]: Array<string>} = {};
 
         await traverser.traverse(async (batchDocs) => {
@@ -891,7 +891,11 @@ exports.fixValidationIssues = functions
                     let updateObject: { [key: string]: string; } = {};
 
                     missingFields[uid].forEach((entry) => {
-                        updateObject[entry] = userInfo[entry];
+                        if (entry == 'userType') {
+                            updateObject[entry] = 'aporia_app';
+                        } else {
+                            updateObject[entry] = userInfo[entry];
+                        }
                     });
 
                     await db.collection('publicProfile').doc(uid).update(updateObject);

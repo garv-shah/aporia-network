@@ -103,6 +103,7 @@ class AvailabilityPage extends StatefulWidget {
   final bool isCompany;
   final Map<Object, Object?>? initialValue;
   final DataCallback? onSave;
+  final bool lessonSelector;
   final List? restrictionZone;
   final List? repeatOptions;
 
@@ -110,6 +111,7 @@ class AvailabilityPage extends StatefulWidget {
       {Key? key,
       required this.isCompany,
       this.onSave,
+      this.lessonSelector = false,
       this.initialValue,
       this.repeatOptions,
       this.restrictionZone})
@@ -309,7 +311,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Availability Selector",
+          !widget.lessonSelector ? "Availability Selector" : "Possible Lesson Times",
           style: Theme.of(context).textTheme.titleLarge,
         ),
         backgroundColor: Colors.transparent,
