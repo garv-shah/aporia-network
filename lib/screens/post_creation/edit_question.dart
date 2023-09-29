@@ -18,7 +18,7 @@ typedef TexCallback = void Function(String solution);
 //ignore: must_be_immutable
 class EditQuestion extends StatefulWidget {
   String title;
-  final bool solutionType;
+  final Map<String, dynamic>? solutionType;
   final DataCallback onSave;
   final TexCallback? onSolution;
   final String? solution;
@@ -27,7 +27,7 @@ class EditQuestion extends StatefulWidget {
       {Key? key,
       required this.title,
       required this.onSave,
-      this.solutionType = false,
+      this.solutionType,
       this.onSolution,
       required this.document,
       this.solution})
@@ -39,19 +39,23 @@ class EditQuestion extends StatefulWidget {
 
 class _EditQuestionState extends State<EditQuestion> {
   late EditorState editorState;
-  final FocusNode _focusNode = FocusNode();
   final MathFieldEditingController _mathController =
       MathFieldEditingController();
+  final TextEditingController _textController = TextEditingController();
 
   @override
   void initState() {
-    editorState = widget.document != null ? EditorState(document: Document.fromJson(widget.document!)) : EditorState.blank(withInitialText: true);
+    editorState = widget.document != null
+        ? EditorState(document: Document.fromJson(widget.document!))
+        : EditorState.blank(withInitialText: true);
 
-    if ((widget.solution?.isNotEmpty ?? false) &&
-        widget.solution != r"\textcolor{#000000}{\cursor}") {
-      var json =
-          widget.solution!.replaceAll(r"\textcolor{#000000}{\cursor}", '');
-      _mathController.updateValue(TeXParser(json).parse());
+    if ((widget.solution?.isNotEmpty ?? false) && widget.solution != r"\textcolor{#000000}{\cursor}") {
+      String solution = widget.solution!.replaceAll(r"\textcolor{#000000}{\cursor}", '');
+      if (widget.solutionType?['maths_mode'] == true) {
+        _mathController.updateValue(TeXParser(solution).parse());
+      } else {
+        _textController.text = solution;
+      }
     }
 
     super.initState();
@@ -68,19 +72,41 @@ class _EditQuestionState extends State<EditQuestion> {
               header(widget.title, context, fontSize: 20, backArrow: true,
                   customBackLogic: () {
                 widget.onSave(editorState.document.toJson());
-                widget.onSolution?.call(_mathController.root
-                    .buildTeXString(cursorColor: Colors.black));
+                if (widget.solutionType != null) {
+                  if (widget.solutionType?['maths_mode'] == true) {
+                    widget.onSolution?.call(_mathController.root
+                        .buildTeXString(cursorColor: Colors.black));
+                  } else {
+                    widget.onSolution?.call(_textController.text);
+                  }
+                }
                 Navigator.of(context).pop();
               }),
-              widget.solutionType
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
+              if (widget.solutionType != null)
+                (() {
+                  if (widget.solutionType?['maths_mode'] == true) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(64.0, 8.0, 64.0, 8.0),
                       child: MathField(
                         controller: _mathController,
-                        variables: const ['x', 'y', 'z'],
+                        variables: const ['x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w'],
                       ),
-                    )
-                  : const SizedBox.shrink(),
+                    );
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(64.0, 8.0, 64.0, 8.0),
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Enter the solution',
+                        ),
+                        controller: _textController,
+                      ),
+                    );
+                  }
+                }())
+              else
+                const SizedBox.shrink(),
               TextEditor(
                   editorState: editorState,
                   padding: const EdgeInsets.all(16.0),

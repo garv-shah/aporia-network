@@ -1019,11 +1019,12 @@ packages:
   math_keyboard:
     dependency: "direct main"
     description:
-      name: math_keyboard
-      sha256: "4f5d4eb4b7f003715e2ae7d1f58f5f1fddd9dd746d1f1bbc27f1c967e10124d4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.1"
+      path: math_keyboard
+      ref: main
+      resolved-ref: af6157e27dc77b21633592f2142c92404874197d
+      url: "https://github.com/Sub6Resources/math_keyboard"
+    source: git
+    version: "0.3.0"
   meta:
     dependency: transitive
     description:

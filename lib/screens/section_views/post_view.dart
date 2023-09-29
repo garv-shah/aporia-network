@@ -155,7 +155,7 @@ class _PostViewState extends State<PostView> {
                                         children: <Widget>[
                                           Padding(
                                             padding: const EdgeInsets.fromLTRB(24.0, 16.0, 24.0, 12.0),
-                                            child: Math.tex(questionData['Solution TEX'], textStyle: Theme.of(context).textTheme.headlineMedium),
+                                            child: (questionData['maths_mode'] == true) ? Math.tex(questionData['Solution TEX'], textStyle: Theme.of(context).textTheme.headlineMedium) : Text(questionData['Solution TEX'], style: Theme.of(context).textTheme.headlineMedium),
                                           ),
                                           TextEditor(
                                               editorState: EditorState(

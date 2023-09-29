@@ -812,15 +812,21 @@ exports.markQuestions = functions
                 const data: { [key: string]: any; } = Object(quiz.data() as object)['questionData'][`Question ${i}`];
                 const experience: number = data['Experience'];
 
-                const correctAnswerLatex: string = data['Solution TEX'];
-                console.log(correctAnswerLatex);
-                const correctAnswer = MathExpression.fromLatex(correctAnswerLatex);
+                const correctAnswer: string = data['Solution TEX'];
+                const userAnswer: string | undefined = Object(questionAnswers)[`Question ${i}`];
+                console.log(correctAnswer);
+                console.log(userAnswer);
+                let isCorrect: boolean = false;
 
-                const userAnswerLatex: string | undefined = Object(questionAnswers)[`Question ${i}`];
-                console.log(userAnswerLatex);
-                const userAnswer = MathExpression.fromLatex(userAnswerLatex);
+                if (data['maths_mode'] == true) {
+                    const correctAnswerLatex = MathExpression.fromLatex(correctAnswer);
+                    const userAnswerLatex = MathExpression.fromLatex(userAnswer);
 
-                const isCorrect: boolean = correctAnswer.equals(userAnswer);
+                    isCorrect = correctAnswerLatex.equals(userAnswerLatex);
+                } else {
+                    isCorrect = correctAnswer == userAnswer;
+                }
+
                 markedObject[`Question ${i}`] = isCorrect;
 
                 if (isCorrect) {

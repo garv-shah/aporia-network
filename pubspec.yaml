@@ -56,7 +56,11 @@ dependencies:
   crop_your_image: ^0.7.2
   uuid: ^3.0.6
   algolia: ^1.1.2
-  math_keyboard: ^0.2.0
+  math_keyboard:
+    git:
+      url: https://github.com/Sub6Resources/math_keyboard
+      path: math_keyboard
+      ref: main
   flutter_native_splash: ^2.2.19
   flutter_math_fork: ^0.7.1
   firebase_analytics: ^10.1.5

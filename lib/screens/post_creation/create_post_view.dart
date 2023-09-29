@@ -15,6 +15,8 @@ import 'package:aporia_app/utils/components.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/src/iterable_extensions.dart';
 
+import '../scheduling/create_job_view.dart';
+
 /**
  * The following section includes functions for the post/quiz creation page.
  */
@@ -144,6 +146,26 @@ class _CreatePostState extends State<CreatePost> {
       });
     }
 
+    bool mathsMode = questionData['Question $questionNumber']['maths_mode'] ?? false;
+
+    List<Widget> settingsDialogueList = [
+      // const Padding(
+      //   padding: EdgeInsets.fromLTRB(25, 0, 25, 10),
+      //   child: SizedBox(
+      //     width: 200,
+      //     child: Text("Change any settings for the question!"),
+      //   ),
+      // ),
+      BoolDialogueOption(
+          title: "Maths Mode Solution",
+          id: 'maths_mode',
+          initialValue: false,
+          onTap: (active, repeat) {
+            mathsMode = !mathsMode;
+            print(mathsMode);
+          }),
+    ];
+
     // SizeTransition to allow for animating the questionCard.
     return SizeTransition(
       sizeFactor: animation,
@@ -178,6 +200,20 @@ class _CreatePostState extends State<CreatePost> {
                             overflow: TextOverflow.ellipsis),
                         Row(
                           children: [
+                            IconButton(
+                                onPressed: () async {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SimpleDialog(
+                                            title: const Text(
+                                                "Change Question Settings"),
+                                            children:
+                                            settingsDialogueList);
+                                      });
+                                },
+                                icon: Icon(Icons.settings, color: Theme.of(context).hintColor)
+                            ),
                             IconButton(
                                 onPressed: () async {
                                   final experience = await showTextInputDialog(
@@ -280,7 +316,9 @@ class _CreatePostState extends State<CreatePost> {
                                             document: questionData[
                                                         'Question $questionNumber']
                                                     ['Solution'],
-                                            solutionType: true,
+                                            solutionType: {
+                                              'maths_mode': mathsMode,
+                                            },
                                             onSave: (Map<String,dynamic> data) =>
                                                 updateJSON(
                                                     data,
@@ -297,6 +335,7 @@ class _CreatePostState extends State<CreatePost> {
                                                     solution.replaceAll(
                                                         r"\textcolor{#000000}{\cursor}",
                                                         '');
+                                                questionData['Question $questionNumber']['maths_mode'] = mathsMode;
                                               });
                                             },
                                           )),

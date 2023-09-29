@@ -25,6 +25,8 @@ class QuizView extends StatefulWidget {
 
 class _QuizViewState extends State<QuizView> {
   MathFieldEditingController mathController = MathFieldEditingController();
+  TextEditingController textController = TextEditingController();
+  late final _mathsFocusNode = FocusNode(debugLabel: 'Maths Focus');
   late Map<String, dynamic> questionData;
   List<Document> documents = [];
   // A map for question answers and an int for what question we're on respectively.
@@ -55,6 +57,14 @@ class _QuizViewState extends State<QuizView> {
   }
 
   @override
+  void dispose() {
+    mathController.dispose();
+    textController.dispose();
+    _mathsFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return MathKeyboardViewInsets(
@@ -81,25 +91,37 @@ class _QuizViewState extends State<QuizView> {
                             if (questionIndex != 0) {
                               // If not on the last page, save current page answer to map.
                               if (questionData.keys.length != questionIndex) {
-                                questionAnswers[
-                                        'Question ${questionIndex + 1}'] =
-                                    mathController.root
-                                        .buildTeXString(
-                                            cursorColor: Colors.black)
-                                        .replaceAll(
-                                            r"\textcolor{#000000}{\cursor}",
-                                            '');
-                                mathController.clear();
+                                if (questionData['Question ${questionIndex + 1}']['maths_mode'] == true) {
+                                  questionAnswers['Question ${questionIndex +
+                                      1}'] =
+                                      mathController.root.buildTeXString(
+                                          cursorColor: Colors.black)
+                                          .replaceAll(
+                                          r"\textcolor{#000000}{\cursor}", '');
+                                  mathController.clear();
+                                } else {
+                                  questionAnswers['Question ${questionIndex + 1}'] = textController.text;
+                                  textController.clear();
+                                }
+                              }
+
+                              // if previous answer in not maths, unfocus the maths keyboard
+                              if (questionData['Question $questionIndex'] == null || questionData['Question $questionIndex']['maths_mode'] == false) {
+                                _mathsFocusNode.unfocus();
                               }
 
                               // If previous answer is already answered, load it from map.
                               if (questionAnswers['Question $questionIndex'] !=
                                   null) {
                                 try {
-                                  mathController.updateValue(TeXParser(
-                                          questionAnswers[
-                                              'Question $questionIndex'])
-                                      .parse());
+                                  if (questionData['Question $questionIndex']['maths_mode'] == true) {
+                                    mathController.updateValue(TeXParser(
+                                        questionAnswers[
+                                        'Question $questionIndex'])
+                                        .parse());
+                                  } else {
+                                    textController.text = questionAnswers['Question $questionIndex'];
+                                  }
                                 } catch (error) {
                                   // Do nothing.
                                 }
@@ -145,22 +167,35 @@ class _QuizViewState extends State<QuizView> {
                           setState(() {
                             if (questionData.keys.length > questionIndex) {
                               // Saves current answer to map.
-                              questionAnswers['Question ${questionIndex + 1}'] =
-                                  mathController.root
-                                      .buildTeXString(cursorColor: Colors.black)
-                                      .replaceAll(
-                                          r"\textcolor{#000000}{\cursor}", '');
-                              mathController.clear();
+                              if (questionData['Question ${questionIndex + 1}']['maths_mode'] == true) {
+                                questionAnswers['Question ${questionIndex +
+                                    1}'] =
+                                    mathController.root
+                                        .buildTeXString(
+                                        cursorColor: Colors.black)
+                                        .replaceAll(
+                                        r"\textcolor{#000000}{\cursor}", '');
+                                mathController.clear();
+                              } else {
+                                questionAnswers['Question ${questionIndex + 1}'] = textController.text;
+                                textController.clear();
+                              }
+
+                              if (questionData['Question ${questionIndex + 2}'] == null || questionData['Question ${questionIndex + 2}']['maths_mode'] == false) {
+                                _mathsFocusNode.unfocus();
+                              }
 
                               // If next answer is already answered, load it from map.
-                              if (questionAnswers[
-                                      'Question ${questionIndex + 2}'] !=
-                                  null) {
+                              if (questionAnswers['Question ${questionIndex + 2}'] != null) {
                                 try {
-                                  mathController.updateValue(TeXParser(
-                                          questionAnswers[
-                                              'Question ${questionIndex + 2}'])
-                                      .parse());
+                                  if (questionData['Question ${questionIndex + 2}']['maths_mode'] == true) {
+                                    mathController.updateValue(TeXParser(
+                                        questionAnswers[
+                                        'Question ${questionIndex + 2}'])
+                                        .parse());
+                                  } else {
+                                    textController.text = questionAnswers['Question ${questionIndex + 2}'];
+                                  }
                                 } catch (error) {
                                   // Do nothing.
                                 }
@@ -406,14 +441,26 @@ class _QuizViewState extends State<QuizView> {
                         Padding(
                           padding:
                               const EdgeInsets.fromLTRB(32.0, 8.0, 32.0, 8.0),
-                          child: MathField(
-                            controller: mathController,
-                            variables: const ['x', 'y', 'z'],
-                            decoration:
-                                const InputDecoration(labelText: "Solution"),
-                            onChanged: (String value) {},
-                            onSubmitted: (String value) {},
-                          ),
+                          child: (() {
+                            if (questionData['Question ${questionIndex + 1}']['maths_mode'] != true) {
+                              return TextField(
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Solution',
+                                ),
+                                controller: textController,
+                              );
+                            } else {
+                              return MathField(
+                                controller: mathController,
+                                variables: const ['x', 'y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w'],
+                                decoration: const InputDecoration(labelText: "Solution"),
+                                focusNode: _mathsFocusNode,
+                                onChanged: (String value) {},
+                                onSubmitted: (String value) {},
+                              );
+                            }
+                          } ()),
                         )
                       ],
                     )
