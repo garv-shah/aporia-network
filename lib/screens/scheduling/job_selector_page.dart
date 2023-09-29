@@ -62,6 +62,10 @@ Widget jobCard(BuildContext context,
     subHeading = "Offers: ${nameList.join(", ")}";
   }
 
+  if (data['status'] == 'assigned') {
+    subHeading = lessonTimeString(data["lessonTimes"]["start"], data["lessonTimes"]["end"], data["timezone"], data["lessonTimes"]['repeat']);
+  }
+
   return Padding(
     padding: const EdgeInsets.fromLTRB(24.0, 6.0, 24.0, 6.0),
     child: Card(
@@ -249,7 +253,28 @@ Widget jobCard(BuildContext context,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 6),
-                          child: isCompany
+                          child: (isCompany || isAdmin)
+                              ? SizedBox(
+                            height: 32.0,
+                            width: 32.0,
+                            child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () {
+                                  // go to edit the job
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => CreateJob(
+                                              jobData: data, userData: data['createdBy'])));
+                                },
+                                child: Icon(Icons.edit,
+                                    color: Theme.of(context).hintColor)),
+                          )
+                              : const SizedBox.shrink(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: (isCompany || isAdmin)
                               ? SizedBox(
                                   height: 32.0,
                                   width: 32.0,
@@ -301,7 +326,7 @@ Widget jobCard(BuildContext context,
                       subHeading,
                       style: TextStyle(
                         overflow: TextOverflow.clip,
-                        color: Theme.of(context).primaryColorLight.withOpacity(0.5),
+                        color: Theme.of(context).hintColor,
                       ),
                     ) : const SizedBox.shrink(),
                     Text(

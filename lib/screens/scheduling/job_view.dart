@@ -51,8 +51,49 @@ Widget informationCard(
   );
 }
 
+String ordinal(int number) {
+  if(!(number >= 1 && number <= 100)) {//here you change the range
+    throw Exception('Invalid number');
+  }
+
+  if(number >= 11 && number <= 13) {
+    return 'th';
+  }
+
+  switch(number % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+// the following function creates a string from lesson times and a frequency
+String lessonTimeString(dynamic start, dynamic end, String timezone, String repeatTag) {
+  DateTime startTime = DateTime.parse(start);
+  startTime = toLocalTime(startTime, timezone);
+  String prefix = "";
+  var formatter = DateFormat('dd/MM/yyyy');
+
+  if (repeatTag == "daily") {
+    prefix = "Every day";
+  } else if (repeatTag == "weekly") {
+    prefix = "Every ${DateFormat('EEEE').format(startTime)}";
+  } else if (repeatTag == "fortnightly") {
+    prefix = "Every 2nd ${DateFormat('EEEE').format(startTime)}";
+  } else if (repeatTag == "monthly") {
+    prefix = "${ordinal(startTime.day)} of every month";
+  } else if (repeatTag == "once") {
+    prefix = formatter.format(startTime);
+  }
+
+  DateTime endTime = DateTime.parse(end);
+  endTime = toLocalTime(endTime, timezone);
+  return "$prefix ${DateFormat('h:mm a').format(startTime)} - ${DateFormat('h:mm a').format(endTime)}";
+}
+
 /**
- * The following section includes the actual OrderView page.
+ * The following section includes the actual JobView page.
  */
 
 /// This is the view where orders can be seen.
@@ -117,9 +158,9 @@ class _JobViewState extends State<JobView> {
               }
 
               return Scaffold(
-                floatingActionButton: assignedToMe || createdByMe ? FloatingActionButton(
+                floatingActionButton: assignedToMe || createdByMe || widget.isAdmin ? FloatingActionButton(
                   onPressed: () {
-                    if (createdByMe) {
+                    if (createdByMe || widget.isAdmin) {
                       // go to edit the job
                       Navigator.push(
                           context,
@@ -158,7 +199,7 @@ class _JobViewState extends State<JobView> {
                       });
                     }
                   },
-                  child: createdByMe
+                  child: (createdByMe || widget.isAdmin)
                       ? const Icon(Icons.edit)
                       : const Icon(Icons.exit_to_app),
                 ) : null,
@@ -257,7 +298,7 @@ class _JobViewState extends State<JobView> {
                                 child: PopupMenuButton(
                                   tooltip: "Change Order Status",
                                   enableFeedback: true,
-                                  enabled: widget.isCompany,
+                                  enabled: widget.isCompany || widget.isAdmin,
                                   initialValue: selectedStatus,
                                   onSelected: (StatusStates status) async {
                                     if (status == StatusStates.assigned) {
@@ -320,7 +361,7 @@ class _JobViewState extends State<JobView> {
                                   },
                                   itemBuilder: (BuildContext context) =>
                                       <PopupMenuEntry<StatusStates>>[
-                                    if (widget.isCompany)
+                                    if (widget.isCompany || widget.isAdmin)
                                       const PopupMenuItem<StatusStates>(
                                         value: StatusStates.pendingAssignment,
                                         textStyle: TextStyle(color: Colors.blue),
@@ -396,14 +437,8 @@ class _JobViewState extends State<JobView> {
                       information: data?["Job Description"]),
                   data?['status'] == 'assigned' ? informationCard(
                       title: "Lesson Times",
-                      information: (() {
-                        DateTime startTime = DateTime.parse(data?["lessonTimes"]["start"]);
-                        startTime = toLocalTime(startTime, data?["timezone"]);
-
-                        DateTime endTime = DateTime.parse(data?["lessonTimes"]["end"]);
-                        endTime = toLocalTime(endTime, data?["timezone"]);
-                        return "${DateFormat('h:mm a').format(startTime)} - ${DateFormat('h:mm a').format(endTime)}";
-                      }())) : const SizedBox.shrink(),
+                      information: lessonTimeString(data?["lessonTimes"]["start"], data?["lessonTimes"]["end"], data?["timezone"], data?["lessonTimes"]['repeat']),
+                  ) : const SizedBox.shrink(),
 
                   // Requirements
                   (data?['requirements'].length != 0)
