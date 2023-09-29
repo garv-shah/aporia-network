@@ -203,7 +203,8 @@ class _SectionAppBarState extends State<SectionAppBar> {
                               widget.userData['profilePicture'],
                               widget.userData['pfpType'],
                               widget.userData['username'],
-                              padding: false),
+                              padding: false,
+                          ),
                         )),
                   ),
                   const SizedBox(width: 16)

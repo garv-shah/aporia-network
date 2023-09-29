@@ -7,6 +7,7 @@ Created: Fri Aug 5 22:25:21 2022
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
 import 'package:aporia_app/screens/post_creation/create_post_view.dart';
@@ -15,6 +16,8 @@ import 'package:aporia_app/screens/section_views/quiz_view.dart';
 import 'package:aporia_app/widgets/section_app_bar.dart';
 import 'package:aporia_app/widgets/action_card.dart';
 import 'dart:ui';
+
+import '../home_page.dart';
 
 /// An enum for the type of post.
 enum PostType {
@@ -96,7 +99,7 @@ Widget postCard(BuildContext context,
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    CreatePost(postData: data)),
+                                                    CreatePost(postData: data, isAdmin: role == "Admin")),
                                           );
                                         },
                                         child: Icon(Icons.edit,
@@ -141,37 +144,72 @@ Widget postCard(BuildContext context,
                 Text(description,
                     style: Theme.of(context).textTheme.bodyMedium,
                     overflow: TextOverflow.ellipsis),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
-                  child: OutlinedButton(
-                      onPressed: () {
-                        if (type == PostType.post) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PostView(data: data)),
-                          );
-                        } else if (type == PostType.quiz) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => QuizView(data: data)),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                          foregroundColor: Theme.of(context).colorScheme.primary,
-                          side: BorderSide(
-                              color: Theme.of(context).colorScheme.primary),
-                          minimumSize: const Size(80, 40),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+                      child: OutlinedButton(
+                          onPressed: () {
+                            if (type == PostType.post) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PostView(data: data)),
+                              );
+                            } else if (type == PostType.quiz) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => QuizView(data: data)),
+                              );
+                            }
+                          },
+                          style: OutlinedButton.styleFrom(
+                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              side: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary),
+                              minimumSize: const Size(80, 40),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                              )),
+                          child: Text(
+                            'Read More',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary),
                           )),
-                      child: Text(
-                        'Read More',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
-                      )),
+                    ),
+                    (data['createdBy'] != null) ? Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: FutureBuilder(
+                        future: FirebaseFirestore.instance.collection('publicProfile').doc(data['createdBy']).get(),
+                        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          if (snapshot.hasData) {
+                            Map<String, dynamic> creatorData = snapshot.data!.data() as Map<String, dynamic>;
+                            return Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Text("By ${creatorData['username']}"),
+                                ),
+                                fetchProfilePicture(
+                                  creatorData['profilePicture'],
+                                  creatorData['pfpType'],
+                                  creatorData['username'],
+                                  padding: false,
+                                ),
+                              ],
+                            );
+                          } else if (snapshot.hasError) {
+                            print(snapshot.error);
+                            return const SizedBox.shrink();
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
+                        }
+                      ),
+                    ) : const SizedBox.shrink()
+                  ],
                 )
               ],
             ),
@@ -228,9 +266,36 @@ class _SectionPageState extends State<SectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    var pixelRatio = window.devicePixelRatio;
-    var logicalScreenSize = window.physicalSize / pixelRatio;
+    var pixelRatio = View.of(context).devicePixelRatio;
+    var logicalScreenSize = View.of(context).physicalSize / pixelRatio;
     var logicalHeight = logicalScreenSize.height;
+
+    Stream<QuerySnapshot> streamRef = FirebaseFirestore.instance
+        .collection('posts')
+        .where('Group', isEqualTo: widget.id)
+        .where(FieldPath.documentId, whereIn: searchResults.take(10))
+        .snapshots();
+
+    if (searchValue == '') {
+      streamRef = FirebaseFirestore.instance
+          .collection('posts')
+          .where('Group', isEqualTo: widget.id)
+          .snapshots();
+    }
+
+    if (widget.id == 'review') {
+      if (widget.role == 'Admin') {
+        streamRef = FirebaseFirestore.instance
+            .collection('postPurgatory')
+            .snapshots();
+      } else {
+        streamRef = FirebaseFirestore.instance
+            .collection('postPurgatory')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('posts')
+            .snapshots();
+      }
+    }
 
     return Scaffold(
       /// main body
@@ -243,23 +308,13 @@ class _SectionPageState extends State<SectionPage> {
             key: ValueKey<String>(searchValue),
             // If there has been no search done, don't filter by search results,
             // but if a search has been done, only return documents withtin that
-            stream: (searchValue == '')
-                ? FirebaseFirestore.instance
-                    .collection('posts')
-                    .where('Group', isEqualTo: widget.id)
-                    .snapshots()
-                : FirebaseFirestore.instance
-                    .collection('posts')
-                    .where('Group', isEqualTo: widget.id)
-                    .where(FieldPath.documentId, whereIn: searchResults.take(10))
-                    .snapshots(),
+            stream: streamRef,
             builder: (context, postsSnapshot) {
               if (postsSnapshot.connectionState == ConnectionState.active) {
                 List<Map<String, dynamic>> quizzes = [];
                 List<Map<String, dynamic>> posts = [];
 
-                for (QueryDocumentSnapshot<Object?>? doc
-                    in (postsSnapshot.data?.docs ?? [])) {
+                void populateQuizPosts(QueryDocumentSnapshot<Object?>? doc) {
                   try {
                     // If the start date is before the current time and the end
                     // date is after the current time, is inside quiz period. The
@@ -270,7 +325,7 @@ class _SectionPageState extends State<SectionPage> {
                         doc?['createQuiz'] == true) {
                       // Gets the JSON version of the quiz
                       Map<String, dynamic> json =
-                          doc?.data() as Map<String, dynamic>;
+                      doc?.data() as Map<String, dynamic>;
                       json['ID'] = doc?.id;
                       json['reference'] = doc?.reference;
                       quizzes.add(json);
@@ -278,7 +333,7 @@ class _SectionPageState extends State<SectionPage> {
                       // This path is normally called for what used to be a valid
                       // quiz, but the valid range has expired
                       Map<String, dynamic> json =
-                          doc?.data() as Map<String, dynamic>;
+                      doc?.data() as Map<String, dynamic>;
                       json['ID'] = doc?.id;
                       json['reference'] = doc?.reference;
                       posts.add(json);
@@ -286,113 +341,137 @@ class _SectionPageState extends State<SectionPage> {
                   } on StateError catch (_) {
                     // Gets the JSON version of the post
                     Map<String, dynamic> json =
-                        doc?.data() as Map<String, dynamic>;
+                    doc?.data() as Map<String, dynamic>;
                     json['ID'] = doc?.id;
                     json['reference'] = doc?.reference;
                     posts.add(json);
                   }
                 }
 
-                if (posts.isNotEmpty) {
-                  posts.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
+                Future<bool> processDocument() async {
+                  for (QueryDocumentSnapshot<Object?>? doc in (postsSnapshot.data?.docs ?? [])) {
+                    if (widget.role == 'Admin' && widget.id == 'review') {
+                      // the collection is actually a nested group of collections, so we need to run on all of them
+                      Map<String, dynamic> json = doc?.data() as Map<String, dynamic>;
+
+                      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection("postPurgatory")
+                          .doc(doc?.id)
+                          .collection("posts")
+                          .get();
+
+                      for (var nestedDoc in snapshot.docs) {
+                        populateQuizPosts(nestedDoc);
+                      }
+                    } else {
+                      populateQuizPosts(doc);
+                    }
+                  }
+                  return true;
                 }
 
-                if (quizzes.isNotEmpty) {
-                  quizzes.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
-                }
+                return FutureBuilder(future: processDocument(), builder: (context, snapshot) {
+                  if (posts.isNotEmpty) {
+                    posts.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
+                  }
 
-                return ListView(
-                  children: [
-                    SectionAppBar(context,
-                        title: widget.title,
-                        userData: widget.userData,
-                        isAdmin: widget.role == "Admin",
-                        userRoles: widget.userRoles,
-                        onSearch: (String search) => updateSearch(search),
-                        searchController:
-                            TextEditingController(text: searchValue)),
-                    // If no posts are found, don't try to display posts!
-                    (posts.isEmpty && quizzes.isEmpty)
-                        ? SizedBox(
-                            height: logicalHeight - 120,
-                            child: const Center(child: Text('Nothing found!')))
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Don't show "quizzes" title if there are no posts
-                              (quizzes.isNotEmpty)
-                                  ? Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          26, 16, 0, 16),
-                                      child: Text("Active Quizzes",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium
-                                              ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .primaryColorLight)),
-                                    )
-                                  : const SizedBox.shrink(),
-                              (quizzes.isNotEmpty)
-                                  ? SizedBox(
-                                      height: 175,
-                                      child: Center(
-                                        child: ListView.builder(
-                                          scrollDirection: Axis.horizontal,
-                                          shrinkWrap: true,
-                                          itemCount: quizzes.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            return postCard(context,
-                                                title: quizzes[index]
-                                                    ['Quiz Title'],
-                                                description: quizzes[index]
-                                                    ['Quiz Description'],
-                                                position: PositionPadding.start,
-                                                type: PostType.quiz,
-                                                data: quizzes[index],
-                                                role: widget.role);
-                                          },
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                              // Don't show "posts" title if there are no posts
-                              (posts.isNotEmpty)
-                                  ? Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          26, 16, 0, 16),
-                                      child: Text("Posts",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium
-                                              ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .primaryColorLight)),
-                                    )
-                                  : const SizedBox.shrink(),
-                              (posts.isNotEmpty)
-                                  ? ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: posts.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return postCard(context,
-                                            title: posts[index]['Title'],
-                                            description: posts[index]
-                                                ['Description'],
-                                            position: PositionPadding.start,
-                                            type: PostType.post,
-                                            data: posts[index],
-                                            role: widget.role);
-                                      })
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
-                  ],
-                );
+                  if (quizzes.isNotEmpty) {
+                    quizzes.sort((a, b) => b['creationTime'].toDate().millisecondsSinceEpoch.compareTo(a['creationTime'].toDate().millisecondsSinceEpoch));
+                  }
+
+                  return ListView(
+                    children: [
+                      SectionAppBar(context,
+                          title: widget.title,
+                          userData: widget.userData,
+                          isAdmin: widget.role == "Admin",
+                          userRoles: widget.userRoles,
+                          onSearch: (String search) => updateSearch(search),
+                          searchController:
+                          TextEditingController(text: searchValue)),
+                      // If no posts are found, don't try to display posts!
+                      (posts.isEmpty && quizzes.isEmpty)
+                          ? SizedBox(
+                          height: logicalHeight - 120,
+                          child: const Center(child: Text('Nothing found!')))
+                          : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Don't show "quizzes" title if there are no posts
+                          (quizzes.isNotEmpty)
+                              ? Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                26, 16, 0, 16),
+                            child: Text("Active Quizzes",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                    color: Theme.of(context)
+                                        .primaryColorLight)),
+                          )
+                              : const SizedBox.shrink(),
+                          (quizzes.isNotEmpty)
+                              ? SizedBox(
+                            height: 175,
+                            child: Center(
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                itemCount: quizzes.length,
+                                itemBuilder: (BuildContext context,
+                                    int index) {
+                                  return postCard(context,
+                                      title: quizzes[index]
+                                      ['Quiz Title'],
+                                      description: quizzes[index]
+                                      ['Quiz Description'],
+                                      position: PositionPadding.start,
+                                      type: PostType.quiz,
+                                      data: quizzes[index],
+                                      role: widget.role);
+                                },
+                              ),
+                            ),
+                          )
+                              : const SizedBox.shrink(),
+                          // Don't show "posts" title if there are no posts
+                          (posts.isNotEmpty)
+                              ? Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                26, 16, 0, 16),
+                            child: Text("Posts",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                    color: Theme.of(context)
+                                        .primaryColorLight)),
+                          )
+                              : const SizedBox.shrink(),
+                          (posts.isNotEmpty)
+                              ? ListView.builder(
+                              shrinkWrap: true,
+                              physics:
+                              const NeverScrollableScrollPhysics(),
+                              itemCount: posts.length,
+                              itemBuilder:
+                                  (BuildContext context, int index) {
+                                return postCard(context,
+                                    title: posts[index]['Title'],
+                                    description: posts[index]
+                                    ['Description'],
+                                    position: PositionPadding.start,
+                                    type: PostType.post,
+                                    data: posts[index],
+                                    role: (widget.id == 'review') ? 'Admin' : widget.role
+                                );
+                              })
+                              : const SizedBox.shrink(),
+                        ],
+                      ),
+                    ],
+                  );
+                });
               } else {
                 return const Center(child: CircularProgressIndicator());
               }

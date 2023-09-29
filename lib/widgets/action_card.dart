@@ -58,7 +58,9 @@ List<Widget> actionCardCarousel(
       case 'adminView':
         return UsersPage();
       case 'createPost':
-        return const CreatePost();
+        return CreatePost(
+          isAdmin: isAdmin
+        );
       case 'settings':
         return SettingsPage(
           userData: userData,

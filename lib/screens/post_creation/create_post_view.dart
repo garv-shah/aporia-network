@@ -8,6 +8,7 @@ Created: Sat Jul 23 18:21:21 2022
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:aporia_app/utils/config/config.dart' as config;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:aporia_app/screens/post_creation/edit_question.dart';
@@ -75,7 +76,8 @@ enum JsonType { question, solution, hints }
 /// This is the view where new posts can be created.
 class CreatePost extends StatefulWidget {
   final Map<String, dynamic>? postData;
-  const CreatePost({Key? key, this.postData}) : super(key: key);
+  final bool isAdmin;
+  const CreatePost({Key? key, this.postData, required this.isAdmin}) : super(key: key);
 
   @override
   State<CreatePost> createState() => _CreatePostState();
@@ -410,7 +412,6 @@ class _CreatePostState extends State<CreatePost> {
 
             // If there are no incomplete questions
             if (incompleteQuestion != null && selectedGroup != 'drafts') {
-              print(questionData);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -427,6 +428,7 @@ class _CreatePostState extends State<CreatePost> {
               formData['questionData'] = questionData;
               formData['Group'] = selectedGroup;
               formData['creationTime'] = widget.postData?['creationTime'] ?? DateTime.now();
+              formData['createdBy'] = widget.postData?['createdBy'] ?? FirebaseAuth.instance.currentUser?.uid;
               formData['appVersion'] = 2;
 
               // a quick check to see if the document we're working with is on the old version
@@ -444,24 +446,48 @@ class _CreatePostState extends State<CreatePost> {
               // If the ID is null, create an ID.
               id ??= const Uuid().v4();
 
-              FirebaseFirestore.instance.collection("posts").doc(id).set(
-                  formData);
+              Future<CollectionReference<Object?>> getRef() async {
+                CollectionReference ref = FirebaseFirestore.instance.collection("postPurgatory").doc(formData['createdBy']).collection('posts');
 
-              Navigator.pop(context);
+                if (selectedGroup != 'review') {
+                  ref = FirebaseFirestore.instance.collection("posts");
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Uploading Post!",
-                    style: TextStyle(color: Theme
+                  return ref;
+                } else {
+                  DocumentReference docRef = FirebaseFirestore.instance.collection("postPurgatory").doc(formData['createdBy']);
+                  final doc = await docRef.get();
+                  if (doc.exists) {
+                    return ref;
+                  } else {
+                    // make document first and then return ref
+                    await docRef.set({
+                      'id': formData['createdBy'],
+                    });
+                  }
+
+                  return ref;
+                }
+              }
+
+              getRef().then((CollectionReference ref) {
+                ref.doc(id).set(formData);
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Uploading Post!",
+                      style: TextStyle(color: Theme
+                          .of(context)
+                          .primaryColorLight),
+                    ),
+                    backgroundColor: Theme
                         .of(context)
-                        .primaryColorLight),
+                        .scaffoldBackgroundColor,
                   ),
-                  backgroundColor: Theme
-                      .of(context)
-                      .scaffoldBackgroundColor,
-                ),
-              );
+                );
+              });
             }
           }
         },
@@ -539,17 +565,31 @@ class _CreatePostState extends State<CreatePost> {
                                 return Text(postGroupsSnapshot.error.toString());
                               } else {
                                 List<DropdownMenuItem<String>> groups = [];
-                                List docs = postGroupsSnapshot.data?.docs ?? [];
-                                docs.sort((a, b) => a.data()['order'].compareTo(b.data()['order']));
+                                List docs = [];
 
-                                // Iterates through the documents in he collection and creates a list of dropdown menu options.
-                                for (QueryDocumentSnapshot<Map<String, dynamic>>? doc in docs) {
-                                  if (doc?['apps'].contains(config.appID)) {
-                                    groups.add(DropdownMenuItem(
-                                        value: doc?.id ?? "error",
-                                        child: Text(doc?['tag'] ??
-                                            "Invalid Group Name")));
+                                if (widget.isAdmin) {
+                                  docs = postGroupsSnapshot.data?.docs ?? [];
+                                  docs.sort((a, b) =>
+                                      a.data()['order'].compareTo(
+                                          b.data()['order']));
+
+                                  // Iterates through the documents in he collection and creates a list of dropdown menu options.
+                                  for (QueryDocumentSnapshot<
+                                      Map<String, dynamic>>? doc in docs) {
+                                    if (doc?['apps'].contains(config.appID)) {
+                                      groups.add(DropdownMenuItem(
+                                          value: doc?.id ?? "error",
+                                          child: Text(doc?['tag'] ??
+                                              "Invalid Group Name")));
+                                    }
                                   }
+                                } else {
+                                  groups = [
+                                    const DropdownMenuItem(
+                                        value: "review",
+                                        child: Text("In Review"),
+                                    )
+                                  ];
                                 }
 
                                 // If there is no selected group, set it to something

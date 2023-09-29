@@ -75,7 +75,8 @@ const Map configString = {
         "displayName": "Create Post",
         "show": {
           "role": [
-            "admins"
+            "admins",
+            "users"
           ]
         }
       },
@@ -143,7 +144,8 @@ const Map configString = {
         "displayName": "Create Post",
         "show": {
           "role": [
-            "admins"
+            "admins",
+            "users"
           ]
         }
       },
@@ -242,7 +244,8 @@ const Map configString = {
         "displayName": "Create Post",
         "show": {
           "role": [
-            "admins"
+            "admins",
+            "users"
           ]
         }
       },
