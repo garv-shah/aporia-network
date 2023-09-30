@@ -361,12 +361,12 @@ class _CreateJobState extends State<CreateJob> {
                           decoration: const InputDecoration(labelText: "Job Description"),
                         ),
                       ),
-                      // availability button
+                      // availability/repeat button
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.fromLTRB(12, 16, 8, 16),
                             child: OutlinedButton(
                               onPressed: () {
                                 Navigator.push(
@@ -396,7 +396,7 @@ class _CreateJobState extends State<CreateJob> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.fromLTRB(8, 16, 12, 16),
                             child: OutlinedButton(
                               onPressed: () {
                                 showDialog(

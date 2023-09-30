@@ -52,8 +52,16 @@ Widget user(BuildContext context,
                     padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
                     child: profilePicture,
                   ),
-                  Text("$username:",
-                      style: Theme.of(context).textTheme.titleLarge),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 190,
+                    ),
+                    child: Text(
+                      "$username:",
+                      style: Theme.of(context).textTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Flexible(
                     // If user has infinite experience somehow, render that

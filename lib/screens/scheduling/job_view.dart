@@ -42,12 +42,21 @@ Widget informationCard(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: const TextStyle(fontSize: 25)),
-                      Text(information),
-                    ],
+                  Builder(
+                    builder: (context) {
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width - 88,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(title, style: const TextStyle(fontSize: 25)),
+                            Text(information, softWrap: true),
+                          ],
+                        ),
+                      );
+                    }
                   ),
                   (editAction != null)
                       ? Builder(builder: (context) {
@@ -293,13 +302,31 @@ class _JobViewState extends State<JobView> {
                             });
                           },
                           child: Row(children: [
-                            SizedBox(
-                                height: 75,
-                                width: 75,
-                                child: fetchProfilePicture(
-                                    personData['profilePicture'],
-                                    personData['pfpType'],
-                                    personData['username'])),
+                            Stack(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: SizedBox(
+                                      height: 75,
+                                      width: 75,
+                                      child: fetchProfilePicture(
+                                          personData['profilePicture'],
+                                          personData['pfpType'],
+                                          personData['username'])),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    shape: BoxShape.circle,
+                                  ), child: const Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Icon(Icons.email),
+                                  )),
+                                )
+                              ],
+                            ),
                             const SizedBox(width: 15),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,7 +343,6 @@ class _JobViewState extends State<JobView> {
                                 Text(showAssignedTo ? "Volunteer" : "Company"),
                               ],
                             ),
-                            const Icon(Icons.email)
                           ]),
                         ),
                       ),
