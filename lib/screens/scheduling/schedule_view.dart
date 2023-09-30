@@ -69,7 +69,7 @@ Future<Map<DateTime, Appointment>> jobListToDateTimeCollection(List<dynamic> job
     List<DateTime> recurrenceExceptionDates = [];
 
     // add the recurring lesson
-    String? recurrenceRule = getRecurrenceRule(dayOfWeek: dayOfWeek, repeat: repeat);
+    String? recurrenceRule = getRecurrenceRule(dayOfWeek: dayOfWeek, repeat: repeat, finite: true);
     DateTime startTime = toLocalTime(DateTime.parse(job['lessonTimes']['start']), job['timezone']);
 
     List<DateTime> timeList = SfCalendar.getRecurrenceDateTimeCollection(recurrenceRule ?? '', startTime);

@@ -139,7 +139,7 @@ DateTime toLocalTime(DateTime time, String originalTimezone) {
   return time.subtract(Duration(milliseconds: timezoneToOffset[originalTimezone] - DateTime.now().timeZoneOffset.inMilliseconds));
 }
 
-String? getRecurrenceRule({required int dayOfWeek, DateTime? until, String? repeat}) {
+String? getRecurrenceRule({required int dayOfWeek, DateTime? until, String? repeat, bool finite = false}) {
   String recurrenceDay = 'MO';
 
   if (dayOfWeek == 1) {
@@ -175,5 +175,10 @@ String? getRecurrenceRule({required int dayOfWeek, DateTime? until, String? repe
   if (until != null) {
     rule += ';UNTIL=${until.toIso8601String()}';
   }
-  return '$rule;COUNT=128';
+
+  if (finite) {
+    return '$rule;COUNT=128';
+  } else {
+    return rule;
+  }
 }
