@@ -127,6 +127,10 @@ exports.createUser = functions
             'completedQuizzes': []
         });
 
+        await db.collection('availability').doc(user.uid).set({
+            'id': user.uid,
+        });
+
         console.log(`Creating User For ${user.uid}`)
 
         const userRole = db.collection('roles').doc('users');
@@ -950,6 +954,17 @@ exports.fixValidationIssues = functions
             await Promise.all(
                 batchDocs.map(async (document: QueryDocumentSnapshot<DocumentData>) => {
                     const data = document.data();
+
+                    db.collection("availability").doc(document.id).get().then((availabilitySnapshot: any) => {
+                        if (availabilitySnapshot.exists) {
+                            // do nothing, we're all good
+                        } else {
+                            console.log(`Missing availability for ${document.id}`);
+                            db.collection("availability").doc(document.id).set({
+                               'id': document.id
+                            });
+                        }
+                    })
 
                     requiredFields.forEach((field) => {
                         if (data[field] == undefined || data[field]?.isEmpty || data[field] == '') {

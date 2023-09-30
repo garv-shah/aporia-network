@@ -321,8 +321,12 @@ class _JobViewState extends State<JobView> {
                                     color: Theme.of(context).colorScheme.primary,
                                     shape: BoxShape.circle,
                                   ), child: const Padding(
-                                    padding: EdgeInsets.all(4.0),
-                                    child: Icon(Icons.email),
+                                    padding: EdgeInsets.all(6.0),
+                                    child: Icon(
+                                      Icons.email,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
                                   )),
                                 )
                               ],
