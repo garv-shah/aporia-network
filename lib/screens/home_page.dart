@@ -322,7 +322,7 @@ Widget fetchProfilePicture(
     String? profilePicture, String? pfpType, String? username,
     {bool padding = false, double? customPadding}) {
   String imageUrl = profilePicture ??
-      "https://avatars.dicebear.com/api/avataaars/$username.svg";
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=$username";
 
   if (imageUrl.isEmpty) {
     return LayoutBuilder(

@@ -96,11 +96,13 @@ class _VolunteerButtonState extends State<VolunteerButton> {
 
                 List<Appointment> toRemove = [];
                 for (Appointment lesson in upcomingLessons) {
-                  if (lesson.endTime.isBefore(DateTime.now())) {
+                  if (lesson.endTime.isBefore(DateTime.now()) || lesson.startTime.isAfter(DateTime.now().add(const Duration(minutes: 15)))) {
                     toRemove.add(lesson);
                   }
                 }
                 upcomingLessons.removeWhere((element) => toRemove.contains(element));
+
+                print(upcomingLessons);
 
                 // set lesson running to true if any of the upcoming lessons are within 15 minutes of the current time
                 if (upcomingLessons.isNotEmpty) {

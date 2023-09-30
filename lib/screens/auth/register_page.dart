@@ -116,7 +116,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       await functions
                           .httpsCallable('updatePfp')
-                          .call({'profilePicture': 'https://avatars.dicebear.com/api/avataaars/$username.svg', 'pfpType': 'image/svg+xml'});
+                          .call({'profilePicture': 'https://api.dicebear.com/7.x/avataaars/svg?seed=$username', 'pfpType': 'image/svg+xml'});
                     } on FirebaseFunctionsException catch (error) {
                       if (kDebugMode) {
                         print(error.code);
