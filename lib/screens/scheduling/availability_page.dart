@@ -165,6 +165,7 @@ class _AvailabilityPageState extends State<AvailabilityPage> {
     _controller = CalendarController();
     _headerText = DateFormat('MMMM yyyy').format(DateTime.now());
     getCountry().then((String value) {
+      print(value);
       if (value == 'United States') {
         SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
           setState(() {

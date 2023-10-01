@@ -30,7 +30,7 @@ class Network {
 }
 
 Future<String> getCountry() async{
-  Network n = Network(Uri.parse("http://ip-api.com/json"));
+  Network n = Network(Uri.parse("https://ip-api.com/json"));
   String locationSTR = (await n.getData());
   dynamic locationx = jsonDecode(locationSTR);
   return locationx["country"];
