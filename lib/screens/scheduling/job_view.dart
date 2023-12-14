@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:aporia_app/screens/scheduling/create_job_view.dart';
 import 'package:aporia_app/screens/section_views/admin_view/user_list_view.dart';
@@ -9,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aporia_app/screens/home_page.dart';
 import 'package:aporia_app/utils/components.dart';
-import 'package:flutter_extensions/flutter_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
