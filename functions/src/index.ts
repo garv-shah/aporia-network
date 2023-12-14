@@ -188,7 +188,7 @@ exports.manualCreateUser = functions
                         await db.collection('userInfo').doc(user.uid).create({
                             lowerUsername: username.toString().toLowerCase(),
                             username: username,
-                            profilePicture: `https://avatars.dicebear.com/api/avataaars/${username}.svg`,
+                            profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
                             pfpType: 'image/svg+xml',
                             email: email
                         });
@@ -851,21 +851,28 @@ exports.updatePfp = functions
         } else if (context.auth?.uid == null) {
             throw new functions.https.HttpsError('unauthenticated', 'UID cannot be null');
         } else {
-            functions.logger.info(`Updating profile picture for ${context.auth?.uid}`, {structuredData: true});
+            let uid: string = "";
+            if (data.uid == null) {
+                uid = context.auth?.uid;
+            } else {
+                uid = data.uid;
+            }
+
+            functions.logger.info(`Updating profile picture for ${uid}`, {structuredData: true});
 
             // set displayName username
-            admin.auth().updateUser(context.auth!.uid, {
+            admin.auth().updateUser(uid, {
                 photoURL: profilePicture,
             })
 
             // set userInfo username
-            db.collection("userInfo").doc(context.auth!.uid).update({
+            db.collection("userInfo").doc(uid).update({
                 profilePicture: profilePicture,
                 pfpType: pfpType,
             });
 
             // set publicProfile username
-            db.collection("publicProfile").doc(context.auth!.uid).update({
+            db.collection("publicProfile").doc(uid).update({
                 profilePicture: profilePicture,
                 pfpType: pfpType,
             });

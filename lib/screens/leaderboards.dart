@@ -103,8 +103,6 @@ class Leaderboards extends StatefulWidget {
 class _LeaderboardsState extends State<Leaderboards> {
   @override
   Widget build(BuildContext context) {
-    int counter = 0;
-
     return Scaffold(
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           // Gets the publicProfile collection ordered by the amount of experience
@@ -144,9 +142,8 @@ class _LeaderboardsState extends State<Leaderboards> {
                           QueryDocumentSnapshot<Map<String, dynamic>>? data =
                           publicProfileSnapshot.data?.docs[index - 1];
 
-                          if (widget.isAdmin || data?['userType'] == config.appID || config.appID == 'aporia_app') {
+                          if (widget.isAdmin || (data?.data() ?? {'userType': ''})['userType'] == config.appID || config.appID == 'aporia_app') {
                             // User entry.
-                            counter += 1;
                             return user(context,
                                 username: (() {
                                   try {
@@ -155,7 +152,7 @@ class _LeaderboardsState extends State<Leaderboards> {
                                     return 'Error: no username';
                                   }
                                 }()),
-                                position: counter,
+                                position: index,
                                 experience: (data?['experience'].isInfinite ==
                                     false)
                                     ? (data?['experience'].round())

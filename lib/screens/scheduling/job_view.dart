@@ -204,7 +204,7 @@ class _JobViewState extends State<JobView> {
               floatingActionButton: assignedToMe ||
                       createdByMe ||
                       widget.isAdmin
-                  ? FloatingActionButton(
+                  ? FloatingActionButton.extended(
                       onPressed: () {
                         if (createdByMe || widget.isAdmin) {
                           // go to edit the job
@@ -248,7 +248,11 @@ class _JobViewState extends State<JobView> {
                           });
                         }
                       },
-                      child: (createdByMe || widget.isAdmin)
+                      backgroundColor: (createdByMe || widget.isAdmin) ? Theme.of(context).floatingActionButtonTheme.backgroundColor : Colors.red,
+                      label: (createdByMe || widget.isAdmin)
+                          ? const Text("Edit")
+                          : const Text("Leave Job"),
+                      icon: (createdByMe || widget.isAdmin)
                           ? const Icon(Icons.edit)
                           : const Icon(Icons.exit_to_app),
                     )

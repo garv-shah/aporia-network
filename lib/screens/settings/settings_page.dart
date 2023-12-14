@@ -710,11 +710,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                       .then((result) {
                                     if (result == OkCancelResult.ok) {
                                       if (FirebaseAuth.instance.currentUser != null) {
-                                        try {
-                                          FirebaseAuth.instance.currentUser?.delete().then((_) {
-                                            Navigator.pop(context);
-                                          });
-                                        } catch (error) {
+                                        FirebaseAuth.instance.currentUser?.delete().then((_) {
+                                          Navigator.pop(context);
+                                        })
+                                            .onError((error, stackTrace) {
                                           final snackBar = SnackBar(
                                             content: Text(
                                               error.toString(),
@@ -728,7 +727,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                           // Find the Scaffold in the widget tree and use it to show a SnackBar.
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(snackBar);
-                                        }
+                                        });
                                       }
                                     }
                                   });

@@ -179,7 +179,7 @@ Widget postCard(BuildContext context,
                                 color: Theme.of(context).colorScheme.primary),
                           )),
                     ),
-                    (data['createdBy'] != null) ? Padding(
+                    (data['createdBy'] != null && type == PostType.post) ? Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: FutureBuilder(
                         future: FirebaseFirestore.instance.collection('publicProfile').doc(data['createdBy']).get(),
@@ -190,13 +190,20 @@ Widget postCard(BuildContext context,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(right: 8.0),
-                                  child: Text("By ${creatorData['username']}"),
+                                  child: Text(
+                                    "By ${creatorData['username']}",
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                fetchProfilePicture(
-                                  creatorData['profilePicture'],
-                                  creatorData['pfpType'],
-                                  creatorData['username'],
-                                  padding: false,
+                                SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: fetchProfilePicture(
+                                    creatorData['profilePicture'],
+                                    creatorData['pfpType'],
+                                    creatorData['username'],
+                                    padding: false,
+                                  ),
                                 ),
                               ],
                             );

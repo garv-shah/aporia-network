@@ -130,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       'username': username,
                       'lowerUsername': username.toLowerCase(),
                       'receiveEmails': emailingList,
-                      'profilePicture': 'https://avatars.dicebear.com/api/avataaars/$username.svg',
+                      'profilePicture': 'https://api.dicebear.com/7.x/avataaars/svg?seed=$username',
                       'pfpType': 'image/svg+xml'
                     });
                   }
